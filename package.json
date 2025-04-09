@@ -1,0 +1,31 @@
+{
+    "name": "launcher-app",
+    "version": "1.0.0",
+    "description": "快速访问常用文件、文件夹、URL和指令的工具",
+    "main": "main.js",
+    "scripts": {
+      "start": "electron .",
+      "build": "electron-builder"
+    },
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+      "electron": "^24.0.0",
+      "electron-builder": "^24.0.0"
+    },
+    "build": {
+      "appId": "com.example.launcher-app",
+      "productName": "Launcher App",
+      "directories": {
+        "output": "dist"
+      },
+      "win": {
+        "target": "nsis",
+        "icon": "app/assets/icons/app-icon.ico"
+      },
+      "mac": {
+        "target": "dmg",
+        "icon": "app/assets/icons/app-icon.icns"
+      }
+    }
+  }

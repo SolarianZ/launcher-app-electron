@@ -1,0 +1,35 @@
+/* 深色主题 */
+.dark-theme {
+    --primary-color: #5c9ce6;
+    --secondary-color: #7ab85f;
+    --text-color: #e0e0e0;
+    --bg-color: #1e1e1e;
+    --card-bg: #2d2d2d;
+    --border-color: #444;
+    --hover-bg: #3a3a3a;
+    --active-bg: #444;
+    --disabled-bg: #2a2a2a;
+    --disabled-text: #777;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    --title-bar-bg: #333;
+    --title-bar-text: #e0e0e0;
+    --search-bg: #3d3d3d;
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --tooltip-bg: #e0e0e0;
+    --tooltip-text: #333;
+    --drag-indicator: #5c9ce6;
+    --icon-color: #aaa;
+    --menu-bg: #2d2d2d;
+    --menu-hover: #3a3a3a;
+    --menu-border: #444;
+    --button-text: #fff;
+    --button-bg: #5c9ce6;
+    --button-hover: #4c8cd6;
+    --button-active: #3c7cc6;
+    --button-disabled: #3a5980;
+    --cancel-button-bg: #3d3d3d;
+    --cancel-button-text: #e0e0e0;
+    --cancel-button-hover: #4a4a4a;
+    --cancel-button-active: #555;
+    --error-color: #e05c5c;
+}

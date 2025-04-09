@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launcher</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="title-bar">
+            <div class="title-bar-left">
+                <div class="window-control close-btn" id="close-btn"></div>
+                <div class="window-control minimize-btn" id="minimize-btn"></div>
+            </div>
+            <div class="window-title">Launcher</div>
+            <div class="title-bar-right">
+                <div class="add-btn" id="add-btn">+</div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        </div>
+
+        <div class="list-container" id="list-container">
+            <!-- 列表项将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+    <div class="toast" id="toast" style="display: none;"></div>
+
+    <script src="js/renderer.js"></script>
+    <script src="js/list.js"></script>
+    <script src="js/context-menu.js"></script>
+</body>
+
+</html>

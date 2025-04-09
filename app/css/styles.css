@@ -1,0 +1,366 @@
+:root {
+    --primary-color: #4a86e8;
+    --secondary-color: #6aa84f;
+    --text-color: #333;
+    --bg-color: #f5f5f5;
+    --card-bg: #fff;
+    --border-color: #ddd;
+    --hover-bg: #e9e9e9;
+    --active-bg: #d9d9d9;
+    --disabled-bg: #f0f0f0;
+    --disabled-text: #999;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    --title-bar-bg: #e0e0e0;
+    --title-bar-text: #333;
+    --search-bg: #fff;
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --tooltip-bg: #333;
+    --tooltip-text: #fff;
+    --drag-indicator: #4a86e8;
+    --icon-color: #555;
+    --menu-bg: #fff;
+    --menu-hover: #f0f0f0;
+    --menu-border: #ddd;
+    --button-text: #fff;
+    --button-bg: #4a86e8;
+    --button-hover: #3a76d8;
+    --button-active: #2a66c8;
+    --button-disabled: #a0b8e0;
+    --cancel-button-bg: #f0f0f0;
+    --cancel-button-text: #333;
+    --cancel-button-hover: #e0e0e0;
+    --cancel-button-active: #d0d0d0;
+    --error-color: #d23f31;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: transparent;
+    overflow: hidden;
+}
+
+.app-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.title-bar {
+    height: 40px;
+    background-color: var(--title-bar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    user-select: none;
+    -webkit-app-region: drag;
+}
+
+.title-bar-left,
+.title-bar-right {
+    display: flex;
+    gap: 10px;
+    -webkit-app-region: no-drag;
+}
+
+.window-title {
+    flex-grow: 1;
+    text-align: center;
+    color: var(--title-bar-text);
+    font-weight: 500;
+}
+
+.window-control {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--title-bar-text);
+}
+
+.close-btn {
+    background-color: #ff5f57;
+}
+
+.minimize-btn {
+    background-color: #ffbd2e;
+}
+
+.add-btn {
+    background-color: var(--primary-color);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.search-container {
+    padding: 10px;
+    background-color: var(--bg-color);
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--search-bg);
+    color: var(--text-color);
+}
+
+.list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background-color: var(--card-bg);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.list-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.list-item.active {
+    background-color: var(--active-bg);
+    border-color: var(--primary-color);
+}
+
+.list-item.dragging {
+    opacity: 0.5;
+    border: 1px dashed var(--drag-indicator);
+}
+
+.list-item.drop-target {
+    border-bottom: 2px solid var(--drag-indicator);
+}
+
+.item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    color: var(--icon-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-text {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+}
+
+.tooltip {
+    /* 改为fixed以相对于视口定位 */
+    position: fixed;
+    background-color: var(--tooltip-bg);
+    color: var(--tooltip-text);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    /* 提高z-index确保在所有元素之上 */
+    z-index: 10000;
+    max-width: 300px;
+    word-wrap: break-word;
+    box-shadow: var(--shadow);
+    /* 确保tooltip不会捕获鼠标事件 */
+    pointer-events: none;
+}
+
+.context-menu {
+    /* 改为 fixed 以相对于视口定位，而不是相对于父容器 */
+    position: fixed;
+    width: 200px;
+    background-color: var(--menu-bg);
+    border: 1px solid var(--menu-border);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    /* 提高 z-index 确保在所有元素之上 */
+    z-index: 10000;
+}
+
+.menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.menu-item:hover {
+    background-color: var(--menu-hover);
+}
+
+.menu-divider {
+    height: 1px;
+    background-color: var(--menu-border);
+    margin: 5px 0;
+}
+
+.modal {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.modal-title-bar {
+    height: 40px;
+    background-color: var(--title-bar-bg);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    color: var(--title-bar-text);
+    font-weight: 500;
+    -webkit-app-region: drag;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--search-bg);
+    color: var(--text-color);
+}
+
+.form-select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--search-bg);
+    color: var(--text-color);
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+}
+
+.btn-primary:hover {
+    background-color: var(--button-hover);
+}
+
+.btn-primary:active {
+    background-color: var(--button-active);
+}
+
+.btn-primary:disabled {
+    background-color: var(--button-disabled);
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: var(--cancel-button-bg);
+    color: var(--cancel-button-text);
+}
+
+.btn-secondary:hover {
+    background-color: var(--cancel-button-hover);
+}
+
+.btn-secondary:active {
+    background-color: var(--cancel-button-active);
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--tooltip-bg);
+    color: var(--tooltip-text);
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.error-toast {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.drag-indicator {
+    height: 2px;
+    background-color: var(--drag-indicator);
+    margin: 4px 0;
+}
+
+/* 滚动条样式 */
+.list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.list-container::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+.list-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+}
+
+.list-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--icon-color);
+}
