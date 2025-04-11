@@ -94,14 +94,6 @@ body {
     color: var(--title-bar-text);
 }
 
-.close-btn {
-    background-color: #ff5f57;
-}
-
-.minimize-btn {
-    background-color: #ffbd2e;
-}
-
 .add-btn {
     background-color: var(--primary-color);
     color: white;

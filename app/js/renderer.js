@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM元素
-    const closeBtn = document.getElementById('close-btn');
-    const minimizeBtn = document.getElementById('minimize-btn');
     const addBtn = document.getElementById('add-btn');
     const searchInput = document.getElementById('search-input');
     const listContainer = document.getElementById('list-container');
@@ -14,14 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initPage();
 
     // 事件监听
-    closeBtn.addEventListener('click', () => {
-        window.electronAPI.closeWindow();
-    });
-
-    minimizeBtn.addEventListener('click', () => {
-        window.electronAPI.minimizeWindow();
-    });
-
     addBtn.addEventListener('click', () => {
         window.electronAPI.showAddItemDialog();
     });
