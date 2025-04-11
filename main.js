@@ -8,6 +8,7 @@ const {
   Tray,
   globalShortcut,
   nativeImage,
+  webContents,
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
@@ -46,7 +47,8 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, "app", "index.html"));
-
+  mainWindow.webContents.openDevTools();
+  
   // 避免白屏
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
@@ -142,7 +144,7 @@ function createTray() {
     "app",
     "assets",
     "icons",
-    "tray-icon.png"
+    "tray-icon.svg"
   );
   const icon = nativeImage.createFromPath(iconPath);
   tray = new Tray(icon);

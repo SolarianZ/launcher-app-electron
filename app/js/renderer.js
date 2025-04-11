@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // DOM元素
-  const addBtn = document.getElementById("add-btn");
+  // const addBtn = document.getElementById("add-btn");
   const searchInput = document.getElementById("search-input");
   const listContainer = document.getElementById("list-container");
   const toast = document.getElementById("toast");
@@ -12,9 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initPage();
 
   // 事件监听
-  addBtn.addEventListener("click", () => {
-    window.electronAPI.showAddItemDialog();
-  });
+  // addBtn.addEventListener("click", () => {
+  //   window.electronAPI.showAddItemDialog();
+  // });
 
   searchInput.addEventListener("input", () => {
     filterItems(searchInput.value.toLowerCase());
