@@ -1,5 +1,6 @@
 const { BrowserWindow } = require('electron');
 const path = require('path');
+const dataStore = require('./data-store');
 
 // 全局窗口引用
 let mainWindow = null;
@@ -15,9 +16,14 @@ function createMainWindow() {
     return mainWindow;
   }
 
-  mainWindow = new BrowserWindow({
-    width: 400,
-    height: 600,
+  // 加载保存的窗口配置
+  const windowConfig = dataStore.loadWindowConfig();
+  const mainWindowConfig = windowConfig.mainWindow;
+
+  // 使用保存的窗口配置，如果存在的话
+  const windowOptions = {
+    width: mainWindowConfig.width || 400,
+    height: mainWindowConfig.height || 600,
     minWidth: 300,
     minHeight: 300,
     maximizable: false,
@@ -34,7 +40,15 @@ function createMainWindow() {
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
-  });
+  };
+
+  // 如果存在保存的位置坐标，则使用它们
+  if (mainWindowConfig.x !== undefined && mainWindowConfig.y !== undefined) {
+    windowOptions.x = mainWindowConfig.x;
+    windowOptions.y = mainWindowConfig.y;
+  }
+
+  mainWindow = new BrowserWindow(windowOptions);
 
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
   // mainWindow.webContents.openDevTools(); // 开发时可启用
@@ -52,6 +66,27 @@ function createMainWindow() {
     if (input.key === 'Escape') {
       mainWindow.hide();
       event.preventDefault();
+    }
+  });
+
+  // 保存窗口调整大小和移动时的位置和尺寸
+  mainWindow.on('resize', () => {
+    if (!mainWindow.isMaximized()) {
+      const bounds = mainWindow.getBounds();
+      dataStore.updateMainWindowConfig({
+        width: bounds.width,
+        height: bounds.height
+      });
+    }
+  });
+
+  mainWindow.on('move', () => {
+    if (!mainWindow.isMaximized()) {
+      const bounds = mainWindow.getBounds();
+      dataStore.updateMainWindowConfig({
+        x: bounds.x,
+        y: bounds.y
+      });
     }
   });
 

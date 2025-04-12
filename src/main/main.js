@@ -17,8 +17,9 @@ function registerGlobalShortcuts() {
 
 // 应用初始化
 app.whenReady().then(() => {
-  // 加载数据
+  // 加载数据和窗口配置
   dataStore.loadItems();
+  dataStore.loadWindowConfig();
   
   // 创建主窗口
   windowManager.createMainWindow();

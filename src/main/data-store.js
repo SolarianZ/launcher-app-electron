@@ -4,9 +4,19 @@ const path = require("path");
 
 // 数据文件路径
 const dataFilePath = path.join(app.getPath("userData"), "items.json");
+const windowConfigPath = path.join(app.getPath("userData"), "window-config.json");
 
 // 全局变量存储项目列表
 let items = [];
+// 全局变量存储窗口配置
+let windowConfig = {
+  mainWindow: {
+    width: 400,
+    height: 600,
+    x: undefined,
+    y: undefined
+  }
+};
 
 /**
  * 加载保存的项目列表
@@ -130,6 +140,65 @@ function getStoragePath() {
   return dataFilePath;
 }
 
+/**
+ * 加载窗口配置
+ * @returns {Object} 窗口配置
+ */
+function loadWindowConfig() {
+  try {
+    if (fs.existsSync(windowConfigPath)) {
+      const data = fs.readFileSync(windowConfigPath, "utf8");
+      windowConfig = JSON.parse(data);
+      return windowConfig;
+    }
+    return windowConfig;
+  } catch (error) {
+    console.error("Error loading window config:", error);
+    return windowConfig;
+  }
+}
+
+/**
+ * 保存窗口配置到磁盘
+ * @param {Object} config 要保存的窗口配置
+ * @returns {boolean} 是否保存成功
+ */
+function saveWindowConfig(config = null) {
+  if (config) {
+    windowConfig = config;
+  }
+  
+  try {
+    const dirPath = path.dirname(windowConfigPath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+    fs.writeFileSync(windowConfigPath, JSON.stringify(windowConfig, null, 2), "utf8");
+    return true;
+  } catch (error) {
+    console.error("Error saving window config:", error);
+    return false;
+  }
+}
+
+/**
+ * 更新主窗口配置
+ * @param {Object} bounds 窗口的边界配置 {x, y, width, height}
+ * @returns {boolean} 是否保存成功
+ */
+function updateMainWindowConfig(bounds) {
+  windowConfig.mainWindow = { ...windowConfig.mainWindow, ...bounds };
+  return saveWindowConfig();
+}
+
+/**
+ * 获取窗口配置
+ * @returns {Object} 窗口配置对象
+ */
+function getWindowConfig() {
+  return windowConfig;
+}
+
 // 导出模块函数
 module.exports = {
   loadItems,
@@ -140,5 +209,9 @@ module.exports = {
   updateItemsOrder,
   getItems,
   clearAllItems,
-  getStoragePath
+  getStoragePath,
+  loadWindowConfig,
+  saveWindowConfig,
+  updateMainWindowConfig,
+  getWindowConfig
 };
