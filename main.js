@@ -32,7 +32,7 @@ function createWindow() {
     fullscreenable: false,
     titleBarStyle: "hidden",
     titleBarOverlay: {
-      height: 35,
+      height: 30,
       color: "rgba(0, 0, 0, 0)",
       symbolColor: "white",
     },
@@ -47,7 +47,7 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, "app", "index.html"));
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
   
   // 避免白屏
   mainWindow.once("ready-to-show", () => {
