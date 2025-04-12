@@ -138,15 +138,25 @@ function createEditItemWindow(item, index) {
 
 // 创建系统托盘
 function createTray() {
-  // 使用自动缩放的图标
+  // 根据平台选择不同的图标处理方式
   const iconPath = path.join(
     __dirname,
     "app",
     "assets",
     "icons",
-    "tray-icon.svg"
+    "tray-icon.png"
   );
-  const icon = nativeImage.createFromPath(iconPath);
+  
+  let icon = nativeImage.createFromPath(iconPath);
+  
+  if (process.platform === 'darwin') {
+    // 确保图标大小适合macOS菜单栏（建议16x16或18x18像素）
+    const macSize = { width: 18, height: 18 };
+    icon = icon.resize(macSize);
+    // 设置为模板图像，让macOS自动处理明暗主题
+    icon.setTemplateImage(true);
+  }
+  
   tray = new Tray(icon);
   tray.setToolTip("Launcher");
 
