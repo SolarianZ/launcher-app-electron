@@ -1,3 +1,11 @@
+// 与shared/defines.js中的定义保持一致（这里无法直接require）
+const PathType = {
+  FILE: "file",
+  FOLDER: "folder",
+  URL: "url",
+  COMMAND: "command",
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   // DOM元素
   const itemPathInput = document.getElementById("item-path");
@@ -35,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await window.electronAPI.selectFile();
       if (!result.canceled) {
         itemPathInput.value = result.filePath;
-        itemTypeSelect.value = result.type;
+        itemTypeSelect.value = PathType.FILE;
         saveBtn.disabled = false;
       }
     } catch (error) {
@@ -50,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await window.electronAPI.selectFolder();
       if (!result.canceled) {
         itemPathInput.value = result.filePath;
-        itemTypeSelect.value = result.type;
+        itemTypeSelect.value = PathType.FOLDER;
         saveBtn.disabled = false;
       }
     } catch (error) {
@@ -62,29 +70,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // 路径输入变化时自动推断类型
   itemPathInput.addEventListener("input", async () => {
     const path = itemPathInput.value.trim();
+    const type = await window.electronAPI.getItemType(path);
 
-    if (path) {
+    if (path && type) {
       // 启用添加按钮
       saveBtn.disabled = false;
-
-      // 推断类型
-      if (path.match(/^https?:\/\//i) || path.includes("://")) {
-        itemTypeSelect.value = "url";
-      } else if (
-        path.includes("/") ||
-        path.includes("\\") ||
-        path.match(/^[a-zA-Z]:\\/)
-      ) {
-        try {
-          const type = await window.electronAPI.getItemType(path);
-          itemTypeSelect.value = type;
-        } catch (error) {
-          console.error("Error detecting file type:", error);
-          itemTypeSelect.value = "command";
-        }
-      } else {
-        itemTypeSelect.value = "command";
-      }
+      itemTypeSelect.value = type;
     } else {
       // 禁用添加按钮
       saveBtn.disabled = true;
@@ -98,6 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!path) {
       showToast("请输入路径或命令", true);
+      return;
+    }
+
+    if (!type) {
+      showToast("请选择项目类型", true);
       return;
     }
 

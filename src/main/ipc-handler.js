@@ -102,7 +102,6 @@ function setupIpcHandlers() {
     return { 
       canceled: false, 
       filePath: filePaths[0],
-      type: itemHandler.getItemType(filePaths[0])
     };
   });
   
@@ -121,7 +120,6 @@ function setupIpcHandlers() {
     return { 
       canceled: false, 
       filePath: filePaths[0],
-      type: 'folder'
     };
   });
 }

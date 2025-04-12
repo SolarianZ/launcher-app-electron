@@ -1,9 +1,9 @@
-const { app } = require('electron');
-const fs = require('fs');
-const path = require('path');
+const { app } = require("electron");
+const fs = require("fs");
+const path = require("path");
 
 // 数据文件路径
-const dataFilePath = path.join(app.getPath('userData'), 'items.json');
+const dataFilePath = path.join(app.getPath("userData"), "items.json");
 
 // 全局变量存储项目列表
 let items = [];
@@ -15,13 +15,13 @@ let items = [];
 function loadItems() {
   try {
     if (fs.existsSync(dataFilePath)) {
-      const data = fs.readFileSync(dataFilePath, 'utf8');
+      const data = fs.readFileSync(dataFilePath, "utf8");
       items = JSON.parse(data);
       return items;
     }
     return [];
   } catch (error) {
-    console.error('Error loading items:', error);
+    console.error("Error loading items:", error);
     items = [];
     return [];
   }
@@ -37,10 +37,10 @@ function saveItems() {
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }
-    fs.writeFileSync(dataFilePath, JSON.stringify(items, null, 2), 'utf8');
+    fs.writeFileSync(dataFilePath, JSON.stringify(items, null, 2), "utf8");
     return true;
   } catch (error) {
-    console.error('Error saving items:', error);
+    console.error("Error saving items:", error);
     return false;
   }
 }
@@ -52,14 +52,14 @@ function saveItems() {
  */
 function addItem(item) {
   // 检查是否已存在相同路径的项目
-  const exists = items.some(i => i.path === item.path);
+  const exists = items.some((i) => i.path === item.path);
   if (exists) {
-    return { success: false, message: '条目已存在' };
+    return { success: false, message: "条目已存在" };
   }
 
   items.push(item);
   const saved = saveItems();
-  return { success: saved, message: saved ? '' : '保存失败' };
+  return { success: saved, message: saved ? "" : "保存失败" };
 }
 
 /**
@@ -70,12 +70,12 @@ function addItem(item) {
  */
 function updateItem(index, updatedItem) {
   if (index < 0 || index >= items.length) {
-    return { success: false, message: '项目不存在' };
+    return { success: false, message: "项目不存在" };
   }
 
   items[index] = updatedItem;
   const saved = saveItems();
-  return { success: saved, message: saved ? '' : '保存失败' };
+  return { success: saved, message: saved ? "" : "保存失败" };
 }
 
 /**
@@ -85,12 +85,12 @@ function updateItem(index, updatedItem) {
  */
 function removeItem(index) {
   if (index < 0 || index >= items.length) {
-    return { success: false, message: '项目不存在' };
+    return { success: false, message: "项目不存在" };
   }
 
   items.splice(index, 1);
   const saved = saveItems();
-  return { success: saved, message: saved ? '' : '保存失败' };
+  return { success: saved, message: saved ? "" : "保存失败" };
 }
 
 /**
@@ -101,7 +101,7 @@ function removeItem(index) {
 function updateItemsOrder(newItems) {
   items = newItems;
   const saved = saveItems();
-  return { success: saved, message: saved ? '' : '保存失败' };
+  return { success: saved, message: saved ? "" : "保存失败" };
 }
 
 /**
@@ -120,5 +120,5 @@ module.exports = {
   updateItem,
   removeItem,
   updateItemsOrder,
-  getItems
+  getItems,
 };
