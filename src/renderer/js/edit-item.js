@@ -9,6 +9,7 @@ const PathType = {
 document.addEventListener("DOMContentLoaded", () => {
   // DOM元素
   const itemPathInput = document.getElementById("item-path");
+  const itemNameInput = document.getElementById("item-name");
   const itemTypeSelect = document.getElementById("item-type");
   const saveBtn = document.getElementById("save-btn");
   const cancelBtn = document.getElementById("cancel-btn");
@@ -32,6 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // 填充数据
     itemPathInput.value = item.path;
     itemTypeSelect.value = item.type;
+
+    // 如果有名称，填充名称字段
+    if (item.name) {
+      itemNameInput.value = item.name;
+    }
 
     // 启用保存按钮
     saveBtn.disabled = false;
@@ -86,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   saveBtn.addEventListener("click", async () => {
     const path = itemPathInput.value.trim();
     const type = itemTypeSelect.value;
+    const name = itemNameInput.value.trim();
 
     if (!path) {
       showToast("请输入路径或命令", true);
@@ -100,13 +107,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const newItem = {
       type: type,
       path: path,
-      name: path.split("/").pop().split("\\").pop(),
     };
+
+    // 如果用户提供了名称，则添加到项目中
+    if (name) {
+      newItem.name = name;
+    }
 
     try {
       let result;
 
-      // 新增代码: 根据模式决定是更新还是添加
+      // 根据模式决定是更新还是添加
       if (isEditMode) {
         // 编辑现有条目
         result = await window.electronAPI.updateItem(editingItemIndex, newItem);
@@ -164,12 +175,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 监听按键
+  // 路径输入框按Enter时切换焦点到名称输入框
+  itemPathInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // 阻止默认行为
+      itemNameInput.focus(); // 将焦点移到名称输入框
+    }
+  });
+
+  // 名称输入框按Enter时触发保存（如果数据有效）
+  itemNameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !saveBtn.disabled) {
+      e.preventDefault(); // 阻止默认行为
+      saveBtn.click(); // 触发保存操作
+    }
+  });
+
+  // 全局键盘监听
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       window.electronAPI.closeAddItemWindow();
-    } else if (e.key === "Enter" && !saveBtn.disabled) {
-      saveBtn.click();
     }
   });
 });

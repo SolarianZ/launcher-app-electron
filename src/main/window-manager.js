@@ -32,8 +32,6 @@ function createMainWindow() {
     frame: false,
     transparent: true,
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
   });
@@ -78,7 +76,7 @@ function createAddItemWindow() {
 
   addItemWindow = new BrowserWindow({
     width: 400,
-    height: 250,
+    height: 300,
     resizable: false,
     frame: false,
     modal: true,
@@ -86,8 +84,6 @@ function createAddItemWindow() {
     show: false,
     transparent: true,
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
   });
