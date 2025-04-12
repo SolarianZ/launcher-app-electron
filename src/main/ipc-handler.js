@@ -125,9 +125,9 @@ function setupIpcHandlers() {
 
   // 设置相关 IPC 处理
   ipcMain.on('open-storage-location', () => {
-    const storePath = dataStore.getStoragePath();
-    if (storePath) {
-      itemHandler.showItemInFolder(storePath);
+    const userDataPath = dataStore.getUserDataPath();
+    if (userDataPath) {
+      require('electron').shell.openPath(userDataPath);
     }
   });
 

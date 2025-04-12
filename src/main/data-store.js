@@ -4,7 +4,7 @@ const path = require("path");
 
 // 数据文件路径
 const dataFilePath = path.join(app.getPath("userData"), "items.json");
-const windowConfigPath = path.join(app.getPath("userData"), "window-config.json");
+const windowConfigPath = path.join(app.getPath("userData"), "configs.json");
 
 // 全局变量存储项目列表
 let items = [];
@@ -141,6 +141,14 @@ function getStoragePath() {
 }
 
 /**
+ * 获取应用数据文件夹路径
+ * @returns {string} 应用数据文件夹的绝对路径
+ */
+function getUserDataPath() {
+  return app.getPath("userData");
+}
+
+/**
  * 加载窗口配置
  * @returns {Object} 窗口配置
  */
@@ -210,6 +218,7 @@ module.exports = {
   getItems,
   clearAllItems,
   getStoragePath,
+  getUserDataPath,
   loadWindowConfig,
   saveWindowConfig,
   updateMainWindowConfig,
