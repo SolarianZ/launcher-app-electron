@@ -186,16 +186,26 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyCurrentTheme() {
     const theme = localStorage.getItem("theme") || "system";
     const appContainer = document.querySelector(".app-container");
+    const settingsModal = document.querySelector(".settings-modal .modal");
     
     // 移除所有主题类
     appContainer.classList.remove("dark-theme", "light-theme");
+    if (settingsModal) {
+      settingsModal.classList.remove("dark-theme", "light-theme");
+    }
     
     if (theme === "system") {
       applySystemTheme();
     } else if (theme === "dark") {
       appContainer.classList.add("dark-theme");
+      if (settingsModal) {
+        settingsModal.classList.add("dark-theme");
+      }
     } else if (theme === "light") {
       appContainer.classList.add("light-theme");
+      if (settingsModal) {
+        settingsModal.classList.add("light-theme");
+      }
     }
   }
 
@@ -516,13 +526,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 应用系统主题
   function applySystemTheme() {
-    if (
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      document.querySelector(".app-container").classList.add("dark-theme");
+    const isDarkMode = window.matchMedia && 
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    
+    const appContainer = document.querySelector(".app-container");
+    const settingsModal = document.querySelector(".settings-modal .modal");
+    
+    if (isDarkMode) {
+      appContainer.classList.add("dark-theme");
+      if (settingsModal) {
+        settingsModal.classList.add("dark-theme");
+      }
     } else {
-      document.querySelector(".app-container").classList.remove("dark-theme");
+      appContainer.classList.remove("dark-theme");
+      if (settingsModal) {
+        settingsModal.classList.remove("dark-theme");
+      }
     }
   }
 
