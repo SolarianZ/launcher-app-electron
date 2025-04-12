@@ -122,6 +122,39 @@ function setupIpcHandlers() {
       filePath: filePaths[0],
     };
   });
+
+  // 设置相关 IPC 处理
+  ipcMain.on('open-storage-location', () => {
+    const storePath = dataStore.getStoragePath();
+    if (storePath) {
+      itemHandler.showItemInFolder(storePath);
+    }
+  });
+
+  ipcMain.on('clear-all-items', () => {
+    dataStore.clearAllItems();
+    windowManager.notifyItemsUpdated();
+  });
+
+  ipcMain.on('open-devtools', () => {
+    const mainWindow = windowManager.getMainWindow();
+    if (mainWindow) {
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+    }
+  });
+
+  ipcMain.on('open-external-link', (event, url) => {
+    require('electron').shell.openExternal(url);
+  });
+
+  ipcMain.handle('get-app-info', () => {
+    const { app } = require('electron');
+    return {
+      version: app.getVersion(),
+      name: app.getName(),
+      electronVersion: process.versions.electron,
+    };
+  });
 }
 
 // 导出模块函数

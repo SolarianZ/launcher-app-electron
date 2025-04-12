@@ -40,8 +40,51 @@
                 <button id="close-settings" class="close-button">×</button>
             </div>
             <div class="modal-content">
-                <h3>设置</h3>
-                <p>这里将显示应用程序设置选项。</p>
+                <div class="settings-section">
+                    <h3>外观</h3>
+                    <div class="settings-item">
+                        <label for="theme-select">主题:</label>
+                        <select id="theme-select" class="form-select">
+                            <option value="system">跟随系统</option>
+                            <option value="light">浅色模式</option>
+                            <option value="dark">深色模式</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>数据</h3>
+                    <div class="settings-item">
+                        <button id="clear-data-btn" class="settings-btn">清空所有记录</button>
+                        <div class="settings-desc">删除所有已记录的条目</div>
+                    </div>
+                    <div class="settings-item">
+                        <button id="open-storage-btn" class="settings-btn">打开本地存储文件</button>
+                        <div class="settings-desc">在文件夹中查看应用数据文件</div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>开发</h3>
+                    <div class="settings-item">
+                        <button id="open-devtools-btn" class="settings-btn">打开开发者工具</button>
+                        <div class="settings-desc">打开Chrome开发者工具</div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>关于</h3>
+                    <div class="settings-item about-section">
+                        <div class="app-logo">🚀</div>
+                        <div class="app-title">Launcher</div>
+                        <div class="app-version">版本 1.0.0</div>
+                        <div class="app-desc">记录和快速访问常用文件、文件夹、URL和指令的工具。</div>
+                        <div class="app-links">
+                            <a href="#" id="github-link">GitHub</a> | 
+                            <a href="#" id="report-issue">报告问题</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

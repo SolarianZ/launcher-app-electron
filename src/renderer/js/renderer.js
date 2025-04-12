@@ -7,12 +7,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const settingsButton = document.getElementById("settings-button");
   const settingsModal = document.getElementById("settings-modal");
   const closeSettings = document.getElementById("close-settings");
+  
+  // 设置页面元素
+  const themeSelect = document.getElementById("theme-select");
+  const clearDataBtn = document.getElementById("clear-data-btn");
+  const openStorageBtn = document.getElementById("open-storage-btn");
+  const openDevtoolsBtn = document.getElementById("open-devtools-btn");
+  const githubLink = document.getElementById("github-link");
+  const reportIssueLink = document.getElementById("report-issue");
+
+  // 加载已保存的主题设置
+  loadThemeSetting();
 
   // 检测系统主题并应用
-  applySystemTheme();
+  applyCurrentTheme();
 
   // 初始化页面
   initPage();
+
+  // 初始化设置页面
+  initSettingsPage();
 
   // 事件监听
   addBtn.addEventListener("click", () => {
@@ -38,6 +52,44 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === settingsModal) {
       settingsModal.style.display = "none";
     }
+  });
+
+  // 主题切换
+  themeSelect.addEventListener("change", () => {
+    const theme = themeSelect.value;
+    localStorage.setItem("theme", theme);
+    applyCurrentTheme();
+  });
+
+  // 清空所有记录
+  clearDataBtn.addEventListener("click", () => {
+    if (confirm("确定要清空所有记录吗？此操作不可撤销。")) {
+      window.electronAPI.clearAllItems();
+      showToast("已清空所有记录");
+    }
+  });
+
+  // 打开本地存储文件位置
+  openStorageBtn.addEventListener("click", () => {
+    window.electronAPI.openStorageLocation();
+  });
+
+  // 打开开发者工具
+  openDevtoolsBtn.addEventListener("click", () => {
+    window.electronAPI.openDevTools();
+    showToast("已打开开发者工具");
+  });
+
+  // GitHub链接点击
+  githubLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.electronAPI.openExternalLink("https://github.com/solarianz/launcher-app-electron");
+  });
+
+  // 报告问题链接点击
+  reportIssueLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.electronAPI.openExternalLink("https://github.com/solarianz/launcher-app-electron/issues");
   });
 
   // 监听按键
@@ -113,6 +165,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // 初始化设置页面
+  async function initSettingsPage() {
+    // 获取应用信息
+    try {
+      const appInfo = await window.electronAPI.getAppInfo();
+      document.querySelector(".app-version").textContent = `版本 ${appInfo.version}`;
+    } catch (error) {
+      console.error("获取应用信息失败:", error);
+    }
+  }
+
+  // 加载主题设置
+  function loadThemeSetting() {
+    const savedTheme = localStorage.getItem("theme") || "system";
+    themeSelect.value = savedTheme;
+  }
+
+  // 应用当前主题设置
+  function applyCurrentTheme() {
+    const theme = localStorage.getItem("theme") || "system";
+    const appContainer = document.querySelector(".app-container");
+    
+    // 移除所有主题类
+    appContainer.classList.remove("dark-theme", "light-theme");
+    
+    if (theme === "system") {
+      applySystemTheme();
+    } else if (theme === "dark") {
+      appContainer.classList.add("dark-theme");
+    } else if (theme === "light") {
+      appContainer.classList.add("light-theme");
+    }
+  }
+
   // 初始化页面
   async function initPage() {
     await loadItems();
@@ -127,7 +213,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.matchMedia) {
       window
         .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", applySystemTheme);
+        .addEventListener("change", () => {
+          if (localStorage.getItem("theme") === "system") {
+            applySystemTheme();
+          }
+        });
     }
   }
 

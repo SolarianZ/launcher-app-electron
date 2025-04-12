@@ -112,6 +112,24 @@ function getItems() {
   return items;
 }
 
+/**
+ * 清除所有项目
+ * @returns {Object} 结果对象
+ */
+function clearAllItems() {
+  items = [];
+  const saved = saveItems();
+  return { success: saved, message: saved ? "" : "清除失败" };
+}
+
+/**
+ * 获取存储文件路径
+ * @returns {string} 存储文件的绝对路径
+ */
+function getStoragePath() {
+  return dataFilePath;
+}
+
 // 导出模块函数
 module.exports = {
   loadItems,
@@ -121,4 +139,6 @@ module.exports = {
   removeItem,
   updateItemsOrder,
   getItems,
+  clearAllItems,
+  getStoragePath
 };

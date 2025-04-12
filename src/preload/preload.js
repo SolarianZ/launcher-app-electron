@@ -58,4 +58,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // 获取平台信息
   getPlatform: () => process.platform,
+  
+  // 设置相关功能
+  openStorageLocation: () => ipcRenderer.send("open-storage-location"),
+  clearAllItems: () => ipcRenderer.send("clear-all-items"),
+  openDevTools: () => ipcRenderer.send("open-devtools"),
+  openExternalLink: (url) => ipcRenderer.send("open-external-link", url),
+  getAppInfo: () => ipcRenderer.invoke("get-app-info"),
 });
