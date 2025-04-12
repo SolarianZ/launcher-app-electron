@@ -4,6 +4,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input");
   const listContainer = document.getElementById("list-container");
   const toast = document.getElementById("toast");
+  const settingsButton = document.getElementById("settings-button");
+  const settingsModal = document.getElementById("settings-modal");
+  const closeSettings = document.getElementById("close-settings");
 
   // 检测系统主题并应用
   applySystemTheme();
@@ -20,10 +23,31 @@ document.addEventListener("DOMContentLoaded", () => {
     filterItems(searchInput.value.toLowerCase());
   });
 
+  // 设置按钮点击事件
+  settingsButton.addEventListener("click", () => {
+    settingsModal.style.display = "flex";
+  });
+
+  // 关闭设置按钮点击事件
+  closeSettings.addEventListener("click", () => {
+    settingsModal.style.display = "none";
+  });
+
+  // 点击设置模态框外部区域关闭设置
+  settingsModal.addEventListener("click", (e) => {
+    if (e.target === settingsModal) {
+      settingsModal.style.display = "none";
+    }
+  });
+
   // 监听按键
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      window.electronAPI.closeWindow();
+      if (settingsModal.style.display === "flex") {
+        settingsModal.style.display = "none";
+      } else {
+        window.electronAPI.closeWindow();
+      }
     } else if (e.key === "Delete") {
       const activeItem = document.querySelector(".list-item.active");
       if (activeItem) {

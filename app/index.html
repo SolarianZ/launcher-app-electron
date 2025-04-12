@@ -13,7 +13,10 @@
     <div class="app-container">
         <div class="title-bar">
             <div class="title-bar-left"></div>
-            <div class="window-title">Launcher</div>
+            <div class="title-container">
+                <div class="window-title">Launcher</div>
+                <button id="settings-button" class="settings-button" title="设置">⚙</button>
+            </div>
             <div class="title-bar-right"></div>
         </div>
 
@@ -29,6 +32,19 @@
 
     <div class="tooltip" id="tooltip" style="display: none;"></div>
     <div class="toast" id="toast" style="display: none;"></div>
+    
+    <div id="settings-modal" class="settings-modal" style="display: none;">
+        <div class="modal">
+            <div class="modal-title-bar">
+                <div class="window-title">设置</div>
+                <button id="close-settings" class="close-button">×</button>
+            </div>
+            <div class="modal-content">
+                <h3>设置</h3>
+                <p>这里将显示应用程序设置选项。</p>
+            </div>
+        </div>
+    </div>
 
     <script src="js/renderer.js"></script>
     <script src="js/list.js"></script>
