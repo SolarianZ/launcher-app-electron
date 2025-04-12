@@ -21,11 +21,11 @@
       },
       "win": {
         "target": "nsis",
-        "icon": "app/assets/icons/app-icon.ico"
+        "icon": "src/assets/icons/app-icon.ico"
       },
       "mac": {
         "target": "dmg",
-        "icon": "app/assets/icons/app-icon.icns"
+        "icon": "src/assets/icons/app-icon.icns"
       }
     }
   }

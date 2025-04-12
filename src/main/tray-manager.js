@@ -18,7 +18,6 @@ function createTray(toggleMainWindow) {
   const iconPath = path.join(
     __dirname,
     '..',
-    'app',
     'assets',
     'icons',
     'tray-icon.png'

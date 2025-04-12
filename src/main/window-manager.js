@@ -34,11 +34,11 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, '..', 'preload.js'),
+      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, '..', 'app', 'index.html'));
+  mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
   // mainWindow.webContents.openDevTools(); // 开发时可启用
 
   // 避免白屏
@@ -88,11 +88,11 @@ function createAddItemWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, '..', 'preload.js'),
+      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
   });
 
-  addItemWindow.loadFile(path.join(__dirname, '..', 'app', 'edit-item.html'));
+  addItemWindow.loadFile(path.join(__dirname, '..', 'renderer', 'edit-item.html'));
 
   addItemWindow.once('ready-to-show', () => {
     addItemWindow.show();
