@@ -14,7 +14,7 @@
       "electron-builder": "^26.0.12"
     },
     "build": {
-      "appId": "com.example.launcher-app",
+      "appId": "com.zqy.launcher-app",
       "productName": "Launcher App",
       "directories": {
         "output": "dist"
