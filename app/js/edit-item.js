@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const itemTypeSelect = document.getElementById("item-type");
   const saveBtn = document.getElementById("save-btn");
   const cancelBtn = document.getElementById("cancel-btn");
+  const selectFileBtn = document.getElementById("select-file-btn");
+  const selectFolderBtn = document.getElementById("select-folder-btn");
   const toast = document.getElementById("toast");
 
   // 跟踪是否处于编辑模式
@@ -25,6 +27,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 启用保存按钮
     saveBtn.disabled = false;
+  });
+
+  // 选择文件按钮点击事件
+  selectFileBtn.addEventListener("click", async () => {
+    try {
+      const result = await window.electronAPI.selectFile();
+      if (!result.canceled) {
+        itemPathInput.value = result.filePath;
+        itemTypeSelect.value = result.type;
+        saveBtn.disabled = false;
+      }
+    } catch (error) {
+      console.error("选择文件出错:", error);
+      showToast("选择文件失败，请重试", true);
+    }
+  });
+
+  // 选择文件夹按钮点击事件
+  selectFolderBtn.addEventListener("click", async () => {
+    try {
+      const result = await window.electronAPI.selectFolder();
+      if (!result.canceled) {
+        itemPathInput.value = result.filePath;
+        itemTypeSelect.value = result.type;
+        saveBtn.disabled = false;
+      }
+    } catch (error) {
+      console.error("选择文件夹出错:", error);
+      showToast("选择文件夹失败，请重试", true);
+    }
   });
 
   // 路径输入变化时自动推断类型

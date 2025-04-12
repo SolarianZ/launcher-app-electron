@@ -9,6 +9,7 @@ const {
   globalShortcut,
   nativeImage,
   webContents,
+  dialog
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
@@ -442,6 +443,43 @@ function setupIpcHandlers() {
 
   ipcMain.on("copy-text", (event, text) => {
     clipboard.writeText(text);
+  });
+
+  // 文件和文件夹选择对话框
+  ipcMain.handle("select-file", async () => {
+    if (!addItemWindow) return { canceled: true };
+    
+    const { canceled, filePaths } = await dialog.showOpenDialog(addItemWindow, {
+      properties: ["openFile"]
+    });
+    
+    if (canceled || !filePaths || filePaths.length === 0) {
+      return { canceled: true };
+    }
+    
+    return { 
+      canceled: false, 
+      filePath: filePaths[0],
+      type: getItemType(filePaths[0])
+    };
+  });
+  
+  ipcMain.handle("select-folder", async () => {
+    if (!addItemWindow) return { canceled: true };
+    
+    const { canceled, filePaths } = await dialog.showOpenDialog(addItemWindow, {
+      properties: ["openDirectory"]
+    });
+    
+    if (canceled || !filePaths || filePaths.length === 0) {
+      return { canceled: true };
+    }
+    
+    return { 
+      canceled: false, 
+      filePath: filePaths[0],
+      type: "folder"
+    };
   });
 
   // 复制文件/文件夹

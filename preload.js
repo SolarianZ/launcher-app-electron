@@ -52,6 +52,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return webUtils.getPathForFile(item);
   },
 
+  // 文件和文件夹选择
+  selectFile: () => ipcRenderer.invoke("select-file"),
+  selectFolder: () => ipcRenderer.invoke("select-folder"),
+
   // 获取平台信息
   getPlatform: () => process.platform,
 });
