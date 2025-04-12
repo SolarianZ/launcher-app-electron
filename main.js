@@ -89,7 +89,7 @@ function createAddItemWindow() {
     },
   });
 
-  addItemWindow.loadFile(path.join(__dirname, "app", "add-item.html"));
+  addItemWindow.loadFile(path.join(__dirname, "app", "edit-item.html"));
 
   addItemWindow.once("ready-to-show", () => {
     addItemWindow.show();
@@ -123,7 +123,7 @@ function createEditItemWindow(item, index) {
     },
   });
 
-  addItemWindow.loadFile(path.join(__dirname, "app", "add-item.html"));
+  addItemWindow.loadFile(path.join(__dirname, "app", "edit-item.html"));
 
   addItemWindow.once("ready-to-show", () => {
     // 发送编辑数据到窗口
