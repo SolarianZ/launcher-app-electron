@@ -49,7 +49,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // 获取文件或文件夹路径
   getFileOrFolderPath: (item) => {
     if (!item) return undefined;
-    webUtils.getPathForFile(item);
+    return webUtils.getPathForFile(item);
   },
 
   // 获取平台信息
