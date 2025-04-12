@@ -412,12 +412,15 @@ body {
 
 /* 模态框 */
 .modal {
-    width: 100vw;
-    height: 100vh;
+    width: 400px;
+    max-width: 90vw;
+    max-height: 90vh;
     background-color: var(--card-bg);
     border-radius: 8px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-title-bar {
@@ -433,6 +436,8 @@ body {
 
 .modal-content {
     padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 30px); /* 减去标题栏高度 */
 }
 
 /* 表单 */
@@ -535,19 +540,23 @@ body {
 }
 
 /* 滚动条样式 */
-.list-container::-webkit-scrollbar {
+.list-container::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar {
     width: 8px;
 }
 
-.list-container::-webkit-scrollbar-track {
+.list-container::-webkit-scrollbar-track,
+.modal-content::-webkit-scrollbar-track {
     background: var(--bg-color);
 }
 
-.list-container::-webkit-scrollbar-thumb {
+.list-container::-webkit-scrollbar-thumb,
+.modal-content::-webkit-scrollbar-thumb {
     background-color: var(--border-color);
     border-radius: 4px;
 }
 
-.list-container::-webkit-scrollbar-thumb:hover {
+.list-container::-webkit-scrollbar-thumb:hover,
+.modal-content::-webkit-scrollbar-thumb:hover {
     background-color: var(--icon-color);
 }
