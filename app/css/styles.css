@@ -1,3 +1,4 @@
+/* 全局变量 */
 :root {
     --primary-color: #4a86e8;
     --secondary-color: #6aa84f;
@@ -33,6 +34,7 @@
     --error-color: #d23f31;
 }
 
+/* 全局样式 */
 * {
     margin: 0;
     padding: 0;
@@ -45,6 +47,7 @@ body {
     overflow: hidden;
 }
 
+/* 应用容器 */
 .app-container {
     width: 100vw;
     height: 100vh;
@@ -57,6 +60,7 @@ body {
     box-shadow: var(--shadow);
 }
 
+/* 标题栏 */
 .title-bar {
     height: 30px;
     background-color: var(--title-bar-bg);
@@ -94,18 +98,7 @@ body {
     color: var(--title-bar-text);
 }
 
-.add-btn {
-    background-color: var(--primary-color);
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
+/* 搜索框 */
 .search-container {
     padding: 10px;
     background-color: var(--bg-color);
@@ -123,6 +116,7 @@ body {
     color: var(--text-color);
 }
 
+/* 按钮 */
 .add-button {
     background-color: var(--button-bg);
     color: var(--button-text);
@@ -146,6 +140,7 @@ body {
     background-color: var(--button-active);
 }
 
+/* 列表 */
 .list-container {
     flex-grow: 1;
     overflow-y: auto;
@@ -201,8 +196,9 @@ body {
     color: var(--text-color);
 }
 
+/* 工具提示 */
 .tooltip {
-    /* 改为fixed以相对于视口定位 */
+    /* fixed 相对于视口定位 */
     position: fixed;
     background-color: var(--tooltip-bg);
     color: var(--tooltip-text);
@@ -218,8 +214,9 @@ body {
     pointer-events: none;
 }
 
+/* 右键菜单 */
 .context-menu {
-    /* 改为 fixed 以相对于视口定位，而不是相对于父容器 */
+    /* fixed 相对于视口定位，而不是相对于父容器 */
     position: fixed;
     width: 200px;
     background-color: var(--menu-bg);
@@ -246,6 +243,7 @@ body {
     margin: 5px 0;
 }
 
+/* 模态框 */
 .modal {
     width: 100vw;
     height: 100vh;
@@ -270,6 +268,7 @@ body {
     padding: 20px;
 }
 
+/* 表单 */
 .form-group {
     margin-bottom: 15px;
 }
@@ -292,6 +291,7 @@ body {
     color: var(--text-color);
 }
 
+/* 按钮组 */
 .button-group {
     display: flex;
     justify-content: flex-end;
@@ -339,6 +339,7 @@ body {
     background-color: var(--cancel-button-active);
 }
 
+/* 提示框 */
 .toast {
     position: fixed;
     bottom: 20px;
@@ -359,6 +360,7 @@ body {
     color: white;
 }
 
+/* 拖拽指示器 */
 .drag-indicator {
     height: 2px;
     background-color: var(--drag-indicator);
