@@ -136,6 +136,13 @@ document.addEventListener("DOMContentLoaded", () => {
       await loadItems();
     });
 
+    // 监听来自其他窗口的主题变更通知
+    // 为主题变更添加一个IPC监听
+    window.electronAPI.onThemeChanged((theme) => {
+      console.log("主题已更改为:", theme);
+      applyTheme(theme);
+    });
+
     // 检测系统主题变化
     if (window.matchMedia) {
       window

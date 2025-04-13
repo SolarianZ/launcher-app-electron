@@ -42,6 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("theme", theme);
     // 应用新主题
     applyCurrentTheme();
+    // 通知主进程和其他窗口主题已更改
+    window.electronAPI.themeChanged(theme);
   });
 
   /**

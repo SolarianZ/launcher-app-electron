@@ -19,6 +19,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   closeAddItemWindow: () => ipcRenderer.send("close-add-item-window"),
   closeSettingsWindow: () => ipcRenderer.send("close-settings-window"),
   showSettingsWindow: () => ipcRenderer.send("show-settings-window"),
+  
+  /**
+   * 主题相关API
+   * 允许设置窗口通知主题变更
+   */
+  themeChanged: (theme) => ipcRenderer.send("theme-changed", theme),
 
   /**
    * 事件监听相关API
@@ -41,6 +47,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
     // 返回清理函数
     return () => {
       ipcRenderer.removeListener("edit-item-data", listener);
+    };
+  },
+
+  // 监听主题变更
+  onThemeChanged: (callback) => {
+    const listener = (event, theme) => callback(theme);
+    ipcRenderer.on("theme-changed", listener);
+    return () => {
+      ipcRenderer.removeListener("theme-changed", listener);
     };
   },
 

@@ -160,6 +160,18 @@ function setupIpcHandlers() {
   });
 
   /**
+   * 主题相关IPC处理
+   * 处理主题变更通知
+   */
+  ipcMain.on('theme-changed', (event, theme) => {
+    // 获取主窗口并发送主题变更通知
+    const mainWindow = windowManager.getMainWindow();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('theme-changed', theme);
+    }
+  });
+
+  /**
    * 设置相关 IPC 处理
    * 处理打开存储位置、清除所有项目等操作
    */
