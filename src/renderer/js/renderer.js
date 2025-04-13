@@ -411,6 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let draggedItem = null;
     let indicator = document.createElement("div");
     indicator.classList.add("drag-indicator");
+    let dropPosition = null; // 添加变量跟踪放置位置
 
     items.forEach((item) => {
       item.addEventListener("dragstart", (e) => {
@@ -427,6 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
         item.classList.remove("dragging");
         item.style.opacity = "1";
         indicator.remove();
+        dropPosition = null; // 重置放置位置
       });
 
       item.addEventListener("dragover", (e) => {
@@ -442,54 +444,60 @@ document.addEventListener("DOMContentLoaded", () => {
             el.classList.remove("drop-target");
           });
 
-          // 添加指示器
+          // 添加指示器并保存放置位置信息
           if (isBelow) {
             if (item.nextSibling !== indicator) {
               item.after(indicator);
             }
+            dropPosition = { target: item, position: 'after' };
           } else {
             if (item.previousSibling !== indicator) {
               item.before(indicator);
             }
+            dropPosition = { target: item, position: 'before' };
           }
           indicator.style.display = "block";
         }
       });
+    });
 
-      item.addEventListener("drop", async (e) => {
-        e.preventDefault();
+    // 在列表容器上监听drop事件，而不是在每个项目上
+    listContainer.addEventListener("drop", async (e) => {
+      e.preventDefault();
 
-        if (draggedItem && draggedItem !== item) {
-          // 获取拖拽项的索引
-          const draggedIndex = parseInt(draggedItem.dataset.index);
-          let targetIndex = parseInt(item.dataset.index);
+      if (draggedItem && dropPosition) {
+        // 获取拖拽项的索引
+        const draggedIndex = parseInt(draggedItem.dataset.index);
+        const targetIndex = parseInt(dropPosition.target.dataset.index);
+        let newIndex;
 
-          // 计算放置位置
-          const rect = item.getBoundingClientRect();
-          const y = e.clientY - rect.top;
-          const isBelow = y > rect.height / 2;
-
-          // 调整目标索引
-          if (draggedIndex < targetIndex && isBelow) {
-            targetIndex++;
-          } else if (draggedIndex > targetIndex && !isBelow) {
-            targetIndex--;
-          }
-
-          // 重新排序
-          const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
-          const [removed] = items.splice(draggedIndex, 1);
-          items.splice(targetIndex, 0, removed);
-
-          // 更新后端存储
-          const result = await window.electronAPI.updateItemsOrder(items);
-          if (result.success) {
-            await loadItems();
-          }
+        // 根据放置位置计算新索引
+        if (dropPosition.position === 'after') {
+          newIndex = targetIndex + 1;
+        } else {
+          newIndex = targetIndex;
         }
 
-        indicator.style.display = "none";
-      });
+        // 调整索引，考虑拖拽项被移除后的影响
+        if (draggedIndex < newIndex) {
+          newIndex--;
+        }
+
+        // 重新排序
+        const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
+        const [removed] = items.splice(draggedIndex, 1);
+        items.splice(newIndex, 0, removed);
+
+        // 更新后端存储
+        const result = await window.electronAPI.updateItemsOrder(items);
+        if (result.success) {
+          await loadItems();
+          console.log("排序已更新:", draggedIndex, "->", newIndex);
+        }
+      }
+
+      indicator.style.display = "none";
+      dropPosition = null; // 重置放置位置
     });
   }
 
