@@ -32,11 +32,12 @@ function createTray(toggleMainWindow) {
     '..',
     'assets',
     'icons',
-    'tray-icon.png'
+    // 如果是macOS平台，使用模板图像
+    process.platform === 'darwin' ? 'tray-icon-template.png' : 'tray-icon.png'
   );
-  
+
   let icon = nativeImage.createFromPath(iconPath);
-  
+
   if (process.platform === 'darwin') {
     /**
      * macOS平台特定处理
@@ -49,7 +50,7 @@ function createTray(toggleMainWindow) {
     // 设置为模板图像，让macOS自动处理明暗主题
     icon.setTemplateImage(true);
   }
-  
+
   // 创建托盘实例
   tray = new Tray(icon);
   tray.setToolTip('Launcher');
