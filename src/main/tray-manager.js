@@ -32,8 +32,7 @@ function createTray(toggleMainWindow) {
     '..',
     'assets',
     'icons',
-    // 如果是macOS平台，使用模板图像
-    process.platform === 'darwin' ? 'tray-icon-template.png' : 'tray-icon.png'
+    'tray-icon.png'
   );
 
   let icon = nativeImage.createFromPath(iconPath);
