@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const listContainer = document.getElementById("list-container");
   const toast = document.getElementById("toast");
   const settingsButton = document.getElementById("settings-button");
-  
+
   // 初始化页面
   initPage();
 
@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       navigateList(e.key === "ArrowUp" ? -1 : 1);
+    } else if (e.key === "F12") {
+      window.electronAPI.openDevTools();
+      e.preventDefault();
     }
   });
 
@@ -95,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 初始化页面
   async function initPage() {
     await loadItems();
-    
+
     // 加载主题设置和应用
     const savedTheme = localStorage.getItem("theme") || "system";
     applyTheme(savedTheme);
@@ -299,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let indicator = document.createElement("div");
     indicator.classList.add("drag-indicator");
     let dropPosition = null; // 添加变量跟踪放置位置
-    
+
     // 添加自动滚动相关变量
     let autoScrollInterval = null;
     const SCROLL_SPEED = 5; // 滚动速度
@@ -350,12 +353,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (item.nextSibling !== indicator) {
               item.after(indicator);
             }
-            dropPosition = { target: item, position: 'after' };
+            dropPosition = { target: item, position: "after" };
           } else {
             if (item.previousSibling !== indicator) {
               item.before(indicator);
             }
-            dropPosition = { target: item, position: 'before' };
+            dropPosition = { target: item, position: "before" };
           }
           indicator.style.display = "block";
         }
@@ -365,22 +368,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // 为列表容器添加 dragover 事件以实现自动滚动
     listContainer.addEventListener("dragover", (e) => {
       e.preventDefault();
-      
+
       if (!draggedItem) return;
-      
+
       // 获取列表容器的位置信息
       const containerRect = listContainer.getBoundingClientRect();
       const containerTop = containerRect.top;
       const containerBottom = containerRect.bottom;
       const mouseY = e.clientY;
-      
+
       // 计算鼠标与容器上下边缘的距离
       const distanceFromTop = mouseY - containerTop;
       const distanceFromBottom = containerBottom - mouseY;
-      
+
       // 停止现有的自动滚动
       stopAutoScroll();
-      
+
       // 根据鼠标位置设置自动滚动
       if (distanceFromTop < SCROLL_THRESHOLD) {
         // 鼠标接近顶部，向上滚动
@@ -412,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let newIndex;
 
         // 根据放置位置计算新索引
-        if (dropPosition.position === 'after') {
+        if (dropPosition.position === "after") {
           newIndex = targetIndex + 1;
         } else {
           newIndex = targetIndex;
@@ -475,10 +478,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // 应用主题
   function applyTheme(theme) {
     const appContainer = document.querySelector(".app-container");
-    
+
     // 移除所有主题类
     appContainer.classList.remove("dark-theme", "light-theme");
-    
+
     if (theme === "system") {
       applySystemTheme();
     } else if (theme === "dark") {
@@ -490,11 +493,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 应用系统主题
   function applySystemTheme() {
-    const isDarkMode = window.matchMedia && 
+    const isDarkMode =
+      window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches;
-    
+
     const appContainer = document.querySelector(".app-container");
-    
+
     if (isDarkMode) {
       appContainer.classList.add("dark-theme");
     } else {

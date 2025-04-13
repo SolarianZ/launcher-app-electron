@@ -191,10 +191,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 全局键盘监听
+  // 监听按键
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       window.electronAPI.closeAddItemWindow();
+      e.preventDefault();
+    } else if (e.key === "F12") {
+      window.electronAPI.openDevTools();
+      e.preventDefault();
     }
   });
 });

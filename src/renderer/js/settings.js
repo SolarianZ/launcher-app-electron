@@ -8,10 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeSelect = document.getElementById("theme-select");
   const clearDataBtn = document.getElementById("clear-data-btn");
   const openStorageBtn = document.getElementById("open-storage-btn");
-  const openDevToolsBtn = document.getElementById("open-devtools-btn");
   const githubLink = document.getElementById("github-link");
   const reportIssueLink = document.getElementById("report-issue");
-  
+
   // 初始化设置页面
   initSettingsPage();
 
@@ -45,15 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.electronAPI.openStorageLocation();
   });
 
-  // 打开开发者工具
-  openDevToolsBtn.addEventListener("click", () => {
-    window.electronAPI.openDevTools();
-  });
-
   // 处理外部链接
   githubLink.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI.openExternalLink("https://github.com/YourUsername/launcher-app");
+    window.electronAPI.openExternalLink(
+      "https://github.com/YourUsername/launcher-app"
+    );
   });
 
   reportIssueLink.addEventListener("click", (e) => {
@@ -65,12 +61,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 监听按键
   document.addEventListener("keydown", (e) => {
-    // F12 打开开发者工具
-    if (e.key === "F12") {
-      window.electronAPI.openDevTools();
-      e.preventDefault();
-    } else if (e.key === "Escape") {
+    if (e.key === "Escape") {
       window.electronAPI.closeSettingsWindow();
+      e.preventDefault();
+    } else if (e.key === "F12") {
+      window.electronAPI.openDevTools();
       e.preventDefault();
     }
   });
@@ -80,7 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 获取应用信息
     try {
       const appInfo = await window.electronAPI.getAppInfo();
-      document.querySelector(".app-version").textContent = `版本 ${appInfo.version}`;
+      document.querySelector(
+        ".app-version"
+      ).textContent = `版本 ${appInfo.version}`;
     } catch (error) {
       console.error("获取应用信息失败:", error);
     }
@@ -96,10 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyCurrentTheme() {
     const theme = localStorage.getItem("theme") || "system";
     const modal = document.querySelector(".modal");
-    
+
     // 移除所有主题类
     modal.classList.remove("dark-theme", "light-theme");
-    
+
     if (theme === "system") {
       applySystemTheme();
     } else if (theme === "dark") {
@@ -111,11 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 应用系统主题
   function applySystemTheme() {
-    const isDarkMode = window.matchMedia && 
+    const isDarkMode =
+      window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches;
-    
+
     const modal = document.querySelector(".modal");
-    
+
     if (isDarkMode) {
       modal.classList.add("dark-theme");
     } else {
