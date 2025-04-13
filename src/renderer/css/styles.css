@@ -413,8 +413,8 @@ body {
 /* 模态框 */
 .modal {
     width: 400px;
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 100vw;
+    max-height: 100vh;
     background-color: var(--card-bg);
     border-radius: 8px;
     overflow: hidden;
@@ -435,9 +435,10 @@ body {
 }
 
 .modal-content {
+    display: flex;
+    flex-direction: column;
     padding: 20px;
     overflow-y: auto;
-    max-height: calc(90vh - 30px); /* 减去标题栏高度 */
 }
 
 /* 表单 */
