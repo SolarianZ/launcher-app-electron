@@ -122,15 +122,9 @@ body {
 
 /* 设置模态窗口 */
 .settings-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: var(--modal-overlay);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     z-index: 1000;
 }
 
@@ -412,7 +406,7 @@ body {
 
 /* 模态框 */
 .modal {
-    width: 400px;
+    /* width: 400px; */
     max-width: 100vw;
     max-height: 100vh;
     background-color: var(--card-bg);
