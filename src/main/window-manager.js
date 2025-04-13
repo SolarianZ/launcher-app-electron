@@ -5,6 +5,7 @@ const dataStore = require('./data-store');
 // 全局窗口引用
 let mainWindow = null;
 let addItemWindow = null;
+let settingsWindow = null;  // 添加设置窗口引用
 
 /**
  * 创建主窗口
@@ -155,6 +156,64 @@ function createEditItemWindow(item, index) {
 }
 
 /**
+ * 创建设置窗口
+ * @returns {BrowserWindow} 创建的设置窗口对象
+ */
+function createSettingsWindow() {
+  // 如果窗口已存在则聚焦并返回
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.focus();
+    return settingsWindow;
+  }
+
+  settingsWindow = new BrowserWindow({
+    width: 500,
+    height: 600,
+    resizable: false,
+    frame: false,
+    show: false,
+    transparent: true,
+    parent: mainWindow,
+    webPreferences: {
+      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+    },
+  });
+
+  settingsWindow.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
+
+  settingsWindow.once('ready-to-show', () => {
+    settingsWindow.show();
+  });
+
+  // 处理F12快捷键
+  settingsWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F12') {
+      settingsWindow.webContents.openDevTools({ mode: 'detach' });
+      event.preventDefault();
+    } else if (input.key === 'Escape') {
+      settingsWindow.close();
+      event.preventDefault();
+    }
+  });
+
+  settingsWindow.on('closed', () => {
+    settingsWindow = null;
+  });
+
+  return settingsWindow;
+}
+
+/**
+ * 关闭设置窗口
+ */
+function closeSettingsWindow() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.close();
+    settingsWindow = null;
+  }
+}
+
+/**
  * 切换主窗口显示状态
  */
 function toggleMainWindow() {
@@ -226,16 +285,27 @@ function getAddItemWindow() {
   return addItemWindow;
 }
 
+/**
+ * 获取设置窗口引用
+ * @returns {BrowserWindow} 设置窗口对象
+ */
+function getSettingsWindow() {
+  return settingsWindow;
+}
+
 // 导出模块函数
 module.exports = {
   createMainWindow,
   createAddItemWindow,
   createEditItemWindow,
+  createSettingsWindow,  // 添加新函数导出
   toggleMainWindow,
   closeAddItemWindow,
+  closeSettingsWindow,   // 添加新函数导出
   minimizeMainWindow,
   hideMainWindow,
   notifyItemsUpdated,
   getMainWindow,
-  getAddItemWindow
+  getAddItemWindow,
+  getSettingsWindow      // 添加新函数导出
 };

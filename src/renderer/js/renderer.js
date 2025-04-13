@@ -5,28 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const listContainer = document.getElementById("list-container");
   const toast = document.getElementById("toast");
   const settingsButton = document.getElementById("settings-button");
-  const settingsModal = document.getElementById("settings-modal");
-  const closeSettings = document.getElementById("close-settings");
   
-  // 设置页面元素
-  const themeSelect = document.getElementById("theme-select");
-  const clearDataBtn = document.getElementById("clear-data-btn");
-  const openStorageBtn = document.getElementById("open-storage-btn");
-  const openDevtoolsBtn = document.getElementById("open-devtools-btn");
-  const githubLink = document.getElementById("github-link");
-  const reportIssueLink = document.getElementById("report-issue");
-
-  // 加载已保存的主题设置
-  loadThemeSetting();
-
-  // 检测系统主题并应用
-  applyCurrentTheme();
-
   // 初始化页面
   initPage();
-
-  // 初始化设置页面
-  initSettingsPage();
 
   // 事件监听
   addBtn.addEventListener("click", () => {
@@ -37,69 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
     filterItems(searchInput.value.toLowerCase());
   });
 
-  // 设置按钮点击事件
+  // 设置按钮点击事件 - 打开独立设置窗口
   settingsButton.addEventListener("click", () => {
-    settingsModal.style.display = "flex";
-  });
-
-  // 关闭设置按钮点击事件
-  closeSettings.addEventListener("click", () => {
-    settingsModal.style.display = "none";
-  });
-
-  // 点击设置模态框外部区域关闭设置
-  settingsModal.addEventListener("click", (e) => {
-    if (e.target === settingsModal) {
-      settingsModal.style.display = "none";
-    }
-  });
-
-  // 主题切换
-  themeSelect.addEventListener("change", () => {
-    const theme = themeSelect.value;
-    localStorage.setItem("theme", theme);
-    applyCurrentTheme();
-  });
-
-  // 清空所有记录
-  clearDataBtn.addEventListener("click", () => {
-    if (confirm("确定要清空所有记录吗？此操作不可撤销。")) {
-      window.electronAPI.clearAllItems();
-      showToast("已清空所有记录");
-    }
-  });
-
-  // 打开本地存储文件位置
-  openStorageBtn.addEventListener("click", () => {
-    window.electronAPI.openStorageLocation();
-  });
-
-  // 打开开发者工具
-  openDevtoolsBtn.addEventListener("click", () => {
-    window.electronAPI.openDevTools();
-    showToast("已打开开发者工具");
-  });
-
-  // GitHub链接点击
-  githubLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.electronAPI.openExternalLink("https://github.com/solarianz/launcher-app-electron");
-  });
-
-  // 报告问题链接点击
-  reportIssueLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.electronAPI.openExternalLink("https://github.com/solarianz/launcher-app-electron/issues");
+    window.electronAPI.showSettingsWindow();
   });
 
   // 监听按键
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      if (settingsModal.style.display === "flex") {
-        settingsModal.style.display = "none";
-      } else {
-        window.electronAPI.closeWindow();
-      }
+      window.electronAPI.closeWindow();
     } else if (e.key === "Delete") {
       const activeItem = document.querySelector(".list-item.active");
       if (activeItem) {
@@ -165,53 +92,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 初始化设置页面
-  async function initSettingsPage() {
-    // 获取应用信息
-    try {
-      const appInfo = await window.electronAPI.getAppInfo();
-      document.querySelector(".app-version").textContent = `版本 ${appInfo.version}`;
-    } catch (error) {
-      console.error("获取应用信息失败:", error);
-    }
-  }
-
-  // 加载主题设置
-  function loadThemeSetting() {
-    const savedTheme = localStorage.getItem("theme") || "system";
-    themeSelect.value = savedTheme;
-  }
-
-  // 应用当前主题设置
-  function applyCurrentTheme() {
-    const theme = localStorage.getItem("theme") || "system";
-    const appContainer = document.querySelector(".app-container");
-    const settingsModal = document.querySelector(".settings-modal .modal");
-    
-    // 移除所有主题类
-    appContainer.classList.remove("dark-theme", "light-theme");
-    if (settingsModal) {
-      settingsModal.classList.remove("dark-theme", "light-theme");
-    }
-    
-    if (theme === "system") {
-      applySystemTheme();
-    } else if (theme === "dark") {
-      appContainer.classList.add("dark-theme");
-      if (settingsModal) {
-        settingsModal.classList.add("dark-theme");
-      }
-    } else if (theme === "light") {
-      appContainer.classList.add("light-theme");
-      if (settingsModal) {
-        settingsModal.classList.add("light-theme");
-      }
-    }
-  }
-
   // 初始化页面
   async function initPage() {
     await loadItems();
+    
+    // 加载主题设置和应用
+    const savedTheme = localStorage.getItem("theme") || "system";
+    applyTheme(savedTheme);
 
     // 添加对列表更新的监听
     window.electronAPI.onItemsUpdated(async () => {
@@ -585,24 +472,33 @@ document.addEventListener("DOMContentLoaded", () => {
     items[nextIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
+  // 应用主题
+  function applyTheme(theme) {
+    const appContainer = document.querySelector(".app-container");
+    
+    // 移除所有主题类
+    appContainer.classList.remove("dark-theme", "light-theme");
+    
+    if (theme === "system") {
+      applySystemTheme();
+    } else if (theme === "dark") {
+      appContainer.classList.add("dark-theme");
+    } else if (theme === "light") {
+      appContainer.classList.add("light-theme");
+    }
+  }
+
   // 应用系统主题
   function applySystemTheme() {
     const isDarkMode = window.matchMedia && 
       window.matchMedia("(prefers-color-scheme: dark)").matches;
     
     const appContainer = document.querySelector(".app-container");
-    const settingsModal = document.querySelector(".settings-modal .modal");
     
     if (isDarkMode) {
       appContainer.classList.add("dark-theme");
-      if (settingsModal) {
-        settingsModal.classList.add("dark-theme");
-      }
     } else {
       appContainer.classList.remove("dark-theme");
-      if (settingsModal) {
-        settingsModal.classList.remove("dark-theme");
-      }
     }
   }
 

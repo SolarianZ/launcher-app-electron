@@ -22,6 +22,14 @@ function setupIpcHandlers() {
     windowManager.closeAddItemWindow();
   });
 
+  ipcMain.on('close-settings-window', () => {
+    windowManager.closeSettingsWindow();
+  });
+
+  ipcMain.on('show-settings-window', () => {
+    windowManager.createSettingsWindow();
+  });
+
   // 项目管理
   ipcMain.handle('get-items', () => {
     return dataStore.getItems();
@@ -136,11 +144,10 @@ function setupIpcHandlers() {
     windowManager.notifyItemsUpdated();
   });
 
-  ipcMain.on('open-devtools', () => {
-    const mainWindow = windowManager.getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.openDevTools({ mode: 'detach' });
-    }
+  ipcMain.on('open-devtools', (event) => {
+    // 检查事件来源是哪个窗口
+    const webContents = event.sender;
+    webContents.openDevTools({ mode: 'detach' });
   });
 
   ipcMain.on('open-external-link', (event, url) => {

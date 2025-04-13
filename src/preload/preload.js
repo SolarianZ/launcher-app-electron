@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   minimizeWindow: () => ipcRenderer.send("minimize-window"),
   closeWindow: () => ipcRenderer.send("close-window"),
   closeAddItemWindow: () => ipcRenderer.send("close-add-item-window"),
+  closeSettingsWindow: () => ipcRenderer.send("close-settings-window"),
+  showSettingsWindow: () => ipcRenderer.send("show-settings-window"),
 
   // 监听列表更新事件
   onItemsUpdated: (callback) => {
