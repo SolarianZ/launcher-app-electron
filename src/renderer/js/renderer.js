@@ -412,6 +412,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let indicator = document.createElement("div");
     indicator.classList.add("drag-indicator");
     let dropPosition = null; // 添加变量跟踪放置位置
+    
+    // 添加自动滚动相关变量
+    let autoScrollInterval = null;
+    const SCROLL_SPEED = 5; // 滚动速度
+    const SCROLL_THRESHOLD = 50; // 触发自动滚动的阈值（距离容器边缘的像素）
+
+    // 停止自动滚动
+    const stopAutoScroll = () => {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+      }
+    };
 
     items.forEach((item) => {
       item.addEventListener("dragstart", (e) => {
@@ -429,6 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
         item.style.opacity = "1";
         indicator.remove();
         dropPosition = null; // 重置放置位置
+        stopAutoScroll(); // 停止自动滚动
       });
 
       item.addEventListener("dragover", (e) => {
@@ -461,9 +475,48 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // 为列表容器添加 dragover 事件以实现自动滚动
+    listContainer.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      
+      if (!draggedItem) return;
+      
+      // 获取列表容器的位置信息
+      const containerRect = listContainer.getBoundingClientRect();
+      const containerTop = containerRect.top;
+      const containerBottom = containerRect.bottom;
+      const mouseY = e.clientY;
+      
+      // 计算鼠标与容器上下边缘的距离
+      const distanceFromTop = mouseY - containerTop;
+      const distanceFromBottom = containerBottom - mouseY;
+      
+      // 停止现有的自动滚动
+      stopAutoScroll();
+      
+      // 根据鼠标位置设置自动滚动
+      if (distanceFromTop < SCROLL_THRESHOLD) {
+        // 鼠标接近顶部，向上滚动
+        autoScrollInterval = setInterval(() => {
+          listContainer.scrollTop -= SCROLL_SPEED;
+        }, 16); // 约60fps的速率
+      } else if (distanceFromBottom < SCROLL_THRESHOLD) {
+        // 鼠标接近底部，向下滚动
+        autoScrollInterval = setInterval(() => {
+          listContainer.scrollTop += SCROLL_SPEED;
+        }, 16);
+      }
+    });
+
+    // 当鼠标离开列表容器时停止滚动
+    listContainer.addEventListener("dragleave", () => {
+      stopAutoScroll();
+    });
+
     // 在列表容器上监听drop事件，而不是在每个项目上
     listContainer.addEventListener("drop", async (e) => {
       e.preventDefault();
+      stopAutoScroll(); // 确保停止自动滚动
 
       if (draggedItem && dropPosition) {
         // 获取拖拽项的索引
