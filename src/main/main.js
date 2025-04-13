@@ -15,6 +15,14 @@ function registerGlobalShortcuts() {
   });
 }
 
+/**
+ * 更新托盘菜单
+ * 在数据变化时调用此函数更新托盘菜单
+ */
+function updateTrayMenuWithItems() {
+  trayManager.updateTrayMenu(dataStore.getItems(), itemHandler.handleItemAction);
+}
+
 // 应用初始化
 app.whenReady().then(() => {
   // 加载数据和窗口配置
@@ -26,13 +34,16 @@ app.whenReady().then(() => {
   
   // 创建系统托盘图标
   trayManager.createTray(windowManager.toggleMainWindow);
-  trayManager.updateTrayMenu(dataStore.getItems(), itemHandler.handleItemAction);
+  updateTrayMenuWithItems();
   
   // 注册全局快捷键
   registerGlobalShortcuts();
   
   // 设置IPC通信处理器
   ipcHandler.setupIpcHandlers();
+  
+  // 在数据存储中添加更新回调
+  dataStore.addChangeListener(updateTrayMenuWithItems);
 });
 
 // 当所有窗口关闭时
@@ -54,12 +65,3 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
   trayManager.destroyTray();
 });
-
-// 在数据更改后更新托盘菜单
-dataStore.loadItems();
-const originalSaveItems = dataStore.saveItems;
-dataStore.saveItems = function() {
-  const result = originalSaveItems.apply(this, arguments);
-  trayManager.updateTrayMenu(dataStore.getItems(), itemHandler.handleItemAction);
-  return result;
-};

@@ -48,14 +48,14 @@ document.addEventListener("DOMContentLoaded", () => {
   githubLink.addEventListener("click", (e) => {
     e.preventDefault();
     window.electronAPI.openExternalLink(
-      "https://github.com/YourUsername/launcher-app"
+      "https://github.com/SolarianZ/launcher-app-electron"
     );
   });
 
   reportIssueLink.addEventListener("click", (e) => {
     e.preventDefault();
     window.electronAPI.openExternalLink(
-      "https://github.com/YourUsername/launcher-app/issues"
+      "https://github.com/SolarianZ/launcher-app-electron/issues"
     );
   });
 

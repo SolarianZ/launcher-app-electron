@@ -23,7 +23,7 @@ function handleItemAction(item) {
 }
 
 /**
- * 根据不同平台执行命令
+ * 安全执行命令
  * @param {string} command 要执行的命令
  */
 function executeCommand(command) {
@@ -36,11 +36,11 @@ function executeCommand(command) {
         // 若已经包含 /K 或 /C 则直接执行
         exec(`start cmd ${command}`);
       } else {
-        exec(`start cmd /K ${command}`); // 否则使用 /K 执行命令（保持CMD窗口打开）
+        exec(`start cmd /K "${command}"`); // 使用引号包裹命令，防止注入
       }
     } else if (platform === "darwin") {
       // macOS - 使用 osascript 打开 Terminal 并执行命令
-      const escapedCommand = command.replace(/"/g, '\\"');
+      const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
       exec(
         `osascript -e 'tell app "Terminal" to do script "${escapedCommand}"'`
       );
@@ -53,21 +53,39 @@ function executeCommand(command) {
         'x-terminal-emulator -e bash -c "{CMD}; exec bash"',
       ];
 
-      // 替换命令
-      const command = terminals[0].replace(
-        "{CMD}",
-        command.replace(/"/g, '\\"')
-      );
-      exec(command, (error) => {
-        if (error) {
-          console.error("打开终端失败，尝试其他终端");
-          // 如果失败可以尝试其他终端，但为简化代码，此处不实现
-        }
-      });
+      // 安全处理命令
+      const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
+
+      // 尝试所有可能的终端，直到一个成功
+      tryNextTerminal(terminals, 0, escapedCommand);
     }
   } catch (error) {
     console.error("执行命令出错:", error);
   }
+}
+
+/**
+ * 递归尝试不同的Linux终端
+ * @param {Array} terminals 终端命令列表
+ * @param {number} index 当前尝试的索引
+ * @param {string} command 要执行的命令
+ */
+function tryNextTerminal(terminals, index, command) {
+  if (index >= terminals.length) {
+    console.error("无法找到可用的终端");
+    return;
+  }
+
+  // 替换命令
+  const terminalCmd = terminals[index].replace("{CMD}", command);
+  
+  exec(terminalCmd, (error) => {
+    if (error) {
+      console.warn(`终端 ${index + 1}/${terminals.length} 失败，尝试下一个...`);
+      // 递归尝试下一个终端
+      tryNextTerminal(terminals, index + 1, command);
+    }
+  });
 }
 
 /**

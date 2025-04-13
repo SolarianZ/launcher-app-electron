@@ -18,6 +18,43 @@ let windowConfig = {
   }
 };
 
+// 存储数据变化监听器
+const changeListeners = [];
+
+/**
+ * 添加数据变化监听器
+ * @param {Function} listener 监听函数
+ */
+function addChangeListener(listener) {
+  if (typeof listener === 'function' && !changeListeners.includes(listener)) {
+    changeListeners.push(listener);
+  }
+}
+
+/**
+ * 移除数据变化监听器
+ * @param {Function} listener 要移除的监听函数
+ */
+function removeChangeListener(listener) {
+  const index = changeListeners.indexOf(listener);
+  if (index !== -1) {
+    changeListeners.splice(index, 1);
+  }
+}
+
+/**
+ * 通知所有监听器数据已变化
+ */
+function notifyChangeListeners() {
+  for (const listener of changeListeners) {
+    try {
+      listener();
+    } catch (error) {
+      console.error("监听器执行错误:", error);
+    }
+  }
+}
+
 /**
  * 加载保存的项目列表
  * @returns {Array} 项目列表
@@ -48,6 +85,7 @@ function saveItems() {
       fs.mkdirSync(dirPath, { recursive: true });
     }
     fs.writeFileSync(dataFilePath, JSON.stringify(items, null, 2), "utf8");
+    notifyChangeListeners();
     return true;
   } catch (error) {
     console.error("Error saving items:", error);
@@ -222,5 +260,7 @@ module.exports = {
   loadWindowConfig,
   saveWindowConfig,
   updateMainWindowConfig,
-  getWindowConfig
+  getWindowConfig,
+  addChangeListener,
+  removeChangeListener
 };

@@ -39,3 +39,8 @@
 1. 注重代码质量和可读性，使用有意义的变量和函数名称。
 
 2. 添加详细的注释，尤其是处理平台特定代码时。
+
+## API说明
+
+- `webUtils.getPathForFile(file)` 是有效的Electron API
+- 最新版Electron中，无法使用 `event.dataTransfer.files[0].path` 来获取文件路径，必须使用 `webUtils.getPathForFile(file)` 来获取文件路径
