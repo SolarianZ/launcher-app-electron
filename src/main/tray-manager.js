@@ -1,7 +1,12 @@
+/**
+ * 托盘管理模块
+ * 负责创建和管理系统托盘图标、托盘菜单
+ * 处理不同平台(Windows, macOS, Linux)下的托盘特性差异
+ */
 const { Tray, Menu, nativeImage, app } = require('electron');
 const path = require('path');
 
-// 全局托盘引用
+// 全局托盘引用 - 防止被垃圾回收
 let tray = null;
 
 /**
@@ -14,7 +19,14 @@ function createTray(toggleMainWindow) {
     return tray;
   }
 
-  // 根据平台选择不同的图标处理方式
+  /**
+   * 托盘图标路径
+   * 根据平台选择不同的图标处理方式
+   * 托盘图标建议尺寸:
+   * - Windows: 16x16 或 32x32 像素(建议32x32以适应高DPI屏幕)
+   * - macOS: 16x16 或 18x18 像素
+   * - Linux: 根据桌面环境有所不同，通常22x22像素
+   */
   const iconPath = path.join(
     __dirname,
     '..',
@@ -26,17 +38,27 @@ function createTray(toggleMainWindow) {
   let icon = nativeImage.createFromPath(iconPath);
   
   if (process.platform === 'darwin') {
-    // 确保图标大小适合macOS菜单栏（建议16x16或18x18像素）
+    /**
+     * macOS平台特定处理
+     * 1. 调整图标大小至18x18像素以适合macOS菜单栏
+     * 2. 设置为模板图像(templateImage)以适应深色和浅色模式
+     *    模板图像应为单色透明PNG，macOS会自动处理颜色
+     */
     const macSize = { width: 18, height: 18 };
     icon = icon.resize(macSize);
     // 设置为模板图像，让macOS自动处理明暗主题
     icon.setTemplateImage(true);
   }
   
+  // 创建托盘实例
   tray = new Tray(icon);
   tray.setToolTip('Launcher');
 
-  // 点击托盘图标时切换主窗口显示
+  /**
+   * 设置托盘点击行为
+   * 注意: 在Linux平台上通常只响应右击显示菜单，此处点击事件在某些发行版可能无效
+   * 在Windows和macOS上，点击托盘图标可以切换主窗口显示状态
+   */
   tray.on('click', () => {
     toggleMainWindow();
   });
@@ -52,6 +74,7 @@ function createTray(toggleMainWindow) {
 function updateTrayMenu(items, handleItemAction) {
   if (!tray) return;
 
+  // 只显示最近的8个项目，防止菜单过长
   const recentItems = items.slice(0, 8).map((item) => {
     return {
       label: item.name || item.path,
@@ -59,6 +82,12 @@ function updateTrayMenu(items, handleItemAction) {
     };
   });
 
+  /**
+   * 创建托盘上下文菜单
+   * 菜单项中的快捷键在平台间可能有差异:
+   * - macOS: Command键使用 cmd
+   * - Windows/Linux: Control键使用 ctrl
+   */
   const contextMenu = Menu.buildFromTemplate([
     ...recentItems,
     { type: 'separator' },
@@ -68,11 +97,13 @@ function updateTrayMenu(items, handleItemAction) {
     },
   ]);
 
+  // 设置托盘的上下文菜单
   tray.setContextMenu(contextMenu);
 }
 
 /**
  * 销毁托盘图标
+ * 在应用退出前调用，释放系统资源
  */
 function destroyTray() {
   if (tray) {

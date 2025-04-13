@@ -1,19 +1,34 @@
+/**
+ * 预加载脚本
+ * 在渲染进程加载前执行，安全地暴露特定API给渲染进程
+ * 作为渲染进程和主进程之间的桥梁，确保渲染进程不直接访问Node.js API
+ */
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
-// 安全地暴露API给渲染进程
+/**
+ * 通过contextBridge安全地暴露API给渲染进程
+ * 所有渲染进程的JavaScript可以通过window.electronAPI访问这些函数
+ */
 contextBridge.exposeInMainWorld("electronAPI", {
-  // 窗口控制
+  /**
+   * 窗口控制相关API
+   * 允许渲染进程控制应用窗口
+   */
   minimizeWindow: () => ipcRenderer.send("minimize-window"),
   closeWindow: () => ipcRenderer.send("close-window"),
   closeAddItemWindow: () => ipcRenderer.send("close-add-item-window"),
   closeSettingsWindow: () => ipcRenderer.send("close-settings-window"),
   showSettingsWindow: () => ipcRenderer.send("show-settings-window"),
 
+  /**
+   * 事件监听相关API
+   * 允许渲染进程注册对主进程事件的监听
+   */
   // 监听列表更新事件
   onItemsUpdated: (callback) => {
     ipcRenderer.on("items-updated", () => callback());
 
-    // 返回清理函数
+    // 返回清理函数，用于移除事件监听，防止内存泄漏
     return () => {
       ipcRenderer.removeAllListeners("items-updated");
     };
@@ -23,12 +38,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onEditItemData: (callback) => {
     const listener = (event, data) => callback(data);
     ipcRenderer.on("edit-item-data", listener);
+    // 返回清理函数
     return () => {
       ipcRenderer.removeListener("edit-item-data", listener);
     };
   },
 
-  // 项目管理
+  /**
+   * 项目管理相关API
+   * 允许渲染进程获取、添加、更新和删除项目
+   */
   getItems: () => ipcRenderer.invoke("get-items"),
   addItem: (item) => ipcRenderer.invoke("add-item", item),
   removeItem: (index) => ipcRenderer.invoke("remove-item", index),
@@ -37,10 +56,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   showEditItemDialog: (item, index) =>
     ipcRenderer.send("show-edit-item-dialog", { item, index }),
 
-  // 获取项目类型
+  /**
+   * 项目类型判断API
+   * 根据路径判断项目类型(文件、文件夹、URL或命令)
+   */
   getItemType: (path) => ipcRenderer.invoke("get-item-type", path),
 
-  // 项目操作
+  /**
+   * 项目操作相关API
+   * 允许渲染进程对项目执行各种操作
+   */
   updateItem: (index, updatedItem) =>
     ipcRenderer.invoke("update-item", { index, updatedItem }),
   openItem: (item) => ipcRenderer.send("open-item", item),
@@ -48,20 +73,34 @@ contextBridge.exposeInMainWorld("electronAPI", {
   copyText: (text) => ipcRenderer.send("copy-text", text),
   copyFile: (path) => ipcRenderer.send("copy-file", path),
 
-  // 获取文件或文件夹路径
+  /**
+   * 文件路径获取API
+   * 使用webUtils.getPathForFile获取文件路径
+   * 注意：最新版Electron中，无法使用event.dataTransfer.files[0].path
+   * 必须使用webUtils.getPathForFile来安全获取文件路径
+   */
   getFileOrFolderPath: (item) => {
     if (!item) return undefined;
     return webUtils.getPathForFile(item);
   },
 
-  // 文件和文件夹选择
+  /**
+   * 文件和文件夹选择对话框API
+   * 允许渲染进程调用原生文件选择对话框
+   */
   selectFile: () => ipcRenderer.invoke("select-file"),
   selectFolder: () => ipcRenderer.invoke("select-folder"),
 
-  // 获取平台信息
+  /**
+   * 平台信息API
+   * 获取当前运行平台信息(win32、darwin、linux)
+   */
   getPlatform: () => process.platform,
   
-  // 设置相关功能
+  /**
+   * 设置相关API
+   * 提供各种设置和实用功能
+   */
   openStorageLocation: () => ipcRenderer.send("open-storage-location"),
   clearAllItems: () => ipcRenderer.send("clear-all-items"),
   openDevTools: () => ipcRenderer.send("open-devtools"),

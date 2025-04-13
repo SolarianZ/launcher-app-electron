@@ -1,25 +1,35 @@
 <!DOCTYPE html>
+<!--
+  设置窗口HTML文件
+  用于配置应用程序的主题、管理数据和显示应用信息
+-->
 <html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Launcher</title>
+    <!-- 导入样式表和主题 -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/themes.css">
 </head>
 
 <body>
+    <!-- 设置模态窗口容器 -->
     <div id="settings-modal" class="settings-modal">
         <div class="modal">
+            <!-- 模态窗口标题栏 -->
             <div class="modal-title-bar">
                 <div class="window-title">设置</div>
-                <button id="close-settings" class="close-button">×</button>
+                <button id="close-settings" class="close-button" title="关闭">×</button>
             </div>
+            <!-- 模态窗口内容区域 -->
             <div class="modal-content">
+                <!-- 外观设置区域 -->
                 <div class="settings-section">
                     <h3>外观</h3>
                     <div class="settings-item">
+                        <!-- 主题选择下拉框 -->
                         <select id="theme-select" class="form-select">
                             <option value="system">跟随系统</option>
                             <option value="light">浅色模式</option>
@@ -28,28 +38,34 @@
                     </div>
                 </div>
 
+                <!-- 数据管理区域 -->
                 <div class="settings-section">
                     <h3>数据</h3>
                     <div class="settings-item">
+                        <!-- 清空数据按钮 -->
                         <button id="clear-data-btn" class="settings-btn">清空所有记录</button>
                         <div class="settings-desc">删除所有已记录的条目</div>
                     </div>
                     <div class="settings-item">
+                        <!-- 打开数据文件夹按钮 -->
                         <button id="open-storage-btn" class="settings-btn">打开应用数据文件夹</button>
                         <div class="settings-desc">在文件夹中查看应用数据文件</div>
                     </div>
                 </div>
 
+                <!-- 应用信息区域 -->
                 <div class="settings-section">
                     <h3>关于</h3>
                     <div class="settings-item about-section">
+                        <!-- 应用程序标识和说明 -->
                         <div class="app-logo">🚀</div>
                         <div class="app-title">Launcher</div>
                         <div class="app-version">版本 1.0.0</div>
                         <div class="app-desc">记录和快速访问常用文件、文件夹、URL和指令的工具。</div>
+                        <!-- 外部链接 -->
                         <div class="app-links">
-                            <a href="#" id="github-link">GitHub</a> |
-                            <a href="#" id="report-issue">报告问题</a>
+                            <a href="#" id="github-link" title="访问GitHub仓库">GitHub</a> |
+                            <a href="#" id="report-issue" title="提交问题报告">报告问题</a>
                         </div>
                         <div class="settings-desc">按F12打开Chrome开发者工具</div>
                     </div>
@@ -58,6 +74,7 @@
         </div>
     </div>
 
+    <!-- 引入设置窗口的脚本 -->
     <script src="js/settings.js"></script>
 </body>
 

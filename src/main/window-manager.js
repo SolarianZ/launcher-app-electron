@@ -1,8 +1,12 @@
+/**
+ * 窗口管理模块
+ * 负责创建和管理应用程序中的所有窗口
+ */
 const { BrowserWindow } = require('electron');
 const path = require('path');
 const dataStore = require('./data-store');
 
-// 全局窗口引用
+// 全局窗口引用 - 防止垃圾回收导致窗口被关闭
 let mainWindow = null;
 let addItemWindow = null;
 let settingsWindow = null;  // 添加设置窗口引用
@@ -21,7 +25,10 @@ function createMainWindow() {
   const windowConfig = dataStore.loadWindowConfig();
   const mainWindowConfig = windowConfig.mainWindow;
 
-  // 使用保存的窗口配置，如果存在的话
+  /**
+   * 设置窗口选项 
+   * 注意：某些配置是平台特定的，如titleBarStyle和titleBarOverlay
+   */
   const windowOptions = {
     width: mainWindowConfig.width || 400,
     height: mainWindowConfig.height || 600,
@@ -29,17 +36,30 @@ function createMainWindow() {
     minHeight: 300,
     maximizable: false,
     fullscreenable: false,
+    /**
+     * titleBarStyle: 在macOS上使用自定义标题栏
+     * 'hidden' - 隐藏标题栏，内容延伸到整个窗口，窗口控制按钮可见
+     * Windows平台通过设置frame: false实现
+     */
     titleBarStyle: 'hidden',
+    /**
+     * titleBarOverlay: 在Windows上自定义标题栏外观
+     * 仅在Windows 10及更高版本有效
+     */
     titleBarOverlay: {
       height: 30,
       color: 'rgba(0, 0, 0, 0)',
       symbolColor: 'white',
     },
-    show: false,
-    frame: false,
-    transparent: true,
+    show: false, // 先创建隐藏窗口，准备完成后再显示，避免白屏
+    frame: false, // 无框窗口
+    transparent: true, // 透明背景
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+      /**
+       * 注意：没有启用nodeIntegration
+       * 而是使用预加载脚本安全地暴露必要API
+       */
     },
   };
 
@@ -49,28 +69,31 @@ function createMainWindow() {
     windowOptions.y = mainWindowConfig.y;
   }
 
+  // 创建主窗口实例
   mainWindow = new BrowserWindow(windowOptions);
 
+  // 加载渲染进程的HTML文件
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
   // mainWindow.webContents.openDevTools(); // 开发时可启用
 
-  // 避免白屏
+  // 窗口内容准备好后再显示，避免白屏
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
 
-  // 不在任务栏显示
+  // 不在任务栏显示图标
   mainWindow.setSkipTaskbar(true);
 
-  // 处理快捷键
+  // 监听键盘事件，处理快捷键
   mainWindow.webContents.on('before-input-event', (event, input) => {
+    // 按ESC键隐藏窗口
     if (input.key === 'Escape') {
       mainWindow.hide();
       event.preventDefault();
     }
   });
 
-  // 保存窗口调整大小和移动时的位置和尺寸
+  // 保存窗口调整大小时的尺寸
   mainWindow.on('resize', () => {
     if (!mainWindow.isMaximized()) {
       const bounds = mainWindow.getBounds();
@@ -81,6 +104,7 @@ function createMainWindow() {
     }
   });
 
+  // 保存窗口移动时的位置
   mainWindow.on('move', () => {
     if (!mainWindow.isMaximized()) {
       const bounds = mainWindow.getBounds();
@@ -91,7 +115,7 @@ function createMainWindow() {
     }
   });
 
-  // 窗口关闭时清除引用
+  // 窗口关闭时清除引用，避免内存泄漏
   mainWindow.on('closed', () => {
     mainWindow = null;
   });

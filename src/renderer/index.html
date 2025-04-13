@@ -1,16 +1,23 @@
 <!DOCTYPE html>
+<!--
+  主窗口HTML文件
+  应用程序的主界面，显示项目列表和搜索框
+-->
 <html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Launcher</title>
+    <!-- 导入样式表 -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/themes.css">
 </head>
 
 <body>
+    <!-- 应用程序容器 - 主UI容器 -->
     <div class="app-container">
+        <!-- 自定义标题栏 - 无框窗口的标题栏替代 -->
         <div class="title-bar">
             <div class="title-bar-left"></div>
             <div class="title-container">
@@ -20,19 +27,25 @@
             <div class="title-bar-right"></div>
         </div>
 
+        <!-- 搜索区域 - 包含搜索输入框和添加按钮 -->
         <div class="search-container">
             <input type="text" class="search-input" id="search-input" placeholder="搜索...">
-            <button class="add-button" id="add-button">+</button>
+            <button class="add-button" id="add-button" title="添加新项目">+</button>
         </div>
 
+        <!-- 列表容器 - 动态填充项目列表 -->
         <div class="list-container" id="list-container">
             <!-- 列表项将通过JavaScript动态生成 -->
         </div>
     </div>
 
+    <!-- 工具提示 - 显示项目完整路径 -->
     <div class="tooltip" id="tooltip" style="display: none;"></div>
+    
+    <!-- 通知提示 - 显示操作结果消息 -->
     <div class="toast" id="toast" style="display: none;"></div>
 
+    <!-- 脚本引入 -->
     <script src="js/renderer.js"></script>
     <script src="js/list.js"></script>
     <script src="js/context-menu.js"></script>

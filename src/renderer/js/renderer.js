@@ -1,5 +1,10 @@
+/**
+ * 主窗口渲染进程脚本
+ * 负责项目列表的渲染、项目操作、搜索过滤、拖放功能等
+ * 包含用户界面交互逻辑和事件处理
+ */
 document.addEventListener("DOMContentLoaded", () => {
-  // DOM元素
+  // DOM元素引用
   const addBtn = document.getElementById("add-button");
   const searchInput = document.getElementById("search-input");
   const listContainer = document.getElementById("list-container");
@@ -9,11 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 初始化页面
   initPage();
 
-  // 事件监听
+  /**
+   * 事件监听设置部分
+   */
+
+  // 添加按钮点击事件 - 显示添加项目对话框
   addBtn.addEventListener("click", () => {
     window.electronAPI.showAddItemDialog();
   });
 
+  // 搜索框输入事件 - 实时过滤列表项目
   searchInput.addEventListener("input", () => {
     filterItems(searchInput.value.toLowerCase());
   });
@@ -23,7 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
     window.electronAPI.showSettingsWindow();
   });
 
-  // 监听按键
+  /**
+   * 全局键盘事件处理
+   * - Escape: 关闭窗口
+   * - Delete: 删除选中项目
+   * - Enter: 打开选中项目
+   * - 方向键: 列表导航
+   * - F12: 打开开发者工具
+   */
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       window.electronAPI.closeWindow();
@@ -48,13 +65,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 处理文件拖放
+  /**
+   * 文件拖放处理
+   * 支持将文件从资源管理器拖入应用程序
+   */
+  // 允许拖放操作
   listContainer.addEventListener("dragover", (e) => {
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = "copy";
   });
 
+  // 处理文件拖放
   listContainer.addEventListener("drop", async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -64,6 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const file = e.dataTransfer.files[0];
+    // 使用安全的API获取文件路径
+    // 注意：最新版Electron中，必须使用webUtils.getPathForFile
     const filePath = window.electronAPI.getFileOrFolderPath(file);
     if (!filePath) {
       showToast("无效的文件", true);
@@ -79,14 +103,17 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // 判断项目类型
     const itemType = await window.electronAPI.getItemType(filePath);
 
+    // 创建新项目
     const newItem = {
       type: itemType,
       path: filePath,
-      name: filePath.split("/").pop().split("\\").pop(),
+      name: filePath.split("/").pop().split("\\").pop(), // 从路径中提取文件名
     };
 
+    // 添加项目并刷新列表
     const result = await window.electronAPI.addItem(newItem);
     if (result.success) {
       await loadItems();

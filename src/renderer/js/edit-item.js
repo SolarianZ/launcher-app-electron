@@ -1,3 +1,9 @@
+/**
+ * 项目编辑窗口脚本
+ * 负责处理项目的添加和编辑功能
+ * 包括表单验证、文件选择和保存操作
+ */
+
 // 与shared/defines.js中的定义保持一致（这里无法直接require）
 const PathType = {
   FILE: "file",
@@ -7,7 +13,7 @@ const PathType = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // DOM元素
+  // DOM元素引用
   const itemPathInput = document.getElementById("item-path");
   const itemNameInput = document.getElementById("item-name");
   const itemTypeSelect = document.getElementById("item-type");
@@ -24,13 +30,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 检测并应用系统主题
   applySystemTheme();
 
-  // 监听编辑条目数据
+  /**
+   * 监听编辑条目数据事件
+   * 当从主窗口请求编辑项目时触发
+   */
   window.electronAPI.onEditItemData(({ item, index }) => {
     // 进入编辑模式
     isEditMode = true;
     editingItemIndex = index;
 
-    // 填充数据
+    // 填充表单数据
     itemPathInput.value = item.path;
     itemTypeSelect.value = item.type;
 
@@ -43,12 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
     saveBtn.disabled = false;
   });
 
-  // 选择文件按钮点击事件
+  /**
+   * 文件选择按钮点击事件
+   * 使用系统对话框选择文件
+   */
   selectFileBtn.addEventListener("click", async () => {
     try {
       const result = await window.electronAPI.selectFile();
       if (!result.canceled) {
         itemPathInput.value = result.filePath;
+        // 自动设置类型为文件
         itemTypeSelect.value = PathType.FILE;
         saveBtn.disabled = false;
       }
@@ -58,12 +71,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 选择文件夹按钮点击事件
+  /**
+   * 文件夹选择按钮点击事件
+   * 使用系统对话框选择文件夹
+   */
   selectFolderBtn.addEventListener("click", async () => {
     try {
       const result = await window.electronAPI.selectFolder();
       if (!result.canceled) {
         itemPathInput.value = result.filePath;
+        // 自动设置类型为文件夹
         itemTypeSelect.value = PathType.FOLDER;
         saveBtn.disabled = false;
       }
@@ -73,27 +90,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 路径输入变化时自动推断类型
+  /**
+   * 路径输入变化事件处理
+   * 自动推断项目类型，启用/禁用保存按钮
+   */
   itemPathInput.addEventListener("input", async () => {
     const path = itemPathInput.value.trim();
+    // 获取路径对应的项目类型
     const type = await window.electronAPI.getItemType(path);
 
     if (path && type) {
-      // 启用添加按钮
+      // 有效路径，启用添加按钮
       saveBtn.disabled = false;
       itemTypeSelect.value = type;
     } else {
-      // 禁用添加按钮
+      // 无效路径，禁用添加按钮
       saveBtn.disabled = true;
     }
   });
 
-  // 添加/保存按钮点击事件
+  /**
+   * 保存按钮点击事件处理
+   * 添加新项目或更新现有项目
+   */
   saveBtn.addEventListener("click", async () => {
+    // 获取表单数据
     const path = itemPathInput.value.trim();
     const type = itemTypeSelect.value;
     const name = itemNameInput.value.trim();
 
+    // 表单验证
     if (!path) {
       showToast("请输入路径或命令", true);
       return;
@@ -104,6 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // 创建项目对象
     const newItem = {
       type: type,
       path: path,
@@ -126,9 +153,12 @@ document.addEventListener("DOMContentLoaded", () => {
         result = await window.electronAPI.addItem(newItem);
       }
 
+      // 处理操作结果
       if (result.success) {
+        // 保存成功，关闭窗口
         window.electronAPI.closeAddItemWindow();
       } else {
+        // 显示错误提示
         showToast(result.message, true);
       }
     } catch (error) {
@@ -137,7 +167,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 取消按钮点击事件
+  /**
+   * 取消按钮点击事件
+   * 关闭编辑窗口，不保存任何更改
+   */
   cancelBtn.addEventListener("click", () => {
     window.electronAPI.closeAddItemWindow();
   });

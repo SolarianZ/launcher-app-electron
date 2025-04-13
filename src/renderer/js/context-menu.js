@@ -1,5 +1,17 @@
+/**
+ * 右键菜单处理模块
+ * 负责为不同类型的项目创建上下文菜单
+ * 实现复制、编辑、删除等项目操作
+ */
 document.addEventListener('DOMContentLoaded', () => {
-    // 创建右键菜单
+    /**
+     * 创建右键菜单
+     * 根据项目类型创建不同的上下文菜单
+     * @param {number} x 菜单显示的X坐标
+     * @param {number} y 菜单显示的Y坐标
+     * @param {Object} item 项目对象
+     * @param {number} index 项目在列表中的索引
+     */
     function createContextMenu(x, y, item, index) {
         // 移除任何现有的上下文菜单
         removeContextMenu();
@@ -12,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 先将菜单添加到文档中但不设置位置，以便我们可以测量其尺寸
         document.body.appendChild(contextMenu);
 
-        // 根据项目类型添加菜单项
+        // 根据项目类型添加不同的菜单项
         switch (item.type) {
             case 'file':
             case 'folder':
@@ -30,12 +42,19 @@ document.addEventListener('DOMContentLoaded', () => {
         adjustMenuPosition(contextMenu, x, y);
 
         // 点击文档其他区域时隐藏菜单
+        // 使用setTimeout避免当前点击事件立即触发关闭
         setTimeout(() => {
             document.addEventListener('click', removeContextMenu);
         }, 0);
     }
 
-    // 调整菜单位置，确保在可视区域内
+    /**
+     * 调整菜单位置，确保在可视区域内
+     * 处理屏幕边缘情况，避免菜单显示不全
+     * @param {HTMLElement} menu 菜单DOM元素
+     * @param {number} x 初始X坐标
+     * @param {number} y 初始Y坐标
+     */
     function adjustMenuPosition(menu, x, y) {
         // 获取菜单尺寸
         const menuWidth = menu.offsetWidth;
@@ -68,14 +87,19 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.style.top = `${y}px`;
     }
 
-    // 创建文件或文件夹菜单
+    /**
+     * 为文件或文件夹类型创建上下文菜单
+     * @param {HTMLElement} menu 菜单DOM元素
+     * @param {Object} item 项目对象
+     * @param {number} index 项目索引
+     */
     function createFileOrFolderMenu(menu, item, index) {
         // 打开选项
         addMenuItem(menu, '打开', () => {
             window.electronAPI.openItem(item);
         });
 
-        // 仅文件项显示"在文件夹中显示"
+        // 仅文件项显示"在文件夹中显示"选项
         if (item.type === 'file') {
             addMenuItem(menu, '在文件夹中显示', () => {
                 window.electronAPI.showItemInFolder(item.path);
@@ -85,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 分隔线
         addMenuDivider(menu);
 
-        // 复制选项
+        // 复制选项组
         addMenuItem(menu, '复制路径', () => {
             window.electronAPI.copyText(item.path);
         });
@@ -114,7 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 创建URL菜单
+    /**
+     * 创建URL菜单
+     * @param {HTMLElement} menu 菜单容器元素
+     * @param {Object} item 项目对象
+     * @param {number} index 项目索引
+     */
     function createUrlMenu(menu, item, index) {
         // 打开选项
         addMenuItem(menu, '打开', () => {
@@ -144,7 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 创建命令菜单
+    /**
+     * 创建命令菜单
+     * @param {HTMLElement} menu 菜单容器元素
+     * @param {Object} item 项目对象
+     * @param {number} index 项目索引
+     */
     function createCommandMenu(menu, item, index) {
         // 执行选项
         addMenuItem(menu, '执行', () => {
@@ -174,7 +208,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 添加菜单项
+    /**
+     * 添加菜单项
+     * @param {HTMLElement} menu 菜单容器元素
+     * @param {string} text 菜单项文本
+     * @param {Function} onClick 点击回调函数
+     */
     function addMenuItem(menu, text, onClick) {
         const menuItem = document.createElement('div');
         menuItem.classList.add('menu-item');
@@ -187,14 +226,20 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.appendChild(menuItem);
     }
 
-    // 添加菜单分隔线
+    /**
+     * 添加菜单分隔线
+     * @param {HTMLElement} menu 菜单容器元素
+     */
     function addMenuDivider(menu) {
         const divider = document.createElement('div');
         divider.classList.add('menu-divider');
         menu.appendChild(divider);
     }
 
-    // 移除上下文菜单
+    /**
+     * 移除上下文菜单
+     * 从文档中移除现有的上下文菜单
+     */
     function removeContextMenu() {
         const contextMenu = document.getElementById('context-menu');
         if (contextMenu) {
@@ -203,7 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 设置列表项的右键菜单
+    /**
+     * 设置列表项的右键菜单
+     * 为列表容器添加右键菜单事件监听
+     */
     function setupContextMenu() {
         const listContainer = document.getElementById('list-container');
 

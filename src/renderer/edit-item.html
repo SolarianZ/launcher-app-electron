@@ -1,29 +1,40 @@
 <!DOCTYPE html>
+<!--
+  项目编辑窗口HTML文件
+  用于添加新项目或编辑现有项目的模态窗口
+  支持文件、文件夹、URL和命令四种类型的项目
+-->
 <html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>条目内容</title>
+    <!-- 导入基础样式表和主题 -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/themes.css">
+    <!-- 编辑窗口特定的内联样式 -->
     <style>
+        /* 按钮分组布局 - 包含文件选择按钮和操作按钮 */
         .button-group {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
+        /* 文件选择按钮组 */
         .file-buttons {
             display: flex;
             gap: 5px;
         }
         
+        /* 操作按钮组（保存和取消） */
         .action-buttons {
             display: flex;
             gap: 10px;
         }
         
+        /* 图标按钮样式 - 用于文件和文件夹选择 */
         .icon-btn {
             display: flex;
             align-items: center;
@@ -41,6 +52,7 @@
             background-color: #e0e0e0;
         }
         
+        /* 深色主题下的图标按钮样式 */
         .dark-theme .icon-btn {
             background-color: #3a3a3a;
             border: 1px solid #555;
@@ -51,11 +63,13 @@
             background-color: #4a4a4a;
         }
         
+        /* SVG图标尺寸 */
         .icon-btn svg {
             width: 18px;
             height: 18px;
         }
         
+        /* 深色主题下的SVG填充颜色 */
         .dark-theme .icon-btn svg {
             fill: #fff;
         }
@@ -63,17 +77,23 @@
 </head>
 
 <body>
+    <!-- 模态窗口容器 -->
     <div class="modal">
+        <!-- 模态窗口标题栏 -->
         <div class="modal-title-bar">
             条目内容
         </div>
+        <!-- 模态窗口内容区域 -->
         <div class="modal-content">
+            <!-- 项目路径输入框 -->
             <div class="form-group">
                 <input type="text" class="form-input" id="item-path" placeholder="输入文件路径、URL或命令...">
             </div>
+            <!-- 项目名称输入框（可选） -->
             <div class="form-group">
                 <input type="text" class="form-input" id="item-name" placeholder="输入条目名称（可选）">
             </div>
+            <!-- 项目类型选择下拉框 -->
             <div class="form-group">
                 <select class="form-select" id="item-type">
                     <option value="file">文件</option>
@@ -82,19 +102,24 @@
                     <option value="command">指令</option>
                 </select>
             </div>
+            <!-- 按钮组 - 包含文件选择按钮和操作按钮 -->
             <div class="button-group">
+                <!-- 文件和文件夹选择按钮 -->
                 <div class="file-buttons">
+                    <!-- 文件选择按钮 -->
                     <button class="icon-btn" id="select-file-btn" title="选择文件">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1v5h5v10H6V4h7z"/>
                         </svg>
                     </button>
+                    <!-- 文件夹选择按钮 -->
                     <button class="icon-btn" id="select-folder-btn" title="选择文件夹">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/>
                         </svg>
                     </button>
                 </div>
+                <!-- 保存和取消按钮 -->
                 <div class="action-buttons">
                     <button class="btn btn-secondary" id="cancel-btn">取消</button>
                     <button class="btn btn-primary" id="save-btn" disabled>保存</button>
@@ -103,8 +128,10 @@
         </div>
     </div>
 
+    <!-- 通知提示 - 显示操作结果消息 -->
     <div class="toast" id="toast" style="display: none;"></div>
 
+    <!-- 引入编辑窗口的脚本 -->
     <script src="js/edit-item.js"></script>
 </body>
 

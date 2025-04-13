@@ -31,29 +31,43 @@ function executeCommand(command) {
   const platform = process.platform;
   try {
     if (platform === "win32") {
-      // Windows - 使用 start cmd 打开命令窗口并执行命令
+      /**
+       * Windows平台特定代码
+       * 使用CMD执行命令，有两种模式：
+       * 1. /K - 执行命令后保持窗口打开
+       * 2. /C - 执行命令后关闭窗口
+       */
       if (/^\/[KC]/i.test(command)) {
         // 若已经包含 /K 或 /C 则直接执行
         exec(`start cmd ${command}`);
       } else {
+        // 默认使用 /K 模式保持窗口打开
         exec(`start cmd /K "${command}"`); // 使用引号包裹命令，防止注入
       }
     } else if (platform === "darwin") {
-      // macOS - 使用 osascript 打开 Terminal 并执行命令
+      /**
+       * macOS平台特定代码
+       * 使用AppleScript在Terminal中执行命令
+       * 转义引号以防止命令注入攻击
+       */
       const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
       exec(
         `osascript -e 'tell app "Terminal" to do script "${escapedCommand}"'`
       );
     } else {
-      // Linux - 尝试打开各种常见终端
+      /**
+       * Linux平台特定代码
+       * Linux有多种不同的终端模拟器，需要尝试多种终端
+       * 命令会依次尝试gnome-terminal、konsole、xterm等终端
+       */
       const terminals = [
-        'gnome-terminal -- bash -c "{CMD}; exec bash"',
-        'konsole --noclose -e bash -c "{CMD}"',
-        'xterm -hold -e bash -c "{CMD}"',
-        'x-terminal-emulator -e bash -c "{CMD}; exec bash"',
+        'gnome-terminal -- bash -c "{CMD}; exec bash"',  // GNOME桌面环境
+        'konsole --noclose -e bash -c "{CMD}"',          // KDE桌面环境
+        'xterm -hold -e bash -c "{CMD}"',                // 通用X终端
+        'x-terminal-emulator -e bash -c "{CMD}; exec bash"', // Debian/Ubuntu默认终端
       ];
 
-      // 安全处理命令
+      // 安全处理命令，转义引号以防止命令注入
       const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
 
       // 尝试所有可能的终端，直到一个成功
@@ -76,7 +90,7 @@ function tryNextTerminal(terminals, index, command) {
     return;
   }
 
-  // 替换命令
+  // 替换命令模板中的{CMD}为实际命令
   const terminalCmd = terminals[index].replace("{CMD}", command);
   
   exec(terminalCmd, (error) => {

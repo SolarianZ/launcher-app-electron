@@ -1,8 +1,19 @@
+/**
+ * 数据存储模块
+ * 负责应用程序数据的持久化存储和管理
+ * 包括项目列表和窗口配置等数据
+ */
 const { app } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
-// 数据文件路径
+/**
+ * 数据文件路径
+ * 使用Electron的app.getPath("userData")获取跨平台的用户数据目录
+ * - Windows: %APPDATA%\[appname]\
+ * - macOS: ~/Library/Application Support/[appname]/
+ * - Linux: ~/.config/[appname]/
+ */
 const dataFilePath = path.join(app.getPath("userData"), "items.json");
 const windowConfigPath = path.join(app.getPath("userData"), "configs.json");
 
@@ -18,7 +29,7 @@ let windowConfig = {
   }
 };
 
-// 存储数据变化监听器
+// 存储数据变化监听器 - 观察者模式实现
 const changeListeners = [];
 
 /**
