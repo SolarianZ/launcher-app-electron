@@ -93,7 +93,11 @@ function updateTrayMenu(items, handleItemAction) {
     { type: 'separator' },
     {
       label: '退出',
-      click: () => app.quit(),
+      click: () => {
+        // 设置标志，表示用户明确要求退出应用
+        app.isQuitting = true;
+        app.quit();
+      },
     },
   ]);
 

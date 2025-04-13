@@ -4,6 +4,9 @@
  */
 const { app, globalShortcut } = require('electron');
 
+// 添加一个标志，用于区分应用是要退出还是只是关闭主窗口
+app.isQuitting = false;
+
 // 导入拆分后的模块
 const windowManager = require('./window-manager');
 const dataStore = require('./data-store');

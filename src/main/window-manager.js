@@ -2,7 +2,7 @@
  * 窗口管理模块
  * 负责创建和管理应用程序中的所有窗口
  */
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, app } = require('electron');
 const path = require('path');
 const dataStore = require('./data-store');
 
@@ -113,6 +113,20 @@ function createMainWindow() {
         y: bounds.y
       });
     }
+  });
+
+  // 拦截关闭事件，在Windows上点击关闭按钮时隐藏窗口而非退出应用
+  mainWindow.on('close', (event) => {
+    // 如果不是真正要退出应用程序（如app.quit()或app.exit()）
+    // 且不在macOS上（macOS有自己的窗口管理行为）
+    if (!app.isQuitting && process.platform !== 'darwin') {
+      event.preventDefault(); // 阻止默认关闭行为
+      mainWindow.hide();      // 隐藏窗口
+      return false;           // 阻止默认行为
+    }
+    
+    // 否则，允许窗口关闭
+    return true;
   });
 
   // 窗口关闭时清除引用，避免内存泄漏
