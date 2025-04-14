@@ -31,38 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   applySystemTheme();
   
   /**
-   * 自动调整textarea的高度
-   * 根据内容动态调整高度，保持在1-5行之间
-   * 当内容超过5行时启用滚动
-   */
-  function autoResizeTextarea() {
-    // 重置高度，以便能够计算实际内容高度
-    itemPathInput.style.height = 'auto';
-    itemPathInput.style.overflowY = 'hidden';
-    
-    // 计算内容的实际高度
-    const scrollHeight = itemPathInput.scrollHeight;
-    
-    // 设置单行高度和最大高度（5行）
-    const lineHeight = 37;
-    const maxHeight = lineHeight * 5;
-    
-    // 检查内容是否超过最大高度
-    if (scrollHeight > maxHeight) {
-      // 内容超过5行，固定高度为5行并启用滚动
-      itemPathInput.style.height = maxHeight + 'px';
-      itemPathInput.style.overflowY = 'auto';
-    } else {
-      // 内容在5行以内，自动调整高度并禁用滚动
-      itemPathInput.style.height = Math.max(scrollHeight, lineHeight) + 'px';
-      itemPathInput.style.overflowY = 'hidden';
-    }
-  }
-  
-  // 监听textarea的输入事件，调整高度
-  itemPathInput.addEventListener('input', autoResizeTextarea);
-
-  /**
    * 监听编辑条目数据事件
    * 当从主窗口请求编辑项目时触发
    */
@@ -80,9 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
       itemNameInput.value = item.name;
     }
     
-    // 调整textarea高度以适应内容
-    autoResizeTextarea();
-
     // 启用保存按钮
     saveBtn.disabled = false;
   });
@@ -99,8 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // 自动设置类型为文件
         itemTypeSelect.value = PathType.FILE;
         saveBtn.disabled = false;
-        // 调整textarea高度以适应内容
-        autoResizeTextarea();
       }
     } catch (error) {
       console.error("选择文件出错:", error);
@@ -120,8 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // 自动设置类型为文件夹
         itemTypeSelect.value = PathType.FOLDER;
         saveBtn.disabled = false;
-        // 调整textarea高度以适应内容
-        autoResizeTextarea();
       }
     } catch (error) {
       console.error("选择文件夹出错:", error);
