@@ -29,6 +29,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 检测并应用系统主题
   applySystemTheme();
+  
+  /**
+   * 自动调整textarea的高度
+   * 根据内容动态调整高度，保持在1-5行之间
+   */
+  function autoResizeTextarea() {
+    // 重置高度，以便能够计算实际内容高度
+    itemPathInput.style.height = 'auto';
+    
+    // 计算内容的实际高度
+    const scrollHeight = itemPathInput.scrollHeight;
+    
+    // 设置行高为计算的高度（37px为单行高度，包含padding和border）
+    const lineHeight = 37;
+    const maxHeight = lineHeight * 5;
+    
+    // 设置高度，最小为一行高度，最大为5行高度
+    const newHeight = Math.min(Math.max(scrollHeight, lineHeight), maxHeight);
+    itemPathInput.style.height = newHeight + 'px';
+  }
+  
+  // 监听textarea的输入事件，调整高度
+  itemPathInput.addEventListener('input', autoResizeTextarea);
 
   /**
    * 监听编辑条目数据事件
@@ -47,6 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (item.name) {
       itemNameInput.value = item.name;
     }
+    
+    // 调整textarea高度以适应内容
+    autoResizeTextarea();
 
     // 启用保存按钮
     saveBtn.disabled = false;
@@ -64,6 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // 自动设置类型为文件
         itemTypeSelect.value = PathType.FILE;
         saveBtn.disabled = false;
+        // 调整textarea高度以适应内容
+        autoResizeTextarea();
       }
     } catch (error) {
       console.error("选择文件出错:", error);
@@ -83,6 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // 自动设置类型为文件夹
         itemTypeSelect.value = PathType.FOLDER;
         saveBtn.disabled = false;
+        // 调整textarea高度以适应内容
+        autoResizeTextarea();
       }
     } catch (error) {
       console.error("选择文件夹出错:", error);
@@ -207,14 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelector(".modal").classList.remove("dark-theme");
     }
   }
-
-  // 路径输入框按Enter时切换焦点到名称输入框
-  itemPathInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault(); // 阻止默认行为
-      itemNameInput.focus(); // 将焦点移到名称输入框
-    }
-  });
 
   // 名称输入框按Enter时触发保存（如果数据有效）
   itemNameInput.addEventListener("keydown", (e) => {
