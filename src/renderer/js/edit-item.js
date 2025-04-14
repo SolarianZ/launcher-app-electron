@@ -33,21 +33,30 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * 自动调整textarea的高度
    * 根据内容动态调整高度，保持在1-5行之间
+   * 当内容超过5行时启用滚动
    */
   function autoResizeTextarea() {
     // 重置高度，以便能够计算实际内容高度
     itemPathInput.style.height = 'auto';
+    itemPathInput.style.overflowY = 'hidden';
     
     // 计算内容的实际高度
     const scrollHeight = itemPathInput.scrollHeight;
     
-    // 设置行高为计算的高度（37px为单行高度，包含padding和border）
+    // 设置单行高度和最大高度（5行）
     const lineHeight = 37;
     const maxHeight = lineHeight * 5;
     
-    // 设置高度，最小为一行高度，最大为5行高度
-    const newHeight = Math.min(Math.max(scrollHeight, lineHeight), maxHeight);
-    itemPathInput.style.height = newHeight + 'px';
+    // 检查内容是否超过最大高度
+    if (scrollHeight > maxHeight) {
+      // 内容超过5行，固定高度为5行并启用滚动
+      itemPathInput.style.height = maxHeight + 'px';
+      itemPathInput.style.overflowY = 'auto';
+    } else {
+      // 内容在5行以内，自动调整高度并禁用滚动
+      itemPathInput.style.height = Math.max(scrollHeight, lineHeight) + 'px';
+      itemPathInput.style.overflowY = 'hidden';
+    }
   }
   
   // 监听textarea的输入事件，调整高度
