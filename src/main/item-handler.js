@@ -1,6 +1,8 @@
 const { shell, clipboard } = require("electron");
 const fs = require("fs");
+const path = require("path");
 const { exec } = require("child_process");
+const os = require("os");
 const { PathType } = require("../shared/defines");
 
 /**
@@ -37,7 +39,17 @@ function executeCommand(command) {
        * 1. /K - 执行命令后保持窗口打开
        * 2. /C - 执行命令后关闭窗口
        */
-      if (/^\/[KC]/i.test(command)) {
+      if (command.includes("\n")) {
+        // 处理多行命令：创建临时批处理文件
+        const tmpDir = os.tmpdir();
+        const batchFile = path.join(tmpDir, `launcher-cmd-${Date.now()}.bat`);
+        
+        // 写入批处理文件
+        fs.writeFileSync(batchFile, command, 'utf8');
+        
+        // 执行批处理文件
+        exec(`start cmd /K "${batchFile}"`);
+      } else if (/^\/[KC]/i.test(command)) {
         // 若已经包含 /K 或 /C 则直接执行
         exec(`start cmd ${command}`);
       } else {
@@ -50,28 +62,62 @@ function executeCommand(command) {
        * 使用AppleScript在Terminal中执行命令
        * 转义引号以防止命令注入攻击
        */
-      const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
-      exec(
-        `osascript -e 'tell app "Terminal" to do script "${escapedCommand}"'`
-      );
+      if (command.includes("\n")) {
+        // 处理多行命令：创建临时脚本文件
+        const tmpDir = os.tmpdir();
+        const scriptFile = path.join(tmpDir, `launcher-cmd-${Date.now()}.sh`);
+        
+        // 写入脚本文件并添加执行权限
+        fs.writeFileSync(scriptFile, command, 'utf8');
+        fs.chmodSync(scriptFile, '755');
+        
+        const escapedPath = scriptFile.replace(/"/g, '\\"').replace(/'/g, "'\\''");
+        exec(
+          `osascript -e 'tell app "Terminal" to do script "${escapedPath}"'`
+        );
+      } else {
+        const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
+        exec(
+          `osascript -e 'tell app "Terminal" to do script "${escapedCommand}"'`
+        );
+      }
     } else {
       /**
        * Linux平台特定代码
        * Linux有多种不同的终端模拟器，需要尝试多种终端
-       * 命令会依次尝试gnome-terminal、konsole、xterm等终端
        */
-      const terminals = [
-        'gnome-terminal -- bash -c "{CMD}; exec bash"',  // GNOME桌面环境
-        'konsole --noclose -e bash -c "{CMD}"',          // KDE桌面环境
-        'xterm -hold -e bash -c "{CMD}"',                // 通用X终端
-        'x-terminal-emulator -e bash -c "{CMD}; exec bash"', // Debian/Ubuntu默认终端
-      ];
+      if (command.includes("\n")) {
+        // 处理多行命令：创建临时脚本文件
+        const tmpDir = os.tmpdir();
+        const scriptFile = path.join(tmpDir, `launcher-cmd-${Date.now()}.sh`);
+        
+        // 写入脚本文件并添加执行权限
+        fs.writeFileSync(scriptFile, `#!/bin/bash\n${command}`, 'utf8');
+        fs.chmodSync(scriptFile, '755');
+        
+        const terminals = [
+          `gnome-terminal -- bash -c "${scriptFile}; exec bash"`,
+          `konsole --noclose -e bash -c "${scriptFile}"`,
+          `xterm -hold -e ${scriptFile}`,
+          `x-terminal-emulator -e ${scriptFile}`
+        ];
+        
+        // 尝试所有可能的终端，直到一个成功
+        tryNextTerminal(terminals, 0, "");
+      } else {
+        const terminals = [
+          'gnome-terminal -- bash -c "{CMD}; exec bash"',  // GNOME桌面环境
+          'konsole --noclose -e bash -c "{CMD}"',          // KDE桌面环境
+          'xterm -hold -e bash -c "{CMD}"',                // 通用X终端
+          'x-terminal-emulator -e bash -c "{CMD}; exec bash"', // Debian/Ubuntu默认终端
+        ];
 
-      // 安全处理命令，转义引号以防止命令注入
-      const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
+        // 安全处理命令，转义引号以防止命令注入
+        const escapedCommand = command.replace(/"/g, '\\"').replace(/'/g, "'\\''");
 
-      // 尝试所有可能的终端，直到一个成功
-      tryNextTerminal(terminals, 0, escapedCommand);
+        // 尝试所有可能的终端，直到一个成功
+        tryNextTerminal(terminals, 0, escapedCommand);
+      }
     }
   } catch (error) {
     console.error("执行命令出错:", error);
