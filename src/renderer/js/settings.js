@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 加载已保存的主题设置
   loadThemeSetting();
 
-  // 加载已保存的语言设置
-  loadLanguageSetting();
+  // 加载可用语言列表和已保存的语言设置
+  await loadLanguages();
 
   // 应用当前主题设置
   applyCurrentTheme();
@@ -151,13 +151,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /**
-   * 加载语言设置
-   * 从本地存储获取语言设置并设置到下拉选择框
+   * 加载可用语言列表和已保存的语言设置
+   * 从i18n模块获取所有可用语言并填充到下拉选择框
    */
-  function loadLanguageSetting() {
-    // 获取保存的语言设置，默认跟随系统
-    const savedLanguage = localStorage.getItem("language") || "system";
-    languageSelect.value = savedLanguage;
+  async function loadLanguages() {
+    try {
+      // 清空现有选项，只保留"系统"选项
+      while (languageSelect.options.length > 1) {
+        languageSelect.remove(1);
+      }
+
+      // 获取所有可用语言
+      const languages = await i18n.getAvailableLanguages();
+      
+      // 添加语言选项
+      for (const langCode of languages) {
+        const langName = await i18n.getLanguageName(langCode);
+        const option = document.createElement('option');
+        option.value = langCode;
+        option.textContent = langName;
+        languageSelect.appendChild(option);
+      }
+
+      // 获取保存的语言设置，默认跟随系统
+      const savedLanguage = localStorage.getItem("language") || "system";
+      languageSelect.value = savedLanguage;
+    } catch (error) {
+      console.error("加载语言列表失败:", error);
+    }
   }
 
   /**
