@@ -9,6 +9,7 @@ const { ipcMain, dialog } = require('electron');
 const windowManager = require('./window-manager');
 const dataStore = require('./data-store');
 const itemHandler = require('./item-handler');
+const i18n = require('../shared/i18n'); // 导入i18n模块
 
 /**
  * 设置所有 IPC 通信处理器
@@ -234,6 +235,31 @@ function setupIpcHandlers() {
       name: app.getName(),
       electronVersion: process.versions.electron,
     };
+  });
+  
+  /**
+   * 国际化(i18n)相关IPC处理
+   * 在主进程中处理所有i18n功能调用
+   */
+  
+  // 翻译文本
+  ipcMain.handle('i18n-translate', (event, { key, params }) => {
+    return i18n.t(key, params);
+  });
+  
+  // 设置语言
+  ipcMain.handle('i18n-set-language', (event, language) => {
+    return i18n.setLanguage(language);
+  });
+  
+  // 获取当前语言
+  ipcMain.handle('i18n-get-current-language', () => {
+    return i18n.getCurrentLanguage();
+  });
+  
+  // 获取系统语言
+  ipcMain.handle('i18n-get-system-language', () => {
+    return i18n.getSystemLanguage();
   });
 }
 

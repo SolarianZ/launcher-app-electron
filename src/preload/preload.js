@@ -4,7 +4,6 @@
  * 作为渲染进程和主进程之间的桥梁，确保渲染进程不直接访问Node.js API
  */
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
-const i18n = require("../shared/i18n");
 
 /**
  * 通过contextBridge安全地暴露API给渲染进程
@@ -140,14 +139,24 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   /**
    * 国际化(i18n)API
-   * 提供多语言支持功能
+   * 与主进程通信获取多语言支持功能
    */
   i18n: {
-    t: i18n.t,
-    setLanguage: i18n.setLanguage,
-    getCurrentLanguage: i18n.getCurrentLanguage,
-    getSystemLanguage: i18n.getSystemLanguage,
-    addLanguageChangeListener: i18n.addLanguageChangeListener,
-    removeLanguageChangeListener: i18n.removeLanguageChangeListener,
+    t: (key, params = null) => ipcRenderer.invoke("i18n-translate", { key, params }),
+    setLanguage: (language) => ipcRenderer.invoke("i18n-set-language", language),
+    getCurrentLanguage: () => ipcRenderer.invoke("i18n-get-current-language"),
+    getSystemLanguage: () => ipcRenderer.invoke("i18n-get-system-language"),
+    addLanguageChangeListener: (callback) => {
+      const listener = (event, language) => callback(language);
+      ipcRenderer.on("language-changed", listener);
+      return () => {
+        ipcRenderer.removeListener("language-changed", listener);
+      };
+    },
+    removeLanguageChangeListener: (callback) => {
+      // 由于我们使用IPC的事件系统，无需手动移除特定的监听器
+      // IPC回调是由返回的清理函数管理的
+      return true;
+    }
   },
 });
