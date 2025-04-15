@@ -150,7 +150,7 @@ function createAddItemWindow() {
 
   addItemWindow = new BrowserWindow({
     width: 400,
-    height: 300,
+    height: 400,
     resizable: false,
     frame: false,
     modal: true,
