@@ -81,26 +81,27 @@
     <div class="modal">
         <!-- 模态窗口标题栏 -->
         <div class="modal-title-bar">
-            条目内容
+            <div data-i18n="item-content">条目内容</div>
         </div>
         <!-- 模态窗口内容区域 -->
         <div class="modal-content">
             <!-- 项目路径输入框 -->
             <div class="form-group">
-                <textarea class="form-input" id="item-path" placeholder="输入文件路径、URL或命令..." rows="5"
-                    style="resize: none;"></textarea>
+                <textarea class="form-input" id="item-path" data-i18n-placeholder="enter-path" 
+                    placeholder="输入文件路径、URL或命令..." rows="5" style="resize: none;"></textarea>
             </div>
             <!-- 项目名称输入框（可选） -->
             <div class="form-group">
-                <input type="text" class="form-input" id="item-name" placeholder="输入条目名称（可选）">
+                <input type="text" class="form-input" id="item-name" data-i18n-placeholder="enter-item-name" 
+                    placeholder="输入条目名称（可选）">
             </div>
             <!-- 项目类型选择下拉框 -->
             <div class="form-group">
                 <select class="form-select" id="item-type">
-                    <option value="file">文件</option>
-                    <option value="folder">文件夹</option>
-                    <option value="url">URL</option>
-                    <option value="command">指令</option>
+                    <option value="file" data-i18n="file">文件</option>
+                    <option value="folder" data-i18n="folder">文件夹</option>
+                    <option value="url" data-i18n="url">URL</option>
+                    <option value="command" data-i18n="command">指令</option>
                 </select>
             </div>
             <!-- 按钮组 - 包含文件选择按钮和操作按钮 -->
@@ -108,14 +109,14 @@
                 <!-- 文件和文件夹选择按钮 -->
                 <div class="file-buttons">
                     <!-- 文件选择按钮 -->
-                    <button class="icon-btn" id="select-file-btn" title="选择文件">
+                    <button class="icon-btn" id="select-file-btn" data-i18n-title="select-file" title="选择文件">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path
                                 d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1v5h5v10H6V4h7z" />
                         </svg>
                     </button>
                     <!-- 文件夹选择按钮 -->
-                    <button class="icon-btn" id="select-folder-btn" title="选择文件夹">
+                    <button class="icon-btn" id="select-folder-btn" data-i18n-title="select-folder" title="选择文件夹">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path
                                 d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z" />
@@ -124,8 +125,8 @@
                 </div>
                 <!-- 保存和取消按钮 -->
                 <div class="action-buttons">
-                    <button class="btn btn-secondary" id="cancel-btn">取消</button>
-                    <button class="btn btn-primary" id="save-btn" disabled>保存</button>
+                    <button class="btn btn-secondary" id="cancel-btn" data-i18n="cancel">取消</button>
+                    <button class="btn btn-primary" id="save-btn" data-i18n="save" disabled>保存</button>
                 </div>
             </div>
         </div>

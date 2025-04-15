@@ -4,6 +4,7 @@
  * 作为渲染进程和主进程之间的桥梁，确保渲染进程不直接访问Node.js API
  */
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
+const i18n = require("../shared/i18n");
 
 /**
  * 通过contextBridge安全地暴露API给渲染进程
@@ -25,6 +26,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
    * 允许设置窗口通知主题变更
    */
   themeChanged: (theme) => ipcRenderer.send("theme-changed", theme),
+
+  /**
+   * 语言相关API
+   * 允许设置窗口通知语言变更
+   */
+  languageChanged: (language) => ipcRenderer.send("language-changed", language),
 
   /**
    * 事件监听相关API
@@ -56,6 +63,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on("theme-changed", listener);
     return () => {
       ipcRenderer.removeListener("theme-changed", listener);
+    };
+  },
+
+  // 监听语言变更
+  onLanguageChanged: (callback) => {
+    const listener = (event, language) => callback(language);
+    ipcRenderer.on("language-changed", listener);
+    return () => {
+      ipcRenderer.removeListener("language-changed", listener);
     };
   },
 
@@ -121,4 +137,17 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openDevTools: () => ipcRenderer.send("open-devtools"),
   openExternalLink: (url) => ipcRenderer.send("open-external-link", url),
   getAppInfo: () => ipcRenderer.invoke("get-app-info"),
+
+  /**
+   * 国际化(i18n)API
+   * 提供多语言支持功能
+   */
+  i18n: {
+    t: i18n.t,
+    setLanguage: i18n.setLanguage,
+    getCurrentLanguage: i18n.getCurrentLanguage,
+    getSystemLanguage: i18n.getSystemLanguage,
+    addLanguageChangeListener: i18n.addLanguageChangeListener,
+    removeLanguageChangeListener: i18n.removeLanguageChangeListener,
+  },
 });

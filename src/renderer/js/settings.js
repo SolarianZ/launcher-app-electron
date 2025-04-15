@@ -3,9 +3,13 @@
  * 处理设置窗口的所有功能，包括主题设置、数据管理和应用信息显示
  */
 document.addEventListener("DOMContentLoaded", () => {
+  // 导入i18n模块
+  const i18n = window.electronAPI.i18n;
+
   // DOM 元素引用
   const closeSettingsBtn = document.getElementById("close-settings");
   const themeSelect = document.getElementById("theme-select");
+  const languageSelect = document.getElementById("language-select");
   const clearDataBtn = document.getElementById("clear-data-btn");
   const openStorageBtn = document.getElementById("open-storage-btn");
   const githubLink = document.getElementById("github-link");
@@ -17,8 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // 加载已保存的主题设置
   loadThemeSetting();
 
+  // 加载已保存的语言设置
+  loadLanguageSetting();
+
   // 应用当前主题设置
   applyCurrentTheme();
+
+  // 应用当前语言设置
+  applyCurrentLanguage();
 
   /**
    * 事件监听设置部分
@@ -47,11 +57,25 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /**
+   * 语言选择变化事件
+   * 保存并应用用户选择的语言
+   */
+  languageSelect.addEventListener("change", () => {
+    const language = languageSelect.value;
+    // 应用新语言
+    i18n.setLanguage(language);
+    // 更新页面文本
+    updatePageTexts();
+    // 通知主进程和其他窗口语言已更改
+    window.electronAPI.languageChanged(language);
+  });
+
+  /**
    * 清空数据按钮点击事件
    * 显示确认对话框并清除所有项目
    */
   clearDataBtn.addEventListener("click", () => {
-    if (confirm("确定要删除所有记录吗？此操作不可撤销。")) {
+    if (confirm(i18n.t('confirm-clear-data'))) {
       window.electronAPI.clearAllItems();
     }
   });
@@ -109,9 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 获取应用信息
     try {
       const appInfo = await window.electronAPI.getAppInfo();
-      document.querySelector(
-        ".app-version"
-      ).textContent = `版本 ${appInfo.version}`;
+      document.getElementById("version-number").textContent = appInfo.version;
     } catch (error) {
       console.error("获取应用信息失败:", error);
     }
@@ -125,6 +147,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // 获取保存的主题设置，默认使用系统主题
     const savedTheme = localStorage.getItem("theme") || "system";
     themeSelect.value = savedTheme;
+  }
+
+  /**
+   * 加载语言设置
+   * 从本地存储获取语言设置并设置到下拉选择框
+   */
+  function loadLanguageSetting() {
+    // 获取保存的语言设置，默认跟随系统
+    const savedLanguage = localStorage.getItem("language") || "system";
+    languageSelect.value = savedLanguage;
   }
 
   /**
@@ -166,5 +198,33 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       modal.classList.remove("dark-theme");
     }
+  }
+
+  /**
+   * 应用当前语言设置
+   * 更新页面上所有需要翻译的文本
+   */
+  function applyCurrentLanguage() {
+    updatePageTexts();
+  }
+
+  /**
+   * 更新页面文本
+   * 根据当前语言设置更新所有带有 data-i18n 属性的元素文本
+   */
+  function updatePageTexts() {
+    // 更新普通文本元素
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = i18n.t(key);
+    });
+
+    // 更新带有 title 属性的元素
+    const titleElements = document.querySelectorAll('[data-i18n-title]');
+    titleElements.forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      el.title = i18n.t(key);
+    });
   }
 });

@@ -5,6 +5,7 @@
  */
 const { Tray, Menu, nativeImage, app } = require('electron');
 const path = require('path');
+const i18n = require('../shared/i18n');
 
 // 全局托盘引用 - 防止被垃圾回收
 let tray = null;
@@ -52,7 +53,7 @@ function createTray(toggleMainWindow) {
 
   // 创建托盘实例
   tray = new Tray(icon);
-  tray.setToolTip('Launcher');
+  tray.setToolTip(i18n.t('app-name'));
 
   /**
    * 设置托盘点击行为
@@ -63,8 +64,23 @@ function createTray(toggleMainWindow) {
     toggleMainWindow();
   });
 
+  // 监听语言变更事件
+  i18n.addLanguageChangeListener((language) => {
+    console.log(`托盘语言已更改为: ${language}`);
+    tray.setToolTip(i18n.t('app-name'));
+    
+    // 如果有最新的项目列表，刷新托盘菜单
+    if (lastItemsRef && lastHandlerRef) {
+      updateTrayMenu(lastItemsRef, lastHandlerRef);
+    }
+  });
+
   return tray;
 }
+
+// 存储最近的items和handler引用，用于语言变更时刷新托盘菜单
+let lastItemsRef = null;
+let lastHandlerRef = null;
 
 /**
  * 更新托盘菜单
@@ -73,6 +89,10 @@ function createTray(toggleMainWindow) {
  */
 function updateTrayMenu(items, handleItemAction) {
   if (!tray) return;
+  
+  // 保存最新的引用，用于语言更新时重建菜单
+  lastItemsRef = items;
+  lastHandlerRef = handleItemAction;
 
   // 只显示最近的8个项目，防止菜单过长
   const recentItems = items.slice(0, 8).map((item) => {
@@ -92,7 +112,7 @@ function updateTrayMenu(items, handleItemAction) {
     ...recentItems,
     { type: 'separator' },
     {
-      label: '退出',
+      label: i18n.t('tray-exit'),
       click: () => {
         // 设置标志，表示用户明确要求退出应用
         app.isQuitting = true;
@@ -111,8 +131,11 @@ function updateTrayMenu(items, handleItemAction) {
  */
 function destroyTray() {
   if (tray) {
+    i18n.removeLanguageChangeListener();
     tray.destroy();
     tray = null;
+    lastItemsRef = null;
+    lastHandlerRef = null;
   }
 }
 

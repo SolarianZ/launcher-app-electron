@@ -20,54 +20,64 @@
         <div class="modal">
             <!-- 模态窗口标题栏 -->
             <div class="modal-title-bar">
-                <div class="window-title">设置</div>
-                <button id="close-settings" class="close-button" title="关闭">×</button>
+                <div class="window-title" data-i18n="settings">设置</div>
+                <button id="close-settings" class="close-button" title="关闭" data-i18n-title="close">×</button>
             </div>
             <!-- 模态窗口内容区域 -->
             <div class="modal-content">
                 <!-- 外观设置区域 -->
                 <div class="settings-section">
-                    <h3>外观</h3>
+                    <h3 data-i18n="appearance">外观</h3>
                     <div class="settings-item">
+                        <label for="theme-select" data-i18n="theme">主题</label>
                         <!-- 主题选择下拉框 -->
                         <select id="theme-select" class="form-select">
-                            <option value="system">跟随系统</option>
-                            <option value="light">浅色模式</option>
-                            <option value="dark">深色模式</option>
+                            <option value="system" data-i18n="system-theme">跟随系统</option>
+                            <option value="light" data-i18n="light-theme">浅色模式</option>
+                            <option value="dark" data-i18n="dark-theme">深色模式</option>
+                        </select>
+                    </div>
+                    <div class="settings-item">
+                        <label for="language-select" data-i18n="language">语言</label>
+                        <!-- 语言选择下拉框 -->
+                        <select id="language-select" class="form-select">
+                            <option value="system" data-i18n="system-language">跟随系统</option>
+                            <option value="zh-CN" data-i18n="zh-CN">中文</option>
+                            <option value="en-US" data-i18n="en-US">英文</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- 数据管理区域 -->
                 <div class="settings-section">
-                    <h3>数据</h3>
+                    <h3 data-i18n="data">数据</h3>
                     <div class="settings-item">
                         <!-- 清空数据按钮 -->
-                        <button id="clear-data-btn" class="settings-btn">清空所有记录</button>
-                        <div class="settings-desc">删除所有已记录的条目</div>
+                        <button id="clear-data-btn" class="settings-btn" data-i18n="clear-data">清空所有记录</button>
+                        <div class="settings-desc" data-i18n="clear-data-desc">删除所有已记录的条目</div>
                     </div>
                     <div class="settings-item">
                         <!-- 打开数据文件夹按钮 -->
-                        <button id="open-storage-btn" class="settings-btn">打开应用数据文件夹</button>
-                        <div class="settings-desc">在文件夹中查看应用数据文件</div>
+                        <button id="open-storage-btn" class="settings-btn" data-i18n="open-storage">打开应用数据文件夹</button>
+                        <div class="settings-desc" data-i18n="open-storage-desc">在文件夹中查看应用数据文件</div>
                     </div>
                 </div>
 
                 <!-- 应用信息区域 -->
                 <div class="settings-section">
-                    <h3>关于</h3>
+                    <h3 data-i18n="about">关于</h3>
                     <div class="settings-item about-section">
                         <!-- 应用程序标识和说明 -->
                         <div class="app-logo">🚀</div>
-                        <div class="app-title">Launcher</div>
-                        <div class="app-version">版本 1.0.0</div>
-                        <div class="app-desc">记录和快速访问常用文件、文件夹、URL和指令的工具。</div>
+                        <div class="app-title" data-i18n="app-name">Launcher</div>
+                        <div class="app-version"><span data-i18n="version">版本</span> <span id="version-number">1.0.0</span></div>
+                        <div class="app-desc" data-i18n="app-desc">记录和快速访问常用文件、文件夹、URL和指令的工具。</div>
                         <!-- 外部链接 -->
                         <div class="app-links">
                             <a href="#" id="github-link" title="访问GitHub仓库">GitHub</a> |
-                            <a href="#" id="report-issue" title="提交问题报告">报告问题</a>
+                            <a href="#" id="report-issue" title="提交问题报告" data-i18n="report-issue">报告问题</a>
                         </div>
-                        <div class="settings-desc">按F12打开Chrome开发者工具</div>
+                        <div class="settings-desc" data-i18n="dev-tools-tip">按F12打开Chrome开发者工具</div>
                     </div>
                 </div>
             </div>

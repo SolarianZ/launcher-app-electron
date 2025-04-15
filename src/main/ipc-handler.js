@@ -172,6 +172,27 @@ function setupIpcHandlers() {
   });
 
   /**
+   * 语言相关IPC处理
+   * 处理语言变更通知
+   */
+  ipcMain.on('language-changed', (event, language) => {
+    // 获取所有窗口并发送语言变更通知
+    const mainWindow = windowManager.getMainWindow();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('language-changed', language);
+    }
+
+    // 通知编辑窗口(如果存在)
+    const editItemWindow = windowManager.getAddItemWindow();
+    if (editItemWindow && !editItemWindow.isDestroyed()) {
+      editItemWindow.webContents.send('language-changed', language);
+    }
+
+    // 存储语言设置到全局变量，以便在创建新窗口时使用
+    global.appLanguage = language;
+  });
+
+  /**
    * 设置相关 IPC 处理
    * 处理打开存储位置、清除所有项目等操作
    */

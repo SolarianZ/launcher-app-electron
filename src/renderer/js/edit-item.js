@@ -22,13 +22,86 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectFileBtn = document.getElementById("select-file-btn");
   const selectFolderBtn = document.getElementById("select-folder-btn");
   const toast = document.getElementById("toast");
+  
+  // 导入i18n模块
+  const i18n = window.electronAPI.i18n;
 
   // 跟踪是否处于编辑模式
   let isEditMode = false;
   let editingItemIndex = -1;
 
-  // 检测并应用系统主题
-  applySystemTheme();
+  // 初始化页面
+  initPage();
+
+  /**
+   * 初始化页面
+   * 应用主题和语言设置
+   */
+  function initPage() {
+    // 检测并应用系统主题
+    applySystemTheme();
+    
+    // 初始化语言设置
+    initializeLanguage();
+    
+    // 监听来自其他窗口的语言变更通知
+    window.electronAPI.onLanguageChanged((language) => {
+      console.log("语言已更改为:", language);
+      applyLanguage(language);
+    });
+  }
+  
+  /**
+   * 初始化语言设置
+   * 加载用户语言设置并应用
+   */
+  function initializeLanguage() {
+    // 更新所有页面文本
+    updatePageTexts();
+  }
+  
+  /**
+   * 应用语言设置
+   * @param {string} language 语言代码
+   */
+  function applyLanguage(language) {
+    i18n.setLanguage(language);
+    updatePageTexts();
+  }
+  
+  /**
+   * 更新页面文本
+   * 使用当前语言更新所有标记的UI元素
+   */
+  function updatePageTexts() {
+    // 更新普通文本元素
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = i18n.t(key);
+    });
+
+    // 更新带有title属性的元素
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      el.title = i18n.t(key);
+    });
+
+    // 更新带有placeholder属性的元素
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      el.placeholder = i18n.t(key);
+    });
+    
+    // 更新select元素的选项文本
+    document.querySelectorAll('select').forEach(select => {
+      Array.from(select.options).forEach(option => {
+        if (option.hasAttribute('data-i18n')) {
+          const key = option.getAttribute('data-i18n');
+          option.textContent = i18n.t(key);
+        }
+      });
+    });
+  }
   
   /**
    * 监听编辑条目数据事件
@@ -67,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("选择文件出错:", error);
-      showToast("选择文件失败，请重试", true);
+      showToast(i18n.t('select-file-failed'), true);
     }
   });
 
@@ -86,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("选择文件夹出错:", error);
-      showToast("选择文件夹失败，请重试", true);
+      showToast(i18n.t('select-folder-failed'), true);
     }
   });
 
@@ -121,12 +194,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 表单验证
     if (!path) {
-      showToast("请输入路径或命令", true);
+      showToast(i18n.t('enter-path-required'), true);
       return;
     }
 
     if (!type) {
-      showToast("请选择项目类型", true);
+      showToast(i18n.t('select-type-required'), true);
       return;
     }
 
@@ -163,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error(`Error ${isEditMode ? "updating" : "adding"} item:`, error);
-      showToast(`${isEditMode ? "更新" : "添加"}失败，请重试`, true);
+      showToast(i18n.t(isEditMode ? 'update-failed' : 'add-failed'), true);
     }
   });
 

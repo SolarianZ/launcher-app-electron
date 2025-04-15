@@ -4,6 +4,9 @@
  * 实现复制、编辑、删除等项目操作
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // 导入i18n模块
+    const i18n = window.electronAPI.i18n;
+    
     /**
      * 创建右键菜单
      * 根据项目类型创建不同的上下文菜单
@@ -95,13 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createFileOrFolderMenu(menu, item, index) {
         // 打开选项
-        addMenuItem(menu, '打开', () => {
+        addMenuItem(menu, i18n.t('context-open'), () => {
             window.electronAPI.openItem(item);
         });
 
         // 仅文件项显示"在文件夹中显示"选项
         if (item.type === 'file') {
-            addMenuItem(menu, '在文件夹中显示', () => {
+            addMenuItem(menu, i18n.t('context-show-in-folder'), () => {
                 window.electronAPI.showItemInFolder(item.path);
             });
         }
@@ -110,16 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 复制选项组
-        addMenuItem(menu, '复制路径', () => {
+        addMenuItem(menu, i18n.t('context-copy-path'), () => {
             window.electronAPI.copyText(item.path);
         });
 
-        addMenuItem(menu, '复制名字', () => {
+        addMenuItem(menu, i18n.t('context-copy-name'), () => {
             const name = item.path.split('/').pop().split('\\').pop();
             window.electronAPI.copyText(name);
         });
 
-        addMenuItem(menu, '复制资产', () => {
+        addMenuItem(menu, i18n.t('context-copy-asset'), () => {
             window.electronAPI.copyFile(item.path);
         });
 
@@ -127,12 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 编辑选项
-        addMenuItem(menu, '编辑', () => {
+        addMenuItem(menu, i18n.t('context-edit'), () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
 
         // 移除选项
-        addMenuItem(menu, '移除', async () => {
+        addMenuItem(menu, i18n.t('context-delete'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -146,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createUrlMenu(menu, item, index) {
         // 打开选项
-        addMenuItem(menu, '打开', () => {
+        addMenuItem(menu, i18n.t('context-open'), () => {
             window.electronAPI.openItem(item);
         });
 
@@ -154,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 复制选项
-        addMenuItem(menu, '复制', () => {
+        addMenuItem(menu, i18n.t('context-copy'), () => {
             window.electronAPI.copyText(item.path);
         });
 
@@ -162,12 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 编辑选项
-        addMenuItem(menu, '编辑', () => {
+        addMenuItem(menu, i18n.t('context-edit'), () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
 
         // 移除选项
-        addMenuItem(menu, '移除', async () => {
+        addMenuItem(menu, i18n.t('context-delete'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -181,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createCommandMenu(menu, item, index) {
         // 执行选项
-        addMenuItem(menu, '执行', () => {
+        addMenuItem(menu, i18n.t('context-execute'), () => {
             window.electronAPI.openItem(item);
         });
 
@@ -189,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 复制选项
-        addMenuItem(menu, '复制', () => {
+        addMenuItem(menu, i18n.t('context-copy'), () => {
             window.electronAPI.copyText(item.path);
         });
 
@@ -197,12 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 编辑选项
-        addMenuItem(menu, '编辑', () => {
+        addMenuItem(menu, i18n.t('context-edit'), () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
 
         // 移除选项
-        addMenuItem(menu, '移除', async () => {
+        addMenuItem(menu, i18n.t('context-delete'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -273,6 +276,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    /**
+     * 语言更新处理
+     * 监听语言变化事件，以便在语言改变时更新菜单文本
+     */
+    window.electronAPI.onLanguageChanged((language) => {
+        // 如果菜单已打开，会在下次打开时使用新语言
+        console.log("上下文菜单语言已更新:", language);
+    });
 
     // 设置右键菜单
     setupContextMenu();

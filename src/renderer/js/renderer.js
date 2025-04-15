@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const listContainer = document.getElementById("list-container");
   const toast = document.getElementById("toast");
   const settingsButton = document.getElementById("settings-button");
+  
+  // 导入i18n模块
+  const i18n = window.electronAPI.i18n;
 
   // 初始化页面
   initPage();
@@ -130,6 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedTheme = localStorage.getItem("theme") || "system";
     applyTheme(savedTheme);
 
+    // 初始化语言设置
+    initializeLanguage();
+
     // 添加对列表更新的监听
     window.electronAPI.onItemsUpdated(async () => {
       console.log("Items updated, refreshing list...");
@@ -137,10 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 监听来自其他窗口的主题变更通知
-    // 为主题变更添加一个IPC监听
     window.electronAPI.onThemeChanged((theme) => {
       console.log("主题已更改为:", theme);
       applyTheme(theme);
+    });
+    
+    // 监听来自其他窗口的语言变更通知
+    window.electronAPI.onLanguageChanged((language) => {
+      console.log("语言已更改为:", language);
+      applyLanguage(language);
     });
 
     // 检测系统主题变化
@@ -153,6 +164,51 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
     }
+  }
+  
+  /**
+   * 初始化语言设置
+   * 加载用户语言设置并应用
+   */
+  function initializeLanguage() {
+    // 更新所有页面文本
+    updatePageTexts();
+  }
+  
+  /**
+   * 应用语言设置
+   * @param {string} language 语言代码
+   */
+  function applyLanguage(language) {
+    i18n.setLanguage(language);
+    updatePageTexts();
+  }
+  
+  /**
+   * 更新页面文本
+   * 使用当前语言更新所有标记的UI元素
+   */
+  function updatePageTexts() {
+    // 更新普通文本元素
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = i18n.t(key);
+    });
+
+    // 更新带有title属性的元素
+    const titleElements = document.querySelectorAll('[data-i18n-title]');
+    titleElements.forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      el.title = i18n.t(key);
+    });
+
+    // 更新带有placeholder属性的元素
+    const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+    placeholderElements.forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      el.placeholder = i18n.t(key);
+    });
   }
 
   // 加载项目列表
@@ -545,5 +601,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadItems,
     removeItem,
     showToast,
+    updatePageTexts, // 额外暴露文本更新函数，供其他脚本使用
   };
 });

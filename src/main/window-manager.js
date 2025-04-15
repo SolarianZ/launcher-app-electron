@@ -74,7 +74,9 @@ function createMainWindow() {
 
   // 加载渲染进程的HTML文件
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
-  // mainWindow.webContents.openDevTools(); // 开发时可启用
+
+  // 打开开发者工具
+  mainWindow.webContents.openDevTools();
 
   // 窗口内容准备好后再显示，避免白屏
   mainWindow.once('ready-to-show', () => {

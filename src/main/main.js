@@ -13,6 +13,7 @@ const dataStore = require('./data-store');
 const trayManager = require('./tray-manager');
 const itemHandler = require('./item-handler');
 const ipcHandler = require('./ipc-handler');
+const i18n = require('../shared/i18n');
 
 /**
  * 注册全局快捷键
@@ -34,8 +35,28 @@ function updateTrayMenuWithItems() {
   trayManager.updateTrayMenu(dataStore.getItems(), itemHandler.handleItemAction);
 }
 
+/**
+ * 初始化应用语言设置
+ * 获取系统语言并设置为应用默认语言
+ */
+function initializeLanguage() {
+  // 获取系统语言
+  const systemLanguage = i18n.getSystemLanguage();
+  
+  // 设置为全局语言变量，以便在创建新窗口时使用
+  global.appLanguage = systemLanguage;
+  
+  // 初始化i18n模块
+  i18n.setLanguage(systemLanguage);
+  
+  console.log(`应用语言初始化为: ${systemLanguage}`);
+}
+
 // 应用初始化 - 当Electron完成初始化并准备创建浏览器窗口时触发
 app.whenReady().then(() => {
+  // 初始化应用语言
+  initializeLanguage();
+  
   // 加载数据和窗口配置
   dataStore.loadItems();
   dataStore.loadWindowConfig();
