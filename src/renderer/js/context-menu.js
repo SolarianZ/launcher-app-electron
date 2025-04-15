@@ -3,7 +3,7 @@
  * 负责为不同类型的项目创建上下文菜单
  * 实现复制、编辑、删除等项目操作
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // 导入i18n模块
     const i18n = window.electronAPI.i18n;
     
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Object} item 项目对象
      * @param {number} index 项目在列表中的索引
      */
-    function createContextMenu(x, y, item, index) {
+    async function createContextMenu(x, y, item, index) {
         // 移除任何现有的上下文菜单
         removeContextMenu();
 
@@ -31,13 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (item.type) {
             case 'file':
             case 'folder':
-                createFileOrFolderMenu(contextMenu, item, index);
+                await createFileOrFolderMenu(contextMenu, item, index);
                 break;
             case 'url':
-                createUrlMenu(contextMenu, item, index);
+                await createUrlMenu(contextMenu, item, index);
                 break;
             case 'command':
-                createCommandMenu(contextMenu, item, index);
+                await createCommandMenu(contextMenu, item, index);
                 break;
         }
 
@@ -96,15 +96,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Object} item 项目对象
      * @param {number} index 项目索引
      */
-    function createFileOrFolderMenu(menu, item, index) {
+    async function createFileOrFolderMenu(menu, item, index) {
         // 打开选项
-        addMenuItem(menu, i18n.t('context-open'), () => {
+        await addMenuItem(menu, await i18n.t('context-open'), () => {
             window.electronAPI.openItem(item);
         });
 
         // 仅文件项显示"在文件夹中显示"选项
         if (item.type === 'file') {
-            addMenuItem(menu, i18n.t('context-show-in-folder'), () => {
+            await addMenuItem(menu, await i18n.t('context-show-in-folder'), () => {
                 window.electronAPI.showItemInFolder(item.path);
             });
         }
@@ -113,16 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 复制选项组
-        addMenuItem(menu, i18n.t('context-copy-path'), () => {
+        await addMenuItem(menu, await i18n.t('context-copy-path'), () => {
             window.electronAPI.copyText(item.path);
         });
 
-        addMenuItem(menu, i18n.t('context-copy-name'), () => {
+        await addMenuItem(menu, await i18n.t('context-copy-name'), () => {
             const name = item.path.split('/').pop().split('\\').pop();
             window.electronAPI.copyText(name);
         });
 
-        addMenuItem(menu, i18n.t('context-copy-asset'), () => {
+        await addMenuItem(menu, await i18n.t('context-copy-asset'), () => {
             window.electronAPI.copyFile(item.path);
         });
 
@@ -130,12 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 编辑选项
-        addMenuItem(menu, i18n.t('context-edit'), () => {
+        await addMenuItem(menu, await i18n.t('context-edit'), () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
 
         // 移除选项
-        addMenuItem(menu, i18n.t('context-delete'), async () => {
+        await addMenuItem(menu, await i18n.t('context-delete'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -147,9 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Object} item 项目对象
      * @param {number} index 项目索引
      */
-    function createUrlMenu(menu, item, index) {
+    async function createUrlMenu(menu, item, index) {
         // 打开选项
-        addMenuItem(menu, i18n.t('context-open'), () => {
+        await addMenuItem(menu, await i18n.t('context-open'), () => {
             window.electronAPI.openItem(item);
         });
 
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 复制选项
-        addMenuItem(menu, i18n.t('context-copy'), () => {
+        await addMenuItem(menu, await i18n.t('context-copy'), () => {
             window.electronAPI.copyText(item.path);
         });
 
@@ -165,12 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 编辑选项
-        addMenuItem(menu, i18n.t('context-edit'), () => {
+        await addMenuItem(menu, await i18n.t('context-edit'), () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
 
         // 移除选项
-        addMenuItem(menu, i18n.t('context-delete'), async () => {
+        await addMenuItem(menu, await i18n.t('context-delete'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -182,9 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Object} item 项目对象
      * @param {number} index 项目索引
      */
-    function createCommandMenu(menu, item, index) {
+    async function createCommandMenu(menu, item, index) {
         // 执行选项
-        addMenuItem(menu, i18n.t('context-execute'), () => {
+        await addMenuItem(menu, await i18n.t('context-execute'), () => {
             window.electronAPI.openItem(item);
         });
 
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 复制选项
-        addMenuItem(menu, i18n.t('context-copy'), () => {
+        await addMenuItem(menu, await i18n.t('context-copy'), () => {
             window.electronAPI.copyText(item.path);
         });
 
@@ -200,12 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addMenuDivider(menu);
 
         // 编辑选项
-        addMenuItem(menu, i18n.t('context-edit'), () => {
+        await addMenuItem(menu, await i18n.t('context-edit'), () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
 
         // 移除选项
-        addMenuItem(menu, i18n.t('context-delete'), async () => {
+        await addMenuItem(menu, await i18n.t('context-delete'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} text 菜单项文本
      * @param {Function} onClick 点击回调函数
      */
-    function addMenuItem(menu, text, onClick) {
+    async function addMenuItem(menu, text, onClick) {
         const menuItem = document.createElement('div');
         menuItem.classList.add('menu-item');
         menuItem.textContent = text;
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupContextMenu() {
         const listContainer = document.getElementById('list-container');
 
-        listContainer.addEventListener('contextmenu', (e) => {
+        listContainer.addEventListener('contextmenu', async (e) => {
             const listItem = e.target.closest('.list-item');
             if (listItem) {
                 e.preventDefault();
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const items = JSON.parse(localStorage.getItem('cachedItems') || '[]');
 
                 // 显示上下文菜单
-                createContextMenu(e.clientX, e.clientY, items[index], index);
+                await createContextMenu(e.clientX, e.clientY, items[index], index);
 
                 // 激活选中项
                 document.querySelectorAll('.list-item.active').forEach(el => el.classList.remove('active'));

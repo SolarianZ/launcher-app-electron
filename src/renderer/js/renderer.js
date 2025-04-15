@@ -188,27 +188,31 @@ document.addEventListener("DOMContentLoaded", () => {
    * 更新页面文本
    * 使用当前语言更新所有标记的UI元素
    */
-  function updatePageTexts() {
-    // 更新普通文本元素
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      el.textContent = i18n.t(key);
-    });
+  async function updatePageTexts() {
+    try {
+      // 更新普通文本元素
+      const elements = document.querySelectorAll('[data-i18n]');
+      for (const el of elements) {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = await i18n.t(key);
+      }
 
-    // 更新带有title属性的元素
-    const titleElements = document.querySelectorAll('[data-i18n-title]');
-    titleElements.forEach(el => {
-      const key = el.getAttribute('data-i18n-title');
-      el.title = i18n.t(key);
-    });
+      // 更新带有title属性的元素
+      const titleElements = document.querySelectorAll('[data-i18n-title]');
+      for (const el of titleElements) {
+        const key = el.getAttribute('data-i18n-title');
+        el.title = await i18n.t(key);
+      }
 
-    // 更新带有placeholder属性的元素
-    const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
-    placeholderElements.forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
-      el.placeholder = i18n.t(key);
-    });
+      // 更新带有placeholder属性的元素
+      const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+      for (const el of placeholderElements) {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = await i18n.t(key);
+      }
+    } catch (error) {
+      console.error("更新页面文本时出错:", error);
+    }
   }
 
   // 加载项目列表
