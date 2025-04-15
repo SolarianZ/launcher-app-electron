@@ -261,6 +261,16 @@ function setupIpcHandlers() {
   ipcMain.handle('i18n-get-system-language', () => {
     return i18n.getSystemLanguage();
   });
+  
+  // 获取可用语言列表
+  ipcMain.handle('i18n-get-available-languages', () => {
+    return i18n.getAvailableLanguages();
+  });
+  
+  // 获取语言名称
+  ipcMain.handle('i18n-get-language-name', (event, langCode) => {
+    return i18n.getLanguageName(langCode);
+  });
 }
 
 // 导出模块函数

@@ -10,11 +10,11 @@ const { app } = require('electron');
 
 // 获取应用的路径（区分开发环境和打包后环境）
 const isPackaged = app && app.isPackaged;
-const appPath = isPackaged ? path.dirname(app.getPath('exe')) : process.cwd();
+const appPath = isPackaged ? path.dirname(process.resourcesPath) : process.cwd();
 
-// 语言文件目录路径
+// 语言文件目录路径 - 修正资源路径
 const localesDir = isPackaged 
-  ? path.join(appPath, 'resources', 'app', 'src', 'assets', 'locales') 
+  ? path.join(process.resourcesPath, 'app', 'src', 'assets', 'locales') 
   : path.join(appPath, 'src', 'assets', 'locales');
 
 // 用户自定义语言文件目录，放在用户数据目录下
@@ -22,6 +22,14 @@ const userLocalesDir = path.join(
   app ? app.getPath('userData') : path.join(appPath, 'user-data'),
   'locales'
 );
+
+console.log('语言文件目录:', { 
+  appPath, 
+  isPackaged, 
+  localesDir, 
+  userLocalesDir,
+  localesDirExists: fs.existsSync(localesDir)
+});
 
 // 确保用户自定义语言文件目录存在
 try {
@@ -54,6 +62,7 @@ function loadTranslationFile(langCode) {
     if (fs.existsSync(userFilePath)) {
       const fileContent = fs.readFileSync(userFilePath, 'utf8');
       userTranslation = JSON.parse(fileContent);
+      console.log(`已加载用户自定义语言文件: ${langCode}`);
     }
   } catch (error) {
     console.error(`加载用户自定义语言文件 ${langCode}.json 失败:`, error);
@@ -67,6 +76,17 @@ function loadTranslationFile(langCode) {
     if (fs.existsSync(builtinFilePath)) {
       const fileContent = fs.readFileSync(builtinFilePath, 'utf8');
       builtinTranslation = JSON.parse(fileContent);
+      console.log(`已加载内置语言文件: ${langCode}`);
+    } else {
+      console.warn(`内置语言文件不存在: ${builtinFilePath}`);
+      
+      // 尝试备用路径（开发环境中可能的路径）
+      const altPath = path.join(appPath, 'src', 'assets', 'locales', `${langCode}.json`);
+      if (fs.existsSync(altPath)) {
+        const fileContent = fs.readFileSync(altPath, 'utf8');
+        builtinTranslation = JSON.parse(fileContent);
+        console.log(`已从备用路径加载语言文件: ${langCode}`);
+      }
     }
   } catch (error) {
     console.error(`加载内置语言文件 ${langCode}.json 失败:`, error);
@@ -97,6 +117,44 @@ function loadAllLanguages() {
           // 加载内置语言
           translations[langCode] = loadTranslationFile(langCode);
         });
+      console.log('已从标准路径加载内置语言文件列表');
+    } else {
+      // 尝试备用路径（开发环境中可能的路径）
+      const altLocalesDir = path.join(appPath, 'src', 'assets', 'locales');
+      if (fs.existsSync(altLocalesDir)) {
+        fs.readdirSync(altLocalesDir)
+          .filter(file => file.endsWith('.json'))
+          .forEach(file => {
+            const langCode = file.replace('.json', '');
+            builtinLangs.add(langCode);
+            
+            // 加载内置语言
+            translations[langCode] = loadTranslationFile(langCode);
+          });
+        console.log('已从备用路径加载内置语言文件列表');
+      } else {
+        console.error('未找到内置语言文件目录:', { localesDir, altLocalesDir });
+        
+        // 如果没有找到语言文件，手动添加默认语言
+        if (builtinLangs.size === 0) {
+          console.log('添加默认语言支持');
+          builtinLangs.add('en-US');
+          builtinLangs.add('zh-CN');
+          
+          // 添加基本的翻译
+          translations['en-US'] = translations['en-US'] || {
+            'app.name': 'Launcher App',
+            'en-US': 'English',
+            'zh-CN': 'Chinese (Simplified)'
+          };
+          
+          translations['zh-CN'] = translations['zh-CN'] || {
+            'app.name': '启动器应用',
+            'en-US': '英文',
+            'zh-CN': '简体中文'
+          };
+        }
+      }
     }
   } catch (error) {
     console.error('读取内置语言文件目录失败:', error);
@@ -123,6 +181,7 @@ function loadAllLanguages() {
   
   // 合并语言列表
   availableLanguages = [...new Set([...builtinLangs, ...userLangs])];
+  console.log('可用语言列表:', availableLanguages);
 }
 
 // 首次加载所有语言
@@ -131,7 +190,10 @@ loadAllLanguages();
 // 获取系统语言
 function getSystemLanguage() {
   // 获取系统语言，如果无法获取则默认使用英文
-  const systemLang = (typeof navigator !== 'undefined' ? navigator.language : null) || 'en-US';
+  const systemLang = (typeof navigator !== 'undefined' ? navigator.language : null) || 
+                    (app ? app.getLocale() : null) || 'en-US';
+  
+  console.log('系统语言:', systemLang);
   
   // 将系统语言映射到支持的语言
   if (systemLang.startsWith('zh')) {

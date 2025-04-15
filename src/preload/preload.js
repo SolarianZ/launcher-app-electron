@@ -146,6 +146,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     setLanguage: (language) => ipcRenderer.invoke("i18n-set-language", language),
     getCurrentLanguage: () => ipcRenderer.invoke("i18n-get-current-language"),
     getSystemLanguage: () => ipcRenderer.invoke("i18n-get-system-language"),
+    getAvailableLanguages: () => ipcRenderer.invoke("i18n-get-available-languages"),
+    getLanguageName: (langCode) => ipcRenderer.invoke("i18n-get-language-name", langCode),
     addLanguageChangeListener: (callback) => {
       const listener = (event, language) => callback(language);
       ipcRenderer.on("language-changed", listener);
