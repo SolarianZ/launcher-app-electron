@@ -2,7 +2,7 @@
  * 设置页面的脚本
  * 处理设置窗口的所有功能，包括主题设置、数据管理和应用信息显示
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // 导入i18n模块
   const i18n = window.electronAPI.i18n;
 
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const reportIssueLink = document.getElementById("report-issue");
 
   // 初始化设置页面
-  initSettingsPage();
+  await initSettingsPage();
 
   // 加载已保存的主题设置
   loadThemeSetting();
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   applyCurrentTheme();
 
   // 应用当前语言设置
-  applyCurrentLanguage();
+  await applyCurrentLanguage();
 
   /**
    * 事件监听设置部分
@@ -60,12 +60,12 @@ document.addEventListener("DOMContentLoaded", () => {
    * 语言选择变化事件
    * 保存并应用用户选择的语言
    */
-  languageSelect.addEventListener("change", () => {
+  languageSelect.addEventListener("change", async () => {
     const language = languageSelect.value;
     // 应用新语言
-    i18n.setLanguage(language);
+    await i18n.setLanguage(language);
     // 更新页面文本
-    updatePageTexts();
+    await updatePageTexts();
     // 通知主进程和其他窗口语言已更改
     window.electronAPI.languageChanged(language);
   });
@@ -74,8 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
    * 清空数据按钮点击事件
    * 显示确认对话框并清除所有项目
    */
-  clearDataBtn.addEventListener("click", () => {
-    if (confirm(i18n.t('confirm-clear-data'))) {
+  clearDataBtn.addEventListener("click", async () => {
+    const confirmMessage = await i18n.t('confirm-clear-data');
+    if (confirm(confirmMessage)) {
       window.electronAPI.clearAllItems();
     }
   });
@@ -204,27 +205,31 @@ document.addEventListener("DOMContentLoaded", () => {
    * 应用当前语言设置
    * 更新页面上所有需要翻译的文本
    */
-  function applyCurrentLanguage() {
-    updatePageTexts();
+  async function applyCurrentLanguage() {
+    await updatePageTexts();
   }
 
   /**
    * 更新页面文本
    * 根据当前语言设置更新所有带有 data-i18n 属性的元素文本
    */
-  function updatePageTexts() {
-    // 更新普通文本元素
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      el.textContent = i18n.t(key);
-    });
-
-    // 更新带有 title 属性的元素
-    const titleElements = document.querySelectorAll('[data-i18n-title]');
-    titleElements.forEach(el => {
-      const key = el.getAttribute('data-i18n-title');
-      el.title = i18n.t(key);
-    });
+  async function updatePageTexts() {
+    try {
+      // 更新普通文本元素
+      const elements = document.querySelectorAll('[data-i18n]');
+      for (const el of elements) {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = await i18n.t(key);
+      }
+  
+      // 更新带有 title 属性的元素
+      const titleElements = document.querySelectorAll('[data-i18n-title]');
+      for (const el of titleElements) {
+        const key = el.getAttribute('data-i18n-title');
+        el.title = await i18n.t(key);
+      }
+    } catch (error) {
+      console.error("更新页面文本时出错:", error);
+    }
   }
 });
