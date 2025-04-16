@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectFileBtn = document.getElementById("select-file-btn");
   const selectFolderBtn = document.getElementById("select-folder-btn");
   const toast = document.getElementById("toast");
-  
+
   // 导入i18n模块
   const i18n = window.electronAPI.i18n;
 
@@ -31,26 +31,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   let editingItemIndex = -1;
 
   // 初始化页面
-  await initPage();
+  initPage();
 
   /**
    * 初始化页面
    * 应用主题和语言设置
    */
   async function initPage() {
-    // 检测并应用系统主题
-    applySystemTheme();
-    
+    // 加载主题设置和应用
+    const savedTheme = localStorage.getItem("theme") || "system";
+    applyTheme(savedTheme);
+
     // 初始化语言设置
-    await initializeLanguage();
-    
+    initializeLanguage();
+
     // 监听来自其他窗口的语言变更通知
     window.electronAPI.onLanguageChanged((language) => {
       console.log("语言已更改为:", language);
       applyLanguage(language);
     });
+
+    // 监听来自其他窗口的主题变更通知
+    window.electronAPI.onThemeChanged((theme) => {
+      console.log("主题已更改为", theme);
+      applyTheme(theme);
+    });
+
+    /**
+     * 监听编辑条目数据事件
+     * 当从主窗口请求编辑项目时触发
+     */
+    window.electronAPI.onEditItemData(({ item, index }) => {
+      console.log("编辑条目数据:", item, index);
+      // 进入编辑模式
+      isEditMode = true;
+      editingItemIndex = index;
+
+      // 填充表单数据
+      itemPathInput.value = item.path;
+      itemTypeSelect.value = item.type;
+
+      // 如果有名称，填充名称字段
+      if (item.name) {
+        itemNameInput.value = item.name;
+      }
+
+      // 启用保存按钮
+      saveBtn.disabled = false;
+    });
   }
-  
+
   /**
    * 初始化语言设置
    * 加载用户语言设置并应用
@@ -59,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 更新所有页面文本
     await updatePageTexts();
   }
-  
+
   /**
    * 应用语言设置
    * @param {string} language 语言代码
@@ -68,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await i18n.setLanguage(language);
     await updatePageTexts();
   }
-  
+
   /**
    * 更新页面文本
    * 使用当前语言更新所有标记的UI元素
@@ -76,33 +106,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function updatePageTexts() {
     try {
       // 更新普通文本元素
-      const elements = document.querySelectorAll('[data-i18n]');
+      const elements = document.querySelectorAll("[data-i18n]");
       for (const el of elements) {
-        const key = el.getAttribute('data-i18n');
+        const key = el.getAttribute("data-i18n");
         el.textContent = await i18n.t(key);
       }
 
       // 更新带有title属性的元素
-      const titleElements = document.querySelectorAll('[data-i18n-title]');
+      const titleElements = document.querySelectorAll("[data-i18n-title]");
       for (const el of titleElements) {
-        const key = el.getAttribute('data-i18n-title');
+        const key = el.getAttribute("data-i18n-title");
         el.title = await i18n.t(key);
       }
 
       // 更新带有placeholder属性的元素
-      const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+      const placeholderElements = document.querySelectorAll(
+        "[data-i18n-placeholder]"
+      );
       for (const el of placeholderElements) {
-        const key = el.getAttribute('data-i18n-placeholder');
+        const key = el.getAttribute("data-i18n-placeholder");
         el.placeholder = await i18n.t(key);
       }
-      
+
       // 更新select元素的选项文本
-      const selects = document.querySelectorAll('select');
+      const selects = document.querySelectorAll("select");
       for (const select of selects) {
         const options = Array.from(select.options);
         for (const option of options) {
-          if (option.hasAttribute('data-i18n')) {
-            const key = option.getAttribute('data-i18n');
+          if (option.hasAttribute("data-i18n")) {
+            const key = option.getAttribute("data-i18n");
             option.textContent = await i18n.t(key);
           }
         }
@@ -111,28 +143,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("更新页面文本时出错:", error);
     }
   }
-  
-  /**
-   * 监听编辑条目数据事件
-   * 当从主窗口请求编辑项目时触发
-   */
-  window.electronAPI.onEditItemData(({ item, index }) => {
-    // 进入编辑模式
-    isEditMode = true;
-    editingItemIndex = index;
-
-    // 填充表单数据
-    itemPathInput.value = item.path;
-    itemTypeSelect.value = item.type;
-
-    // 如果有名称，填充名称字段
-    if (item.name) {
-      itemNameInput.value = item.name;
-    }
-    
-    // 启用保存按钮
-    saveBtn.disabled = false;
-  });
 
   /**
    * 文件选择按钮点击事件
@@ -149,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error("选择文件出错:", error);
-      const errorMessage = await i18n.t('select-file-failed');
+      const errorMessage = await i18n.t("select-file-failed");
       showToast(errorMessage, true);
     }
   });
@@ -169,7 +179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error("选择文件夹出错:", error);
-      const errorMessage = await i18n.t('select-folder-failed');
+      const errorMessage = await i18n.t("select-folder-failed");
       showToast(errorMessage, true);
     }
   });
@@ -205,13 +215,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 表单验证
     if (!path) {
-      const errorMessage = await i18n.t('enter-path-required');
+      const errorMessage = await i18n.t("enter-path-required");
       showToast(errorMessage, true);
       return;
     }
 
     if (!type) {
-      const errorMessage = await i18n.t('select-type-required');
+      const errorMessage = await i18n.t("select-type-required");
       showToast(errorMessage, true);
       return;
     }
@@ -249,7 +259,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error(`Error ${isEditMode ? "updating" : "adding"} item:`, error);
-      const errorMessage = await i18n.t(isEditMode ? 'update-failed' : 'add-failed');
+      const errorMessage = await i18n.t(
+        isEditMode ? "update-failed" : "add-failed"
+      );
       showToast(errorMessage, true);
     }
   });
@@ -281,6 +293,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         toast.style.display = "none";
       }, 300);
     }, 1000);
+  }
+
+  // 应用主题
+  function applyTheme(theme) {
+    const appContainer = document.querySelector(".modal");
+
+    // 移除所有主题类
+    appContainer.classList.remove("dark-theme", "light-theme");
+
+    if (theme === "system") {
+      applySystemTheme();
+    } else if (theme === "dark") {
+      appContainer.classList.add("dark-theme");
+    } else if (theme === "light") {
+      appContainer.classList.add("light-theme");
+    }
   }
 
   // 应用系统主题

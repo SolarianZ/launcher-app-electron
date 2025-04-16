@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   closeSettingsBtn.addEventListener("click", () => {
     window.electronAPI.closeSettingsWindow();
   });
-
+  
   /**
    * 主题选择变化事件
    * 保存并应用用户选择的主题
