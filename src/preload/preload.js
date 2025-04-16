@@ -58,7 +58,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // 监听主题变更
   onThemeChanged: (callback) => {
-    console.log("onThemeChanged called");
     const listener = (event, theme) => callback(theme);
     ipcRenderer.on("theme-changed", listener);
     return () => {

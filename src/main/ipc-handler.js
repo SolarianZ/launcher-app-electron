@@ -170,6 +170,12 @@ function setupIpcHandlers() {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('theme-changed', theme);
     }
+
+    // 通知编辑窗口(如果存在)
+    const editItemWindow = windowManager.getAddItemWindow();
+    if (editItemWindow && !editItemWindow.isDestroyed()) {
+      editItemWindow.webContents.send('theme-changed', theme);
+    }
   });
 
   /**
