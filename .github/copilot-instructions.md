@@ -146,7 +146,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 
 7. 保持代码的一致性，不要在项目中维护多个具有相同功能的文件。
 
-## 代码优化建议
+### 代码优化建议
 
 1. **UI/UX 一致性**
    - 确保所有窗口在主题切换、语言切换时有一致的行为
@@ -159,18 +159,17 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
    - 添加更全面的错误捕获和用户友好的错误显示
    - 实现操作日志记录功能
 
-## API 参考
-
-### Electron 特定API说明
+## Electron API备注
 
 **preload**
 
-- preload.js 中无法以相对或绝对路径形式require其他JavaScript文件，必须使用IPC通信来转调用其他JavaScript提供的API
+- Electron默认启用沙盒化，在 `preload.js` 只允许使用 `require` 导入Electron和Node的特定子集，不能使用 `require` 导入自定义的Javascript代码。如果需要访问自定义的JavaScript API，需要借助IPC通信。
 
 **webUtils**
 
-- `webUtils.getPathForFile(file)` 是有效的Electron API，用于安全地获取拖放文件的路径
-- 最新版Electron中，无法使用 `event.dataTransfer.files[0].path` 来获取文件路径，必须使用 `webUtils.getPathForFile(file)` 来获取文件路径
+- 最新版Electron中，需要使用 `webUtils.getPathForFile(file)` 替代 `event.dataTransfer.files[0].path` 来获取文件路径。
+
+## API 参考
 
 ### 主进程暴露给渲染进程的API
 

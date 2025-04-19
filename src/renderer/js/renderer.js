@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 添加对列表更新的监听
     window.electronAPI.onItemsUpdated(async () => {
-      console.log("Items updated, refreshing list...");
+      console.log("条目已更新，刷新列表……");
       await loadItems();
     });
 
