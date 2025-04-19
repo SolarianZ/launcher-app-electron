@@ -9,7 +9,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 ## 主要功能
 
 1. **项目管理**
-   - 添加、编辑和删除项目（文件、文件夹、URL、命令）
+   - 添加、编辑和移除项目（文件、文件夹、URL、命令）
    - 拖放添加文件/文件夹
    - 项目排序与搜索
    - 右键菜单操作（打开、复制、在文件夹中显示等）
@@ -184,7 +184,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 2. **项目管理API**
    - `window.electronAPI.getItems()` - 获取所有项目
    - `window.electronAPI.addItem(item)` - 添加项目
-   - `window.electronAPI.removeItem(index)` - 删除项目
+   - `window.electronAPI.removeItem(index)` - 移除项目
    - `window.electronAPI.updateItem(index, updatedItem)` - 更新项目
    - `window.electronAPI.updateItemsOrder(items)` - 更新项目排序
 

@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * 全局键盘事件处理
    * - Escape: 关闭窗口
-   * - Delete: 删除选中项目
+   * - Delete: 移除选中项目
    * - Enter: 打开选中项目
    * - 方向键: 列表导航
    * - F12: 打开开发者工具
@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   }
 
-  // 删除项目
+  // 移除项目
   async function removeItem(index) {
     const result = await window.electronAPI.removeItem(index);
     if (result.success) {

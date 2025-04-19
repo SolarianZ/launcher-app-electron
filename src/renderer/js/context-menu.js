@@ -1,7 +1,7 @@
 /**
  * 右键菜单处理模块
  * 负责为不同类型的项目创建上下文菜单
- * 实现复制、编辑、删除等项目操作
+ * 实现复制、编辑、移除等项目操作
  */
 document.addEventListener('DOMContentLoaded', async () => {
     // 导入i18n模块
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // 移除选项
-        await addMenuItem(menu, await i18n.t('context-delete'), async () => {
+        await addMenuItem(menu, await i18n.t('context-remove'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // 移除选项
-        await addMenuItem(menu, await i18n.t('context-delete'), async () => {
+        await addMenuItem(menu, await i18n.t('context-remove'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // 移除选项
-        await addMenuItem(menu, await i18n.t('context-delete'), async () => {
+        await addMenuItem(menu, await i18n.t('context-remove'), async () => {
             await window.electronAPI.removeItem(index);
             await window.appFunctions.loadItems();
         });

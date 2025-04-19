@@ -93,7 +93,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   /**
    * 项目管理相关API
-   * 允许渲染进程获取、添加、更新和删除项目
+   * 允许渲染进程获取、添加、更新和移除项目
    */
   getItems: () => ipcRenderer.invoke("get-items"),
   addItem: (item) => ipcRenderer.invoke("add-item", item),

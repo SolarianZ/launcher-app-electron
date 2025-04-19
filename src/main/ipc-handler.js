@@ -44,7 +44,7 @@ function setupIpcHandlers() {
 
   /**
    * 项目数据管理相关IPC处理
-   * 处理项目的获取、添加、更新、删除和重排序
+   * 处理项目的获取、添加、更新、移除和重排序
    */
   ipcMain.handle('get-items', () => {
     return dataStore.getItems();
