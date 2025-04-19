@@ -74,40 +74,6 @@ function notifyChangeListeners() {
 }
 
 /**
- * 添加快捷键配置变化监听器
- * @param {Function} listener 监听函数
- */
-function addShortcutChangeListener(listener) {
-  if (typeof listener === 'function' && !shortcutChangeListeners.includes(listener)) {
-    shortcutChangeListeners.push(listener);
-  }
-}
-
-/**
- * 移除快捷键配置变化监听器
- * @param {Function} listener 要移除的监听函数
- */
-function removeShortcutChangeListener(listener) {
-  const index = shortcutChangeListeners.indexOf(listener);
-  if (index !== -1) {
-    shortcutChangeListeners.splice(index, 1);
-  }
-}
-
-/**
- * 通知所有快捷键配置变化监听器
- */
-function notifyShortcutChangeListeners() {
-  for (const listener of shortcutChangeListeners) {
-    try {
-      listener(appConfig.shortcut);
-    } catch (error) {
-      console.error("快捷键监听器执行错误:", error);
-    }
-  }
-}
-
-/**
  * 加载保存的项目列表
  * @returns {Array} 项目列表
  */
@@ -305,6 +271,40 @@ function updateMainWindowConfig(bounds) {
 function updateShortcutConfig(config) {
   appConfig.shortcut = { ...appConfig.shortcut, ...config };
   return saveAppConfig();
+}
+
+/**
+ * 添加快捷键配置变化监听器
+ * @param {Function} listener 监听函数
+ */
+function addShortcutChangeListener(listener) {
+  if (typeof listener === 'function' && !shortcutChangeListeners.includes(listener)) {
+    shortcutChangeListeners.push(listener);
+  }
+}
+
+/**
+ * 移除快捷键配置变化监听器
+ * @param {Function} listener 要移除的监听函数
+ */
+function removeShortcutChangeListener(listener) {
+  const index = shortcutChangeListeners.indexOf(listener);
+  if (index !== -1) {
+    shortcutChangeListeners.splice(index, 1);
+  }
+}
+
+/**
+ * 通知所有快捷键配置变化监听器
+ */
+function notifyShortcutChangeListeners() {
+  for (const listener of shortcutChangeListeners) {
+    try {
+      listener(appConfig.shortcut);
+    } catch (error) {
+      console.error("快捷键监听器执行错误:", error);
+    }
+  }
 }
 
 // 导出模块函数
