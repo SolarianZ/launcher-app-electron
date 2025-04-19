@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 导入i18n模块、PathType常量和UI工具
   const i18n = window.electronAPI.i18n;
-  const PathType = window.electronAPI.PathType;
+  const PathType = window.defines.PathType;
   const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
 
   // 跟踪是否处于编辑模式

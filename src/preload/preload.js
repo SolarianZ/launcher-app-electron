@@ -5,7 +5,9 @@
  */
 const { contextBridge, ipcRenderer, webUtils } = require("electron");
 
-// 保持与defines.js中的PathType一致
+/**
+ * 保持与defines.js中的PathType一致
+ */
 const PathType = {
   FILE: "file",         // 文件类型
   FOLDER: "folder",     // 文件夹类型
@@ -13,14 +15,12 @@ const PathType = {
   COMMAND: "command",   // 命令类型
 };
 
-/*
-contextBridge.exposeInMainWorld("PathType", {
-  FILE: "file",         // 文件类型
-  FOLDER: "folder",     // 文件夹类型
-  URL: "url",           // 网址类型
-  COMMAND: "command",   // 命令类型
+/**
+ * 共享常量
+ */
+contextBridge.exposeInMainWorld("defines", {
+  PathType: PathType,
 });
-*/
 
 /**
  * 通过contextBridge安全地暴露API给渲染进程
@@ -172,12 +172,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
       };
     }
   },
-
-  /**
-   * 共享常量
-   * 从shared/defines.js导出的常量
-   */
-  PathType: PathType,
 });
 
 /**
