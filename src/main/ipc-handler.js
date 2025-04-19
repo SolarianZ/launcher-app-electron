@@ -160,6 +160,9 @@ function setupIpcHandlers() {
   });
 
   ipcMain.on('theme-changed', (event, theme) => {
+    // 保存主题配置到配置文件
+    dataStore.updateThemeConfig(theme);
+    
     // 获取主窗口并发送主题变更通知
     const mainWindow = windowManager.getMainWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -181,6 +184,9 @@ function setupIpcHandlers() {
   });
 
   ipcMain.on('language-changed', (event, language) => {
+    // 保存语言配置到配置文件
+    dataStore.updateLanguageConfig(language);
+
     // 获取所有窗口并发送语言变更通知
     const mainWindow = windowManager.getMainWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {

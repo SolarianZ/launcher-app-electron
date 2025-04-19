@@ -70,29 +70,57 @@ function updateTrayMenuWithItems() {
 
 /**
  * 初始化应用语言设置
- * 获取系统语言并设置为应用默认语言
+ * 获取配置文件中存储的语言设置或系统语言，并应用
  */
 function initializeLanguage() {
-  // 获取系统语言
-  const systemLanguage = i18n.getSystemLanguage();
+  // 从配置文件中获取语言设置
+  const appConfig = dataStore.getAppConfig();
+  let selectedLanguage;
+  
+  // 根据配置决定使用哪种语言
+  if (appConfig.language && appConfig.language !== "system") {
+    // 使用用户配置的语言
+    selectedLanguage = appConfig.language;
+    console.log(`使用配置文件中的语言设置: ${selectedLanguage}`);
+  } else {
+    // 配置为"system"或未设置，则使用系统语言
+    selectedLanguage = i18n.getSystemLanguage();
+    console.log(`使用系统语言: ${selectedLanguage}`);
+  }
   
   // 设置为全局语言变量，以便在创建新窗口时使用
-  global.appLanguage = systemLanguage;
+  global.appLanguage = selectedLanguage;
   
   // 初始化i18n模块
-  i18n.setLanguage(systemLanguage);
+  i18n.setLanguage(selectedLanguage);
   
-  console.log(`应用语言初始化为: ${systemLanguage}`);
+  console.log(`应用语言初始化为: ${selectedLanguage}`);
+}
+
+/**
+ * 初始化应用主题设置
+ * 获取配置文件中存储的主题设置，并应用到全局变量
+ */
+function initializeTheme() {
+  // 从配置文件中获取主题设置
+  const appConfig = dataStore.getAppConfig();
+  const theme = appConfig.theme || "system";
+  
+  // 设置为全局主题变量，以便在创建新窗口时使用
+  global.appTheme = theme;
+  
+  console.log(`应用主题初始化为: ${theme}`);
 }
 
 // 应用初始化 - 当Electron完成初始化并准备创建浏览器窗口时触发
 app.whenReady().then(() => {
-  // 初始化应用语言
-  initializeLanguage();
-  
-  // 加载数据和配置
+  // 首先加载应用配置
   dataStore.loadItems();
   dataStore.loadAppConfig();
+  
+  // 初始化应用语言和主题
+  initializeLanguage();
+  initializeTheme();
   
   // 创建主窗口
   windowManager.createMainWindow();
