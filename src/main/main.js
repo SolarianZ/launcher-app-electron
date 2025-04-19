@@ -91,7 +91,7 @@ app.whenReady().then(() => {
   
   // 加载数据和配置
   dataStore.loadItems();
-  dataStore.loadWindowConfig();
+  dataStore.loadAppConfig();
   dataStore.loadShortcutConfig();
   
   // 创建主窗口

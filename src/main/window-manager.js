@@ -32,8 +32,8 @@ function createMainWindow() {
   }
 
   // 加载保存的窗口配置
-  const windowConfig = dataStore.loadWindowConfig();
-  const mainWindowConfig = windowConfig.mainWindow;
+  const appConfig = dataStore.loadAppConfig();
+  const mainWindowConfig = appConfig.mainWindow;
 
   /**
    * 设置窗口选项 

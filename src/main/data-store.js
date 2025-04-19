@@ -16,18 +16,22 @@ const path = require("path");
  */
 const userDataFolder = path.join(app.getPath("userData"), "UserData");
 const dataFilePath = path.join(userDataFolder, "items.json");
-const windowConfigPath = path.join(userDataFolder, "configs.json");
+const configFilePath = path.join(userDataFolder, "configs.json");
 const shortcutConfigPath = path.join(userDataFolder, "shortcuts.json");
 
 // 全局变量存储项目列表
 let items = [];
-// 全局变量存储窗口配置
-let windowConfig = {
+// 全局变量存储配置
+let appConfig = {
   mainWindow: {
     width: 400,
     height: 600,
     x: undefined,
     y: undefined
+  },
+  shortcutConfig: {
+    enabled: true,
+    shortcut: "Alt+Shift+Q"
   }
 };
 // 全局变量存储快捷键配置
@@ -244,17 +248,17 @@ function getUserDataPath() {
  * 加载窗口配置
  * @returns {Object} 窗口配置
  */
-function loadWindowConfig() {
+function loadAppConfig() {
   try {
-    if (fs.existsSync(windowConfigPath)) {
-      const data = fs.readFileSync(windowConfigPath, "utf8");
-      windowConfig = JSON.parse(data);
-      return windowConfig;
+    if (fs.existsSync(configFilePath)) {
+      const config = fs.readFileSync(configFilePath, "utf8");
+      appConfig = JSON.parse(config);
+      return appConfig;
     }
-    return windowConfig;
+    return appConfig;
   } catch (error) {
     console.error("Error loading window config:", error);
-    return windowConfig;
+    return appConfig;
   }
 }
 
@@ -263,17 +267,17 @@ function loadWindowConfig() {
  * @param {Object} config 要保存的窗口配置
  * @returns {boolean} 是否保存成功
  */
-function saveWindowConfig(config = null) {
+function saveAppConfig(config = null) {
   if (config) {
-    windowConfig = config;
+    appConfig = config;
   }
 
   try {
-    const dirPath = path.dirname(windowConfigPath);
+    const dirPath = path.dirname(configFilePath);
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }
-    fs.writeFileSync(windowConfigPath, JSON.stringify(windowConfig, null, 2), "utf8");
+    fs.writeFileSync(configFilePath, JSON.stringify(appConfig, null, 2), "utf8");
     return true;
   } catch (error) {
     console.error("Error saving window config:", error);
@@ -287,16 +291,16 @@ function saveWindowConfig(config = null) {
  * @returns {boolean} 是否保存成功
  */
 function updateMainWindowConfig(bounds) {
-  windowConfig.mainWindow = { ...windowConfig.mainWindow, ...bounds };
-  return saveWindowConfig();
+  appConfig.mainWindow = { ...appConfig.mainWindow, ...bounds };
+  return saveAppConfig();
 }
 
 /**
  * 获取窗口配置
  * @returns {Object} 窗口配置对象
  */
-function getWindowConfig() {
-  return windowConfig;
+function getAppConfig() {
+  return appConfig;
 }
 
 /**
@@ -356,26 +360,35 @@ function getShortcutConfig() {
 
 // 导出模块函数
 module.exports = {
+  // App配置
+  loadAppConfig,
+  saveAppConfig,
+  getAppConfig,
+  getStoragePath,
+  getUserDataPath,
+
+  // 主窗口配置
+  updateMainWindowConfig,
+
+  // 快捷键配置
+  loadShortcutConfig,
+  saveShortcutConfig,
+  getShortcutConfig,
+  updateShortcutConfig,
+  addShortcutChangeListener,
+  removeShortcutChangeListener,
+
+  // 列表条目
+  getItems,
   loadItems,
   saveItems,
   addItem,
   updateItem,
   removeItem,
   updateItemsOrder,
-  getItems,
   clearAllItems,
-  getStoragePath,
-  getUserDataPath,
-  loadWindowConfig,
-  saveWindowConfig,
-  updateMainWindowConfig,
-  getWindowConfig,
+
+  // 监听器
   addChangeListener,
   removeChangeListener,
-  loadShortcutConfig,
-  saveShortcutConfig,
-  updateShortcutConfig,
-  getShortcutConfig,
-  addShortcutChangeListener,
-  removeShortcutChangeListener
 };
