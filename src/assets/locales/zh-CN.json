@@ -62,7 +62,6 @@
   "context-show-in-folder": "在文件夹中显示",
   "context-copy-path": "复制路径",
   "context-copy-name": "复制名称",
-  "context-copy-asset": "复制文件",
   "context-copy": "复制",
   "context-execute": "执行",
   "tray-exit": "退出"

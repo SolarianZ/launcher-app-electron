@@ -168,7 +168,6 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
    - `window.electronAPI.openItem(item)` - 打开项目
    - `window.electronAPI.showItemInFolder(path)` - 在文件夹中显示
    - `window.electronAPI.copyText(text)` - 复制文本
-   - `window.electronAPI.copyFile(path)` - 复制文件内容
    - `window.electronAPI.getItemType(path)` - 获取项目类型
 
 4. **文件选择API**

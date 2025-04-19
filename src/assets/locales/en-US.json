@@ -62,7 +62,6 @@
   "context-show-in-folder": "Show in folder",
   "context-copy-path": "Copy path",
   "context-copy-name": "Copy name",
-  "context-copy-asset": "Copy file",
   "context-copy": "Copy",
   "context-execute": "Execute",
   "tray-exit": "Exit"

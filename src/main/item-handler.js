@@ -188,28 +188,6 @@ function copyText(text) {
 }
 
 /**
- * 复制文件内容到剪贴板
- * @param {string} path 文件路径
- * @returns {boolean} 是否复制成功
- */
-function copyFile(path) {
-  try {
-    if (fs.statSync(path).isDirectory()) {
-      // 目录不能直接复制
-      return false;
-    }
-
-    // 读取文件并存入剪贴板
-    const content = fs.readFileSync(path);
-    clipboard.writeBuffer("FileContents", content);
-    return true;
-  } catch (error) {
-    console.error("复制文件错误:", error);
-    return false;
-  }
-}
-
-/**
  * 判断项目类型（文件、文件夹、URL或命令）
  * @param {string} path 路径或URL
  * @returns {string} 项目类型
@@ -255,6 +233,5 @@ module.exports = {
   handleItemAction,
   showItemInFolder,
   copyText,
-  copyFile,
   getItemType,
 };

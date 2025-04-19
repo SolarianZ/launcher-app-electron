@@ -116,10 +116,6 @@ function setupIpcHandlers() {
     itemHandler.copyText(text);
   });
 
-  ipcMain.on('copy-file', (event, path) => {
-    itemHandler.copyFile(path);
-  });
-
   /**
    * 文件和文件夹选择对话框
    * 使用系统原生对话框选择文件或文件夹

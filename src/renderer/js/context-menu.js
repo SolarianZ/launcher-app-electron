@@ -122,10 +122,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.electronAPI.copyText(name);
         });
 
-        await addMenuItem(menu, await i18n.t('context-copy-asset'), () => {
-            window.electronAPI.copyFile(item.path);
-        });
-
         // 分隔线
         addMenuDivider(menu);
 

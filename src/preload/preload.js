@@ -101,7 +101,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openItem: (item) => ipcRenderer.send("open-item", item),
   showItemInFolder: (path) => ipcRenderer.send("show-item-in-folder", path),
   copyText: (text) => ipcRenderer.send("copy-text", text),
-  copyFile: (path) => ipcRenderer.send("copy-file", path),
 
   /**
    * 文件路径获取API
