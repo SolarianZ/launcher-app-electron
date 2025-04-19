@@ -14,8 +14,9 @@ const path = require("path");
  * - macOS: ~/Library/Application Support/[appname]/
  * - Linux: ~/.config/[appname]/
  */
-const dataFilePath = path.join(app.getPath("userData"), "items.json");
-const windowConfigPath = path.join(app.getPath("userData"), "configs.json");
+const userDataFolder = path.join(app.getPath("userData"), "UserData");
+const dataFilePath = path.join(userDataFolder, "items.json");
+const windowConfigPath = path.join(userDataFolder, "configs.json");
 
 // 全局变量存储项目列表
 let items = [];
@@ -224,7 +225,7 @@ function saveWindowConfig(config = null) {
   if (config) {
     windowConfig = config;
   }
-  
+
   try {
     const dirPath = path.dirname(windowConfigPath);
     if (!fs.existsSync(dirPath)) {
