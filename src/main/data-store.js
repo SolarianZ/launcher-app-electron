@@ -22,12 +22,26 @@ const configFilePath = path.join(userDataFolder, "configs.json");
 let items = [];
 // 全局变量存储配置
 let appConfig = {
+  /**
+   * 主窗口配置
+   */
   mainWindow: {
     width: 400,
     height: 600,
     x: undefined,
     y: undefined
   },
+  /**
+   * 主题配置
+   */
+  theme: "system",
+  /**
+   * 语言配置
+   */
+  language: "system",
+  /**
+   * 快捷键配置
+   */
   shortcut: {
     enabled: true,
     shortcut: "Alt+Shift+Q"
@@ -254,6 +268,22 @@ function saveAppConfig(config = null) {
 }
 
 /**
+ * 更新主题配置
+ */
+function updateThemeConfig(theme) {
+  appConfig.theme = theme;
+  return saveAppConfig();
+}
+
+/**
+ * 更新语言配置
+ */
+function updateLanguageConfig(language) {
+  appConfig.language = language;
+  return saveAppConfig();
+}
+
+/**
  * 更新主窗口配置
  * @param {Object} bounds 窗口的边界配置 {x, y, width, height}
  * @returns {boolean} 是否保存成功
@@ -319,6 +349,12 @@ module.exports = {
   getAppConfig,
   getStoragePath,
   getUserDataPath,
+
+  // 语言配置
+  updateLanguageConfig,
+
+  // 主题配置
+  updateThemeConfig,
 
   // 主窗口配置
   updateMainWindowConfig,

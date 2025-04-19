@@ -53,9 +53,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 让路径输入框获得焦点
       setTimeout(() => itemPathInput.focus(), 100);
     });
-
+    
     // 加载主题设置和应用
-    const savedTheme = localStorage.getItem("theme") || "system";
+    const savedTheme = await window.electronAPI.getThemeConfig();
     const modalContainer = document.querySelector(".modal");
     applyTheme(savedTheme, modalContainer);
 

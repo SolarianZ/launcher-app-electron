@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await initSettingsPage();
 
   // 加载已保存的主题设置
-  loadThemeSetting();
+  await loadThemeSetting();
 
   // 加载可用语言列表和已保存的语言设置
   await loadLanguages();
@@ -49,12 +49,10 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   themeSelect.addEventListener("change", () => {
     const theme = themeSelect.value;
-    // 保存至本地存储
-    localStorage.setItem("theme", theme);
-    // 应用新主题
-    applyCurrentTheme();
     // 通知主进程和其他窗口主题已更改
     window.electronAPI.themeChanged(theme);
+    // 应用新主题
+    applyCurrentTheme(theme);
   });
 
   /**
@@ -180,11 +178,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /**
    * 加载主题设置
-   * 从本地存储获取主题设置并设置到下拉选择框
+   * 从主进程获取主题设置并设置到下拉选择框
    */
-  function loadThemeSetting() {
-    // 获取保存的主题设置，默认使用系统主题
-    const savedTheme = localStorage.getItem("theme") || "system";
+  async function loadThemeSetting() {
+    // 通过 API 获取保存的主题设置
+    const savedTheme = await window.electronAPI.getThemeConfig();
     themeSelect.value = savedTheme;
   }
 
@@ -211,8 +209,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         languageSelect.appendChild(option);
       }
 
-      // 获取保存的语言设置，默认跟随系统
-      const savedLanguage = localStorage.getItem("language") || "system";
+      // 获取保存的语言设置
+      const savedLanguage = await window.electronAPI.getLanguageConfig();
       languageSelect.value = savedLanguage;
     } catch (error) {
       console.error("加载语言列表失败:", error);
@@ -412,7 +410,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 根据当前主题设置应用相应的CSS类
    */
   function applyCurrentTheme() {
-    const theme = localStorage.getItem("theme") || "system";
+    const theme = themeSelect.value || "system";
     const modalContainer = document.querySelector(".modal");
     applyTheme(theme, modalContainer);
   }

@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadItems();
 
     // 加载主题设置和应用
-    const savedTheme = localStorage.getItem("theme") || "system";
+    const savedTheme = await window.electronAPI.getThemeConfig();
     const appContainer = document.querySelector(".app-container");
     applyTheme(savedTheme, appContainer);
 

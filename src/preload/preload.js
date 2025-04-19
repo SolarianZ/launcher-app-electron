@@ -38,15 +38,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   /**
    * 主题相关API
-   * 允许设置窗口通知主题变更
    */
   themeChanged: (theme) => ipcRenderer.send("theme-changed", theme),
+  getThemeConfig: () => ipcRenderer.invoke("get-theme-config"),
 
   /**
    * 语言相关API
-   * 允许设置窗口通知语言变更
    */
   languageChanged: (language) => ipcRenderer.send("language-changed", language),
+  getLanguageConfig: () => ipcRenderer.invoke("get-language-config"),
 
   /**
    * 事件监听相关API
@@ -278,8 +278,10 @@ contextBridge.exposeInMainWorld("uiUtils", {
     if (window.matchMedia) {
       window
         .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", () => {
-          if (localStorage.getItem("theme") === "system") {
+        .addEventListener("change", async () => {
+          // 获取当前主题配置
+          const themeConfig = await ipcRenderer.invoke("get-theme-config");
+          if (themeConfig === "system") {
             // 调用上面定义的函数
             applySystemTheme(container);
           }

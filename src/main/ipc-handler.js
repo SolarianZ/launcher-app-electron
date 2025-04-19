@@ -154,8 +154,11 @@ function setupIpcHandlers() {
 
   /**
    * 主题相关IPC处理
-   * 处理主题变更通知
    */
+  ipcMain.handle('get-theme-config', () => {
+    return dataStore.getAppConfig().theme;
+  });
+
   ipcMain.on('theme-changed', (event, theme) => {
     // 获取主窗口并发送主题变更通知
     const mainWindow = windowManager.getMainWindow();
@@ -172,8 +175,11 @@ function setupIpcHandlers() {
 
   /**
    * 语言相关IPC处理
-   * 处理语言变更通知
    */
+  ipcMain.handle('get-language-config', () => {
+    return dataStore.getAppConfig().language;
+  });
+
   ipcMain.on('language-changed', (event, language) => {
     // 获取所有窗口并发送语言变更通知
     const mainWindow = windowManager.getMainWindow();

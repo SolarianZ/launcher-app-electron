@@ -249,16 +249,24 @@ function notifyLanguageChangeListeners(newLanguage) {
  */
 function getCurrentLanguage() {
   if (!currentLanguage) {
-    // 首先尝试从本地存储获取
-    if (typeof localStorage !== 'undefined') {
-      const savedLang = localStorage.getItem('language');
-      if (savedLang === 'system' || !savedLang) {
-        currentLanguage = getSystemLanguage();
+    try {
+      // 尝试从 main 进程中获取语言设置
+      const { app } = require('electron');
+      if (app) {
+        const dataStore = require('../main/data-store');
+        const appConfig = dataStore.getAppConfig();
+        if (appConfig.language === 'system' || !appConfig.language) {
+          currentLanguage = getSystemLanguage();
+        } else {
+          currentLanguage = appConfig.language;
+        }
       } else {
-        currentLanguage = savedLang;
+        // 在渲染进程中，无法直接访问 dataStore
+        // 此时应该已经由主进程设置了当前语言
+        currentLanguage = getSystemLanguage();
       }
-    } else {
-      // 在main进程中，无法访问localStorage
+    } catch (error) {
+      console.error('获取语言配置失败:', error);
       currentLanguage = getSystemLanguage();
     }
   }
@@ -274,16 +282,8 @@ function setLanguage(lang) {
   
   if (lang === 'system') {
     newLang = getSystemLanguage();
-    // 保存用户选择
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('language', 'system');
-    }
   } else if (translations[lang]) {
     newLang = lang;
-    // 保存用户选择
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('language', lang);
-    }
   } else {
     // 尝试先加载该语言文件
     try {
@@ -302,13 +302,21 @@ function setLanguage(lang) {
       newLang = 'en-US'; // 默认回退到英文
       console.error(`不支持的语言: ${lang}`, error);
     }
-    
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('language', newLang);
-    }
   }
   
+  // 保存到全局变量
   currentLanguage = newLang;
+  
+  // 尝试保存到 data-store
+  try {
+    const { app } = require('electron');
+    if (app) {
+      const dataStore = require('../main/data-store');
+      dataStore.updateLanguageConfig(lang);
+    }
+  } catch (error) {
+    console.error('保存语言配置失败:', error);
+  }
   
   // 通知语言变化
   notifyLanguageChangeListeners(newLang);
