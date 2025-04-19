@@ -16,7 +16,20 @@ function handleItemAction(item) {
       shell.openPath(item.path);
       break;
     case PathType.URL:
-      shell.openExternal(item.path);
+      // URL处理逻辑
+      let urlToOpen = item.path;
+      
+      // 匹配任何协议前缀 (http://, https://, mailto:, tel:, app: 等)
+      const protocolRegex = /^[a-z][a-z0-9+.-]*:(?:\/\/)?/i;
+      // 匹配标准域名格式 (example.com, www.example.com 等)
+      const domainRegex = /^([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,})(:[0-9]{1,5})?(\/.*)?$/i;
+      
+      // 只有当URL没有协议前缀，但符合标准域名格式时才添加https://
+      if (!protocolRegex.test(urlToOpen) && domainRegex.test(urlToOpen)) {
+        urlToOpen = `https://${urlToOpen}`;
+      }
+      
+      shell.openExternal(urlToOpen);
       break;
     case PathType.COMMAND:
       executeCommand(item.path);
