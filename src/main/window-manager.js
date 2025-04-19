@@ -156,9 +156,9 @@ function createAddItemWindow() {
     resizable: false,
     frame: false,
     modal: true,
-    parent: mainWindow,
     show: false,
     transparent: true,
+    parent: mainWindow,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
@@ -207,10 +207,11 @@ function createSettingsWindow() {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 500,
+    width: 400,
     height: 600,
     resizable: false,
     frame: false,
+    modal: true,
     show: false,
     transparent: true,
     parent: mainWindow,
