@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
    */
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      window.electronAPI.closeWindow();
+      window.electronAPI.closeMainWindow();
     } else if (e.key === "Delete") {
       const activeItem = document.querySelector(".list-item.active");
       if (activeItem) {

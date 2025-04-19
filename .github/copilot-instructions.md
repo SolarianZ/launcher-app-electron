@@ -177,8 +177,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 通过预加载脚本(`preload.js`)，主进程向渲染进程暴露了以下API：
 
 1. **窗口控制API**
-   - `window.electronAPI.minimizeWindow()` - 最小化窗口
-   - `window.electronAPI.closeWindow()` - 关闭/隐藏窗口
+   - `window.electronAPI.closeMainWindow()` - 关闭/隐藏窗口
    - `window.electronAPI.showSettingsWindow()` - 显示设置窗口
 
 2. **项目管理API**

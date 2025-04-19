@@ -31,8 +31,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
    * 窗口控制相关API
    * 允许渲染进程控制应用窗口
    */
-  minimizeWindow: () => ipcRenderer.send("minimize-window"),
-  closeWindow: () => ipcRenderer.send("close-window"),
+  closeMainWindow: () => ipcRenderer.send("close-main-window"),
   closeAddItemWindow: () => ipcRenderer.send("close-add-item-window"),
   closeSettingsWindow: () => ipcRenderer.send("close-settings-window"),
   showSettingsWindow: () => ipcRenderer.send("show-settings-window"),

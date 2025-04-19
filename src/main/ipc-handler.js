@@ -20,13 +20,9 @@ const i18n = require('../shared/i18n');
 function setupIpcHandlers() {
   /**
    * 窗口控制相关IPC处理
-   * 处理窗口最小化、关闭、显示等操作
    */
-  ipcMain.on('minimize-window', () => {
-    windowManager.minimizeMainWindow();
-  });
 
-  ipcMain.on('close-window', () => {
+  ipcMain.on('close-main-window', () => {
     windowManager.hideMainWindow();
   });
 

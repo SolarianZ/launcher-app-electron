@@ -88,15 +88,6 @@ function createMainWindow() {
   // 不在任务栏显示图标
   mainWindow.setSkipTaskbar(true);
 
-  // 监听键盘事件，处理快捷键
-  mainWindow.webContents.on('before-input-event', (event, input) => {
-    // 按ESC键隐藏窗口
-    if (input.key === 'Escape') {
-      mainWindow.hide();
-      event.preventDefault();
-    }
-  });
-
   // 保存窗口调整大小时的尺寸
   mainWindow.on('resize', () => {
     if (!mainWindow.isMaximized()) {
@@ -236,17 +227,6 @@ function createSettingsWindow() {
     settingsWindow.show();
   });
 
-  // 处理F12快捷键
-  settingsWindow.webContents.on('before-input-event', (event, input) => {
-    if (input.key === 'F12') {
-      settingsWindow.webContents.openDevTools({ mode: 'detach' });
-      event.preventDefault();
-    } else if (input.key === 'Escape') {
-      settingsWindow.close();
-      event.preventDefault();
-    }
-  });
-
   settingsWindow.on('closed', () => {
     settingsWindow = null;
   });
@@ -290,15 +270,6 @@ function closeAddItemWindow() {
   if (addItemWindow && !addItemWindow.isDestroyed()) {
     addItemWindow.close();
     addItemWindow = null;
-  }
-}
-
-/**
- * 最小化主窗口
- */
-function minimizeMainWindow() {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.minimize();
   }
 }
 
@@ -349,14 +320,13 @@ module.exports = {
   createMainWindow,
   createAddItemWindow,
   createEditItemWindow,
-  createSettingsWindow,  // 添加新函数导出
+  createSettingsWindow,
   toggleMainWindow,
   closeAddItemWindow,
-  closeSettingsWindow,   // 添加新函数导出
-  minimizeMainWindow,
+  closeSettingsWindow,
   hideMainWindow,
   notifyItemsUpdated,
   getMainWindow,
   getAddItemWindow,
-  getSettingsWindow      // 添加新函数导出
+  getSettingsWindow
 };
