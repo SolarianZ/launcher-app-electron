@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * - Enter: 打开选中项目
    * - 方向键: 列表导航
    * - F12: 打开开发者工具
+   * - Ctrl+F: 搜索框获得焦点
    */
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -66,6 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (e.key === "F12") {
       window.electronAPI.openDevTools();
       e.preventDefault();
+    } else if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
+      // Ctrl+F (Windows/Linux) 或 Command+F (macOS) 使搜索框获得焦点
+      searchInput.focus();
+      e.preventDefault(); // 阻止默认的浏览器查找功能
     }
   });
 
