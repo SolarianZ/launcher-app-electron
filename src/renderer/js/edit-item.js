@@ -3,7 +3,6 @@
  * 负责处理项目的添加和编辑功能
  * 包括表单验证、文件选择和保存操作
  */
-
 document.addEventListener("DOMContentLoaded", async () => {
   // DOM元素引用
   const itemPathInput = document.getElementById("item-path");
@@ -32,6 +31,26 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 应用主题和语言设置
    */
   async function initPage() {
+    // 监听编辑条目数据事件，注意要在其他异步操作之前注册监听器，避免错过事件窗口
+    window.electronAPI.onEditItemData(({ item, index }) => {
+      console.log("编辑条目数据:", item, index);
+      // 进入编辑模式
+      isEditMode = true;
+      editingItemIndex = index;
+
+      // 填充表单数据
+      itemPathInput.value = item.path;
+      itemTypeSelect.value = item.type;
+
+      // 如果有名称，填充名称字段
+      if (item.name) {
+        itemNameInput.value = item.name;
+      }
+
+      // 启用保存按钮
+      saveBtn.disabled = false;
+    });
+
     // 加载主题设置和应用
     const savedTheme = localStorage.getItem("theme") || "system";
     const modalContainer = document.querySelector(".modal");
@@ -56,28 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 设置系统主题变化监听器
     setupSystemThemeListener(document.querySelector(".modal"));
 
-    /**
-     * 监听编辑条目数据事件
-     * 当从主窗口请求编辑项目时触发
-     */
-    window.electronAPI.onEditItemData(({ item, index }) => {
-      console.log("编辑条目数据:", item, index);
-      // 进入编辑模式
-      isEditMode = true;
-      editingItemIndex = index;
-
-      // 填充表单数据
-      itemPathInput.value = item.path;
-      itemTypeSelect.value = item.type;
-
-      // 如果有名称，填充名称字段
-      if (item.name) {
-        itemNameInput.value = item.name;
-      }
-
-      // 启用保存按钮
-      saveBtn.disabled = false;
-    });
   }
 
   /**
