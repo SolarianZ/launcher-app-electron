@@ -153,11 +153,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return () => {
         ipcRenderer.removeListener("language-changed", listener);
       };
-    },
-    removeLanguageChangeListener: (callback) => {
-      // 由于我们使用IPC的事件系统，无需手动移除特定的监听器
-      // IPC回调是由返回的清理函数管理的
-      return true;
     }
   },
 });

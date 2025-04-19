@@ -59,7 +59,6 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
     - `edit-item.js` - 编辑窗口脚本
     - `settings.js` - 设置窗口脚本
     - `context-menu.js` - 右键菜单脚本
-    - `list.js` - 列表操作脚本
 
 - `/src/shared/` - 共享代码
   - `defines.js` - 共享常量和定义
@@ -67,6 +66,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 
 - `/src/assets/` - 图标和其他静态资源
   - `/icons/` - 应用和托盘图标
+  - `/locales/` - 语言配置文件
 
 ## 关键模块说明
 
@@ -121,6 +121,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 
 1. **defines.js**
    - 定义项目类型常量（文件、文件夹、URL、命令）
+   - 提供 ListItem 类定义
 
 2. **i18n.js**
    - 多语言支持
@@ -140,6 +141,23 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 4. 使用异步编程处理IO操作，避免阻塞主线程。
 
 5. 使用预加载脚本来安全地暴露API，而不是直接启用nodeIntegration。
+
+6. 避免代码重复，将常用功能提取为模块或共享函数。
+
+7. 保持代码的一致性，不要在项目中维护多个具有相同功能的文件。
+
+## 代码优化建议
+
+1. **UI/UX 一致性**
+   - 确保所有窗口在主题切换、语言切换时有一致的行为
+
+2. **模块化改进**
+   - 将重复的主题和语言处理函数抽象为共享模块
+   - 通过预加载脚本提供共享的类型和常量定义，避免重复定义
+
+3. **错误处理**
+   - 添加更全面的错误捕获和用户友好的错误显示
+   - 实现操作日志记录功能
 
 ## API 参考
 
@@ -191,6 +209,8 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
    - `window.electronAPI.i18n.setLanguage(language)` - 设置语言
    - `window.electronAPI.i18n.getCurrentLanguage()` - 获取当前语言
    - `window.electronAPI.i18n.getSystemLanguage()` - 获取系统语言
+   - `window.electronAPI.i18n.getAvailableLanguages()` - 获取可用语言列表
+   - `window.electronAPI.i18n.getLanguageName()` - 获取语言名称
 
 ## 通用操作流程
 
