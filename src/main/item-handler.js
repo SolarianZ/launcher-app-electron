@@ -30,23 +30,32 @@ function handleItemAction(item) {
  */
 function executeCommand(command) {
   // 根据平台打开终端窗口执行命令
+  // 注意：
+  // 1. 使用引号包裹命令，防止注入
+  // 2. Windows平台使用unref，避免CMD窗口关闭时Launcher被关闭
   const platform = process.platform;
   try {
     if (platform === "win32") {
-      /**
-       * Windows平台特定代码
+      /* Windows平台特定代码
        * 使用CMD执行命令，有两种模式：
        * 1. /K - 执行命令后保持窗口打开
        * 2. /C - 执行命令后关闭窗口
        */
+
+      const execOptions = {
+        windowsHide: false,
+        detached: true,
+        shell: true,
+      };
+
       if (command.includes("\n")) {
         // 处理多行命令：创建临时批处理文件
         const tmpDir = os.tmpdir();
         const batchFile = path.join(tmpDir, `launcher-cmd-${Date.now()}.bat`);
-        
+
         // 写入批处理文件
         fs.writeFileSync(batchFile, command, 'utf8');
-        
+
         // 执行批处理文件
         exec(`start cmd /K "${batchFile}"`);
       } else if (/^\/[KC]/i.test(command)) {
@@ -54,7 +63,7 @@ function executeCommand(command) {
         exec(`start cmd ${command}`);
       } else {
         // 默认使用 /K 模式保持窗口打开
-        exec(`start cmd /K "${command}"`); // 使用引号包裹命令，防止注入
+        exec(`start cmd /K "${command}"`, execOptions)
       }
     } else if (platform === "darwin") {
       /**
@@ -66,11 +75,11 @@ function executeCommand(command) {
         // 处理多行命令：创建临时脚本文件
         const tmpDir = os.tmpdir();
         const scriptFile = path.join(tmpDir, `launcher-cmd-${Date.now()}.sh`);
-        
+
         // 写入脚本文件并添加执行权限
         fs.writeFileSync(scriptFile, command, 'utf8');
         fs.chmodSync(scriptFile, '755');
-        
+
         const escapedPath = scriptFile.replace(/"/g, '\\"').replace(/'/g, "'\\''");
         exec(
           `osascript -e 'tell app "Terminal" to do script "${escapedPath}"'`
@@ -90,18 +99,18 @@ function executeCommand(command) {
         // 处理多行命令：创建临时脚本文件
         const tmpDir = os.tmpdir();
         const scriptFile = path.join(tmpDir, `launcher-cmd-${Date.now()}.sh`);
-        
+
         // 写入脚本文件并添加执行权限
         fs.writeFileSync(scriptFile, `#!/bin/bash\n${command}`, 'utf8');
         fs.chmodSync(scriptFile, '755');
-        
+
         const terminals = [
           `gnome-terminal -- bash -c "${scriptFile}; exec bash"`,
           `konsole --noclose -e bash -c "${scriptFile}"`,
           `xterm -hold -e ${scriptFile}`,
           `x-terminal-emulator -e ${scriptFile}`
         ];
-        
+
         // 尝试所有可能的终端，直到一个成功
         tryNextTerminal(terminals, 0, "");
       } else {
@@ -138,7 +147,7 @@ function tryNextTerminal(terminals, index, command) {
 
   // 替换命令模板中的{CMD}为实际命令
   const terminalCmd = terminals[index].replace("{CMD}", command);
-  
+
   exec(terminalCmd, (error) => {
     if (error) {
       console.warn(`终端 ${index + 1}/${terminals.length} 失败，尝试下一个...`);
