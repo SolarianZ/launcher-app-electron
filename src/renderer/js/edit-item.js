@@ -4,14 +4,6 @@
  * 包括表单验证、文件选择和保存操作
  */
 
-// 与shared/defines.js中的定义保持一致（这里无法直接require）
-const PathType = {
-  FILE: "file",
-  FOLDER: "folder",
-  URL: "url",
-  COMMAND: "command",
-};
-
 document.addEventListener("DOMContentLoaded", async () => {
   // DOM元素引用
   const itemPathInput = document.getElementById("item-path");
@@ -23,8 +15,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectFolderBtn = document.getElementById("select-folder-btn");
   const toast = document.getElementById("toast");
 
-  // 导入i18n模块
+  // 导入i18n模块、PathType常量和UI工具
   const i18n = window.electronAPI.i18n;
+  const PathType = window.electronAPI.PathType;
+  const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
 
   // 跟踪是否处于编辑模式
   let isEditMode = false;
@@ -40,22 +34,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function initPage() {
     // 加载主题设置和应用
     const savedTheme = localStorage.getItem("theme") || "system";
-    applyTheme(savedTheme);
+    const modalContainer = document.querySelector(".modal");
+    applyTheme(savedTheme, modalContainer);
 
     // 初始化语言设置
-    initializeLanguage();
+    await updatePageTexts(i18n);
 
     // 监听来自其他窗口的语言变更通知
     window.electronAPI.onLanguageChanged((language) => {
       console.log("语言已更改为:", language);
-      applyLanguage(language);
+      updatePageTexts(i18n);
     });
 
     // 监听来自其他窗口的主题变更通知
     window.electronAPI.onThemeChanged((theme) => {
       console.log("主题已更改为", theme);
-      applyTheme(theme);
+      const modalContainer = document.querySelector(".modal");
+      applyTheme(theme, modalContainer);
     });
+
+    // 设置系统主题变化监听器
+    setupSystemThemeListener(document.querySelector(".modal"));
 
     /**
      * 监听编辑条目数据事件
@@ -79,69 +78,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 启用保存按钮
       saveBtn.disabled = false;
     });
-  }
-
-  /**
-   * 初始化语言设置
-   * 加载用户语言设置并应用
-   */
-  async function initializeLanguage() {
-    // 更新所有页面文本
-    await updatePageTexts();
-  }
-
-  /**
-   * 应用语言设置
-   * @param {string} language 语言代码
-   */
-  async function applyLanguage(language) {
-    await i18n.setLanguage(language);
-    await updatePageTexts();
-  }
-
-  /**
-   * 更新页面文本
-   * 使用当前语言更新所有标记的UI元素
-   */
-  async function updatePageTexts() {
-    try {
-      // 更新普通文本元素
-      const elements = document.querySelectorAll("[data-i18n]");
-      for (const el of elements) {
-        const key = el.getAttribute("data-i18n");
-        el.textContent = await i18n.t(key);
-      }
-
-      // 更新带有title属性的元素
-      const titleElements = document.querySelectorAll("[data-i18n-title]");
-      for (const el of titleElements) {
-        const key = el.getAttribute("data-i18n-title");
-        el.title = await i18n.t(key);
-      }
-
-      // 更新带有placeholder属性的元素
-      const placeholderElements = document.querySelectorAll(
-        "[data-i18n-placeholder]"
-      );
-      for (const el of placeholderElements) {
-        const key = el.getAttribute("data-i18n-placeholder");
-        el.placeholder = await i18n.t(key);
-      }
-
-      // 更新select元素的选项文本
-      const selects = document.querySelectorAll("select");
-      for (const select of selects) {
-        const options = Array.from(select.options);
-        for (const option of options) {
-          if (option.hasAttribute("data-i18n")) {
-            const key = option.getAttribute("data-i18n");
-            option.textContent = await i18n.t(key);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("更新页面文本时出错:", error);
-    }
   }
 
   /**
@@ -293,34 +229,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         toast.style.display = "none";
       }, 300);
     }, 1000);
-  }
-
-  // 应用主题
-  function applyTheme(theme) {
-    const appContainer = document.querySelector(".modal");
-
-    // 移除所有主题类
-    appContainer.classList.remove("dark-theme", "light-theme");
-
-    if (theme === "system") {
-      applySystemTheme();
-    } else if (theme === "dark") {
-      appContainer.classList.add("dark-theme");
-    } else if (theme === "light") {
-      appContainer.classList.add("light-theme");
-    }
-  }
-
-  // 应用系统主题
-  function applySystemTheme() {
-    if (
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      document.querySelector(".modal").classList.add("dark-theme");
-    } else {
-      document.querySelector(".modal").classList.remove("dark-theme");
-    }
   }
 
   // 名称输入框按Enter时触发保存（如果数据有效）

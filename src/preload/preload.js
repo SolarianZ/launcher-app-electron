@@ -3,7 +3,9 @@
  * 在渲染进程加载前执行，安全地暴露特定API给渲染进程
  * 作为渲染进程和主进程之间的桥梁，确保渲染进程不直接访问Node.js API
  */
-const { contextBridge, ipcRenderer, webUtils } = require("electron");
+const { contextBridge, ipcRenderer, webUtils, remote, shell } = require("electron");
+const { PathType } = require("../shared/defines");
+const uiUtils = require("../shared/ui-utils");
 
 /**
  * 通过contextBridge安全地暴露API给渲染进程
@@ -19,7 +21,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   closeAddItemWindow: () => ipcRenderer.send("close-add-item-window"),
   closeSettingsWindow: () => ipcRenderer.send("close-settings-window"),
   showSettingsWindow: () => ipcRenderer.send("show-settings-window"),
-  
+
   /**
    * 主题相关API
    * 允许设置窗口通知主题变更
@@ -125,7 +127,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
    * 获取当前运行平台信息(win32、darwin、linux)
    */
   getPlatform: () => process.platform,
-  
+
   /**
    * 设置相关API
    * 提供各种设置和实用功能
@@ -155,4 +157,21 @@ contextBridge.exposeInMainWorld("electronAPI", {
       };
     }
   },
+
+  /**
+   * 共享常量
+   * 从shared/defines.js导出的常量
+   */
+  PathType: PathType,
+});
+
+/**
+ * 暴露UI工具函数给渲染进程
+ * 提供共享的UI功能，如主题应用和语言处理
+ */
+contextBridge.exposeInMainWorld("uiUtils", {
+  applyTheme: uiUtils.applyTheme,
+  applySystemTheme: uiUtils.applySystemTheme,
+  updatePageTexts: uiUtils.updatePageTexts,
+  setupSystemThemeListener: uiUtils.setupSystemThemeListener,
 });

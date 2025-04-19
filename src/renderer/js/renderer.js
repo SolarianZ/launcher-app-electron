@@ -11,8 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("toast");
   const settingsButton = document.getElementById("settings-button");
   
-  // 导入i18n模块
+  // 导入i18n模块和UI工具
   const i18n = window.electronAPI.i18n;
+  const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
 
   // 初始化页面
   initPage();
@@ -131,10 +132,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 加载主题设置和应用
     const savedTheme = localStorage.getItem("theme") || "system";
-    applyTheme(savedTheme);
+    const appContainer = document.querySelector(".app-container");
+    applyTheme(savedTheme, appContainer);
 
     // 初始化语言设置
-    initializeLanguage();
+    await updatePageTexts(i18n);
 
     // 添加对列表更新的监听
     window.electronAPI.onItemsUpdated(async () => {
@@ -145,74 +147,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // 监听来自其他窗口的主题变更通知
     window.electronAPI.onThemeChanged((theme) => {
       console.log("主题已更改为:", theme);
-      applyTheme(theme);
+      const appContainer = document.querySelector(".app-container");
+      applyTheme(theme, appContainer);
     });
     
     // 监听来自其他窗口的语言变更通知
     window.electronAPI.onLanguageChanged((language) => {
       console.log("语言已更改为:", language);
-      applyLanguage(language);
+      updatePageTexts(i18n);
     });
 
-    // 检测系统主题变化
-    if (window.matchMedia) {
-      window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", () => {
-          if (localStorage.getItem("theme") === "system") {
-            applySystemTheme();
-          }
-        });
-    }
-  }
-  
-  /**
-   * 初始化语言设置
-   * 加载用户语言设置并应用
-   */
-  function initializeLanguage() {
-    // 更新所有页面文本
-    updatePageTexts();
-  }
-  
-  /**
-   * 应用语言设置
-   * @param {string} language 语言代码
-   */
-  function applyLanguage(language) {
-    i18n.setLanguage(language);
-    updatePageTexts();
-  }
-  
-  /**
-   * 更新页面文本
-   * 使用当前语言更新所有标记的UI元素
-   */
-  async function updatePageTexts() {
-    try {
-      // 更新普通文本元素
-      const elements = document.querySelectorAll('[data-i18n]');
-      for (const el of elements) {
-        const key = el.getAttribute('data-i18n');
-        el.textContent = await i18n.t(key);
-      }
-
-      // 更新带有title属性的元素
-      const titleElements = document.querySelectorAll('[data-i18n-title]');
-      for (const el of titleElements) {
-        const key = el.getAttribute('data-i18n-title');
-        el.title = await i18n.t(key);
-      }
-
-      // 更新带有placeholder属性的元素
-      const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
-      for (const el of placeholderElements) {
-        const key = el.getAttribute('data-i18n-placeholder');
-        el.placeholder = await i18n.t(key);
-      }
-    } catch (error) {
-      console.error("更新页面文本时出错:", error);
-    }
+    // 设置系统主题变化监听器
+    setupSystemThemeListener(document.querySelector(".app-container"));
   }
 
   // 加载项目列表
@@ -508,42 +454,10 @@ document.addEventListener("DOMContentLoaded", () => {
     items[nextIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  // 应用主题
-  function applyTheme(theme) {
-    const appContainer = document.querySelector(".app-container");
-
-    // 移除所有主题类
-    appContainer.classList.remove("dark-theme", "light-theme");
-
-    if (theme === "system") {
-      applySystemTheme();
-    } else if (theme === "dark") {
-      appContainer.classList.add("dark-theme");
-    } else if (theme === "light") {
-      appContainer.classList.add("light-theme");
-    }
-  }
-
-  // 应用系统主题
-  function applySystemTheme() {
-    const isDarkMode =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    const appContainer = document.querySelector(".app-container");
-
-    if (isDarkMode) {
-      appContainer.classList.add("dark-theme");
-    } else {
-      appContainer.classList.remove("dark-theme");
-    }
-  }
-
   // 把loadItems和removeItem函数暴露到全局，供其他脚本使用
   window.appFunctions = {
     loadItems,
     removeItem,
     showToast,
-    updatePageTexts, // 额外暴露文本更新函数，供其他脚本使用
   };
 });

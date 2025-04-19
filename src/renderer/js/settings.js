@@ -3,8 +3,9 @@
  * 处理设置窗口的所有功能，包括主题设置、数据管理和应用信息显示
  */
 document.addEventListener("DOMContentLoaded", async () => {
-  // 导入i18n模块
+  // 导入i18n模块和UI工具
   const i18n = window.electronAPI.i18n;
+  const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
 
   // DOM 元素引用
   const themeSelect = document.getElementById("theme-select");
@@ -56,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 应用新语言
     await i18n.setLanguage(language);
     // 更新页面文本
-    await updatePageTexts();
+    await updatePageTexts(i18n);
     // 通知主进程和其他窗口语言已更改
     window.electronAPI.languageChanged(language);
   });
@@ -129,6 +130,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("获取应用信息失败:", error);
     }
+
+    // 设置系统主题变化监听器
+    setupSystemThemeListener(document.querySelector(".modal"));
   }
 
   /**
@@ -178,39 +182,8 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   function applyCurrentTheme() {
     const theme = localStorage.getItem("theme") || "system";
-    const modal = document.querySelector(".modal");
-
-    // 移除所有主题类
-    modal.classList.remove("dark-theme", "light-theme");
-
-    // 根据主题设置应用相应的CSS类
-    if (theme === "system") {
-      applySystemTheme();
-    } else if (theme === "dark") {
-      modal.classList.add("dark-theme");
-    } else if (theme === "light") {
-      modal.classList.add("light-theme");
-    }
-  }
-
-  /**
-   * 应用系统主题
-   * 检测系统主题设置并应用相应的CSS类
-   */
-  function applySystemTheme() {
-    // 检测系统是否处于深色模式
-    const isDarkMode =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    const modal = document.querySelector(".modal");
-
-    // 应用相应的主题类
-    if (isDarkMode) {
-      modal.classList.add("dark-theme");
-    } else {
-      modal.classList.remove("dark-theme");
-    }
+    const modalContainer = document.querySelector(".modal");
+    applyTheme(theme, modalContainer);
   }
 
   /**
@@ -218,30 +191,6 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 更新页面上所有需要翻译的文本
    */
   async function applyCurrentLanguage() {
-    await updatePageTexts();
-  }
-
-  /**
-   * 更新页面文本
-   * 根据当前语言设置更新所有带有 data-i18n 属性的元素文本
-   */
-  async function updatePageTexts() {
-    try {
-      // 更新普通文本元素
-      const elements = document.querySelectorAll('[data-i18n]');
-      for (const el of elements) {
-        const key = el.getAttribute('data-i18n');
-        el.textContent = await i18n.t(key);
-      }
-  
-      // 更新带有 title 属性的元素
-      const titleElements = document.querySelectorAll('[data-i18n-title]');
-      for (const el of titleElements) {
-        const key = el.getAttribute('data-i18n-title');
-        el.title = await i18n.t(key);
-      }
-    } catch (error) {
-      console.error("更新页面文本时出错:", error);
-    }
+    await updatePageTexts(i18n);
   }
 });
