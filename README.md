@@ -5,6 +5,8 @@
 ![使用Electron构建](https://img.shields.io/badge/Built%20with-Electron-47848F)
 ![MIT许可证](https://img.shields.io/badge/License-MIT-green)
 
+![Main Window](./doc/imgs/launcher_app_main_window.png)
+
 ## 📋 项目简介
 
 Launcher App 是一款基于 Electron 开发的桌面快速启动器工具，帮助用户快速访问常用的文件、文件夹、网站和命令。应用以简洁的列表形式呈现所有项目，支持拖放、搜索和自定义操作。
