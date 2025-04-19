@@ -258,15 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.electronAPI.openItem(item);
       });
 
-      // 鼠标悬停显示完整路径
-      listItem.addEventListener("mouseenter", (e) => {
-        showTooltip(item.path, e);
-      });
-
-      listItem.addEventListener("mouseleave", () => {
-        hideTooltip();
-      });
-
       listContainer.appendChild(listItem);
     });
 
@@ -306,58 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     renderItems(filteredItems);
-  }
-
-  // 显示提示框
-  function showTooltip(text, event) {
-    const tooltip = document.getElementById("tooltip");
-    tooltip.textContent = text;
-    tooltip.style.display = "block";
-
-    // 设置最大宽度来避免太长的tooltip
-    tooltip.style.maxWidth = "300px";
-
-    // 首先让tooltip在视口的右下角，计算尺寸
-    tooltip.style.left = "0px";
-    tooltip.style.top = "0px";
-
-    // 获取tooltip尺寸
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
-
-    // 获取视口尺寸
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    // 初始位置：鼠标右下方（避免遮挡鼠标）
-    let x = event.clientX + 15;
-    let y = event.clientY + 15;
-
-    // 检查右边界
-    if (x + tooltipWidth > viewportWidth) {
-      // 如果右侧空间不足，放在鼠标左侧
-      x = event.clientX - tooltipWidth - 5;
-    }
-
-    // 检查下边界
-    if (y + tooltipHeight > viewportHeight) {
-      // 如果下方空间不足，放在鼠标上方
-      y = event.clientY - tooltipHeight - 5;
-    }
-
-    // 确保不超出左上边界
-    x = Math.max(5, x);
-    y = Math.max(5, y);
-
-    // 设置最终位置
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-  }
-
-  // 隐藏提示框
-  function hideTooltip() {
-    const tooltip = document.getElementById("tooltip");
-    tooltip.style.display = "none";
   }
 
   // 显示提示消息
