@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const i18n = window.electronAPI.i18n;
 
   // DOM 元素引用
-  const closeSettingsBtn = document.getElementById("close-settings");
   const themeSelect = document.getElementById("theme-select");
   const languageSelect = document.getElementById("language-select");
   const clearDataBtn = document.getElementById("clear-data-btn");
@@ -33,14 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   /**
    * 事件监听设置部分
    */
-   
-  /**
-   * 关闭按钮点击事件
-   * 关闭设置窗口
-   */
-  closeSettingsBtn.addEventListener("click", () => {
-    window.electronAPI.closeSettingsWindow();
-  });
   
   /**
    * 主题选择变化事件

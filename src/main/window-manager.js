@@ -6,6 +6,16 @@ const { BrowserWindow, app } = require('electron');
 const path = require('path');
 const dataStore = require('./data-store');
 
+/**
+ * titleBarOverlay: 在Windows上自定义标题栏外观
+ * 配合titleBarStyle: 'hidden'使用
+ */
+const titleBarOverlay = {
+  height: 30,
+  color: 'rgba(0, 0, 0, 0)',
+  symbolColor: 'white',
+};
+
 // 全局窗口引用 - 防止垃圾回收导致窗口被关闭
 let mainWindow = null;
 let addItemWindow = null;
@@ -35,6 +45,7 @@ function createMainWindow() {
     minWidth: 300,
     minHeight: 300,
     maximizable: false,
+    minimizable: false,
     fullscreenable: false,
     /**
      * titleBarStyle: 在macOS上使用自定义标题栏
@@ -42,18 +53,9 @@ function createMainWindow() {
      * Windows平台通过设置frame: false实现
      */
     titleBarStyle: 'hidden',
-    /**
-     * titleBarOverlay: 在Windows上自定义标题栏外观
-     * 仅在Windows 10及更高版本有效
-     */
-    titleBarOverlay: {
-      height: 30,
-      color: 'rgba(0, 0, 0, 0)',
-      symbolColor: 'white',
-    },
+    titleBarOverlay: titleBarOverlay,
     show: false, // 先创建隐藏窗口，准备完成后再显示，避免白屏
     frame: false, // 无框窗口
-    transparent: true, // 透明背景
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       /**
@@ -126,7 +128,7 @@ function createMainWindow() {
       mainWindow.hide();      // 隐藏窗口
       return false;           // 阻止默认行为
     }
-    
+
     // 否则，允许窗口关闭
     return true;
   });
@@ -153,12 +155,16 @@ function createAddItemWindow() {
   addItemWindow = new BrowserWindow({
     width: 400,
     height: 350,
-    resizable: false,
     frame: false,
     modal: true,
     show: false,
-    transparent: true,
     parent: mainWindow,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: titleBarOverlay,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
@@ -209,11 +215,15 @@ function createSettingsWindow() {
   settingsWindow = new BrowserWindow({
     width: 400,
     height: 600,
-    resizable: false,
     frame: false,
     modal: true,
     show: false,
-    transparent: true,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: titleBarOverlay,
     parent: mainWindow,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),

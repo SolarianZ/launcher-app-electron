@@ -226,19 +226,6 @@ body {
     text-decoration: underline;
 }
 
-.close-button {
-    border: none;
-    background: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--title-bar-text);
-    -webkit-app-region: no-drag;
-}
-
-.close-button:hover {
-    color: var(--error-color);
-}
-
 .window-title {
     flex-grow: 1;
     text-align: center;
