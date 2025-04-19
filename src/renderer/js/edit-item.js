@@ -49,6 +49,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // 启用保存按钮
       saveBtn.disabled = false;
+      
+      // 让路径输入框获得焦点
+      setTimeout(() => itemPathInput.focus(), 100);
     });
 
     // 加载主题设置和应用
@@ -74,7 +77,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 设置系统主题变化监听器
     setupSystemThemeListener(document.querySelector(".modal"));
-
+    
+    // 默认情况下(新增模式)，让路径输入框获得焦点
+    setTimeout(() => itemPathInput.focus(), 100);
   }
 
   /**
