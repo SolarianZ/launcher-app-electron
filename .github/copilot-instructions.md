@@ -163,6 +163,12 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 
 ### Electron 特定API说明
 
+**preload**
+
+- preload.js 中无法以相对或绝对路径形式require其他JavaScript文件，必须使用IPC通信来转调用其他JavaScript提供的API
+
+**webUtils**
+
 - `webUtils.getPathForFile(file)` 是有效的Electron API，用于安全地获取拖放文件的路径
 - 最新版Electron中，无法使用 `event.dataTransfer.files[0].path` 来获取文件路径，必须使用 `webUtils.getPathForFile(file)` 来获取文件路径
 

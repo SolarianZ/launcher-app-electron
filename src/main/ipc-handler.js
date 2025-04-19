@@ -9,7 +9,7 @@ const { ipcMain, dialog } = require('electron');
 const windowManager = require('./window-manager');
 const dataStore = require('./data-store');
 const itemHandler = require('./item-handler');
-const i18n = require('../shared/i18n'); // 导入i18n模块
+const i18n = require('../shared/i18n');
 
 /**
  * 设置所有 IPC 通信处理器

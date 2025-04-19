@@ -78,7 +78,7 @@ function createMainWindow() {
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
   // 打开开发者工具
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // 窗口内容准备好后再显示，避免白屏
   mainWindow.once('ready-to-show', () => {
