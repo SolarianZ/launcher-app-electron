@@ -29,17 +29,15 @@ function handleItemAction(item) {
  * @param {string} command 要执行的命令
  */
 function executeCommand(command) {
-  // 根据平台打开终端窗口执行命令
-  // 注意：
-  // 1. 使用引号包裹命令，防止注入
-  // 2. Windows平台使用unref，避免CMD窗口关闭时Launcher被关闭
+  // 根据平台打开终端窗口执行命令，使用引号包裹命令，防止注入
   const platform = process.platform;
   try {
     if (platform === "win32") {
       /* Windows平台特定代码
-       * 使用CMD执行命令，有两种模式：
+       * 使用CMD执行命令：
        * 1. /K - 执行命令后保持窗口打开
        * 2. /C - 执行命令后关闭窗口
+       * 3. 使用detached和unref，避免CMD窗口关闭时Launcher被关闭
        */
 
       const execOptions = {
@@ -57,13 +55,16 @@ function executeCommand(command) {
         fs.writeFileSync(batchFile, command, 'utf8');
 
         // 执行批处理文件
-        exec(`start cmd /K "${batchFile}"`);
+        const child = exec(`start cmd /K "${batchFile}"`, execOptions);
+        child.unref();
       } else if (/^\/[KC]/i.test(command)) {
         // 若已经包含 /K 或 /C 则直接执行
-        exec(`start cmd ${command}`);
+        const child = exec(`start cmd ${command}`, execOptions);
+        child.unref();
       } else {
         // 默认使用 /K 模式保持窗口打开
-        exec(`start cmd /K "${command}"`, execOptions)
+        const child = exec(`start cmd /K "${command}"`, execOptions);
+        child.unref();
       }
     } else if (platform === "darwin") {
       /**
