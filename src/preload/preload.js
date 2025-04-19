@@ -138,6 +138,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   selectFolder: () => ipcRenderer.invoke("select-folder"),
 
   /**
+   * 快捷键配置相关API
+   * 获取和更新快捷键配置
+   */
+  getShortcutConfig: () => ipcRenderer.invoke("get-shortcut-config"),
+  updateShortcutConfig: (config) => ipcRenderer.invoke("update-shortcut-config", config),
+  testShortcut: (shortcut) => ipcRenderer.invoke("test-shortcut", shortcut),
+
+  /**
    * 平台信息API
    * 获取当前运行平台信息(win32、darwin、linux)
    */

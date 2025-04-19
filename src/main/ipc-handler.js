@@ -273,6 +273,32 @@ function setupIpcHandlers() {
   ipcMain.handle('i18n-get-language-name', (event, langCode) => {
     return i18n.getLanguageName(langCode);
   });
+
+  /**
+   * 快捷键配置相关IPC处理
+   * 获取和更新快捷键配置
+   */
+  ipcMain.handle('get-shortcut-config', () => {
+    return dataStore.getShortcutConfig();
+  });
+
+  ipcMain.handle('update-shortcut-config', (event, config) => {
+    return dataStore.updateShortcutConfig(config);
+  });
+
+  ipcMain.handle('test-shortcut', (event, shortcut) => {
+    try {
+      // 尝试注册快捷键，如果成功就立即注销
+      const success = require('electron').globalShortcut.register(shortcut, () => {});
+      if (success) {
+        require('electron').globalShortcut.unregister(shortcut);
+        return { success: true };
+      }
+      return { success: false, message: '该快捷键已被其他应用占用' };
+    } catch (error) {
+      return { success: false, message: `无效的快捷键格式: ${error.message}` };
+    }
+  });
 }
 
 // 导出模块函数

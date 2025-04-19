@@ -179,6 +179,48 @@ body {
     color: var(--disabled-text);
 }
 
+/* 快捷键设置样式 */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.toggle-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.shortcut-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.shortcut-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--search-bg);
+    color: var(--text-color);
+    font-family: monospace;
+    text-align: center;
+}
+
+.settings-btn.small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.recording {
+    background-color: var(--error-color);
+    color: white;
+}
+
 /* 关于部分样式 */
 .about-section {
     display: flex;

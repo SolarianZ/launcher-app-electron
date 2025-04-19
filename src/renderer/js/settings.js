@@ -14,6 +14,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const openStorageBtn = document.getElementById("open-storage-btn");
   const githubLink = document.getElementById("github-link");
   const reportIssueLink = document.getElementById("report-issue");
+  
+  // 快捷键设置元素引用
+  const enableShortcutCheckbox = document.getElementById("enable-shortcut");
+  const shortcutInput = document.getElementById("shortcut-input");
+  const recordShortcutBtn = document.getElementById("record-shortcut-btn");
+  const resetShortcutBtn = document.getElementById("reset-shortcut-btn");
 
   // 初始化设置页面
   await initSettingsPage();
@@ -23,6 +29,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 加载可用语言列表和已保存的语言设置
   await loadLanguages();
+  
+  // 加载快捷键设置
+  await loadShortcutSettings();
 
   // 应用当前主题设置
   applyCurrentTheme();
@@ -60,6 +69,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     await updatePageTexts(i18n);
     // 通知主进程和其他窗口语言已更改
     window.electronAPI.languageChanged(language);
+  });
+
+  /**
+   * 启用全局快捷键复选框变化事件
+   * 保存设置并更新界面状态
+   */
+  enableShortcutCheckbox.addEventListener("change", () => {
+    updateShortcutConfig({ enabled: enableShortcutCheckbox.checked });
+    updateShortcutInputState();
+  });
+
+  /**
+   * 快捷键记录按钮点击事件
+   * 进入快捷键记录模式
+   */
+  recordShortcutBtn.addEventListener("click", () => {
+    startRecordingShortcut();
+  });
+
+  /**
+   * 快捷键重置按钮点击事件
+   * 将快捷键重置为默认值
+   */
+  resetShortcutBtn.addEventListener("click", async () => {
+    const defaultShortcut = "Alt+Shift+Q";
+    updateShortcutConfig({ shortcut: defaultShortcut });
+    shortcutInput.value = defaultShortcut;
+    
+    // 显示提示消息
+    const message = await i18n.t('shortcut-reset');
+    showToast(message);
   });
 
   /**
@@ -118,6 +158,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // 处理快捷键录入的事件监听
+  setupShortcutRecording();
+
   /**
    * 初始化设置页面
    * 获取应用信息并显示版本号
@@ -174,6 +217,194 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("加载语言列表失败:", error);
     }
+  }
+
+  /**
+   * 加载快捷键配置
+   * 从主进程获取快捷键配置并设置到界面
+   */
+  async function loadShortcutSettings() {
+    try {
+      const shortcutConfig = await window.electronAPI.getShortcutConfig();
+      
+      // 设置启用状态
+      enableShortcutCheckbox.checked = shortcutConfig.enabled;
+      
+      // 设置当前快捷键
+      shortcutInput.value = shortcutConfig.shortcut || "Alt+Shift+Q";
+      
+      // 更新输入框状态
+      updateShortcutInputState();
+    } catch (error) {
+      console.error("加载快捷键设置失败:", error);
+    }
+  }
+
+  /**
+   * 更新快捷键配置
+   * 向主进程发送更新的快捷键配置
+   * @param {Object} config 配置对象，可以包含 enabled 和 shortcut 属性
+   */
+  async function updateShortcutConfig(config) {
+    try {
+      const currentConfig = await window.electronAPI.getShortcutConfig();
+      const newConfig = { ...currentConfig, ...config };
+      await window.electronAPI.updateShortcutConfig(newConfig);
+    } catch (error) {
+      console.error("更新快捷键配置失败:", error);
+    }
+  }
+
+  /**
+   * 更新快捷键输入框状态
+   * 根据启用状态设置输入框和按钮的可用性
+   */
+  function updateShortcutInputState() {
+    const isEnabled = enableShortcutCheckbox.checked;
+    shortcutInput.disabled = !isEnabled;
+    recordShortcutBtn.disabled = !isEnabled;
+    resetShortcutBtn.disabled = !isEnabled;
+    
+    // 调整样式
+    if (!isEnabled) {
+      shortcutInput.classList.add("disabled");
+    } else {
+      shortcutInput.classList.remove("disabled");
+    }
+  }
+
+  /**
+   * 进入快捷键录入模式
+   */
+  function startRecordingShortcut() {
+    // 只有启用状态下才能录入
+    if (!enableShortcutCheckbox.checked) return;
+    
+    // 更改录入按钮的状态和文本
+    recordShortcutBtn.classList.add("recording");
+    shortcutInput.value = "";
+    shortcutInput.placeholder = "";
+    
+    // 给按钮添加 data 属性标记录入状态
+    recordShortcutBtn.dataset.recording = "true";
+  }
+
+  /**
+   * 结束快捷键录入模式
+   */
+  async function stopRecordingShortcut() {
+    // 恢复录入按钮的状态
+    recordShortcutBtn.classList.remove("recording");
+    delete recordShortcutBtn.dataset.recording;
+    
+    // 如果输入框为空，恢复之前的值
+    if (!shortcutInput.value) {
+      const config = await window.electronAPI.getShortcutConfig();
+      shortcutInput.value = config.shortcut || "Alt+Shift+Q";
+    }
+    
+    // 恢复占位符
+    shortcutInput.placeholder = "Alt+Shift+Q";
+  }
+
+  /**
+   * 设置快捷键录入的事件监听
+   */
+  function setupShortcutRecording() {
+    document.addEventListener("keydown", async (e) => {
+      // 检查是否在录入模式
+      if (!recordShortcutBtn.dataset.recording) return;
+      
+      // 阻止事件传播和默认行为
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // 忽略单独的修饰键
+      if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
+        return;
+      }
+      
+      // 构建快捷键字符串
+      const modifiers = [];
+      if (e.ctrlKey) modifiers.push("Ctrl");
+      if (e.altKey) modifiers.push("Alt");
+      if (e.shiftKey) modifiers.push("Shift");
+      if (e.metaKey) modifiers.push("Meta");
+      
+      // 如果没有修饰键，显示提示并返回
+      if (modifiers.length === 0) {
+        const message = await i18n.t('shortcut-need-modifier');
+        showToast(message);
+        return;
+      }
+      
+      // 获取按键名称并格式化
+      let keyName = e.key;
+      
+      // 处理特殊键
+      if (keyName === " ") keyName = "Space";
+      else if (keyName.length === 1) keyName = keyName.toUpperCase();
+      
+      // 组合快捷键字符串
+      const shortcut = [...modifiers, keyName].join("+");
+      
+      // 测试快捷键是否可用
+      const testResult = await window.electronAPI.testShortcut(shortcut);
+      
+      if (testResult.success) {
+        // 设置快捷键并保存
+        shortcutInput.value = shortcut;
+        updateShortcutConfig({ shortcut });
+        
+        // 结束录入模式
+        stopRecordingShortcut();
+        
+        // 显示成功提示
+        const message = await i18n.t('shortcut-saved');
+        showToast(message);
+      } else {
+        // 显示错误提示
+        showToast(testResult.message, true);
+      }
+    });
+  }
+
+  /**
+   * 显示提示消息
+   * @param {string} message 提示内容
+   * @param {boolean} isError 是否是错误提示
+   */
+  function showToast(message, isError = false) {
+    // 检查是否已存在toast元素，如果有则移除
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+      document.body.removeChild(existingToast);
+    }
+    
+    // 创建新的toast元素
+    const toast = document.createElement('div');
+    toast.className = isError ? 'toast error-toast' : 'toast';
+    toast.textContent = message;
+    
+    // 添加到body
+    document.body.appendChild(toast);
+    
+    // 显示toast
+    setTimeout(() => {
+      toast.style.opacity = '1';
+    }, 10);
+    
+    // 3秒后隐藏toast
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      
+      // 隐藏动画完成后移除元素
+      toast.addEventListener('transitionend', () => {
+        if (toast.parentNode) {
+          document.body.removeChild(toast);
+        }
+      });
+    }, 3000);
   }
 
   /**

@@ -46,6 +46,27 @@
                     </div>
                 </div>
 
+                <!-- 快捷键设置区域 -->
+                <div class="settings-section">
+                    <h3 data-i18n="shortcuts">快捷键</h3>
+                    <div class="settings-item">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="enable-shortcut" class="toggle-checkbox">
+                            <label for="enable-shortcut" data-i18n="enable-global-shortcut">启用全局快捷键</label>
+                        </div>
+                        <div class="settings-desc" data-i18n="enable-shortcut-desc">使用快捷键打开/关闭应用</div>
+                    </div>
+                    <div class="settings-item">
+                        <label for="shortcut-input" data-i18n="launcher-shortcut">打开 Launcher 快捷键</label>
+                        <div class="shortcut-input-container">
+                            <input type="text" id="shortcut-input" class="shortcut-input" placeholder="Alt+Shift+Q" readonly>
+                            <button id="record-shortcut-btn" class="settings-btn small" data-i18n="record-shortcut">记录</button>
+                            <button id="reset-shortcut-btn" class="settings-btn small" data-i18n="reset">重置</button>
+                        </div>
+                        <div class="settings-desc" data-i18n="shortcut-input-desc">点击"记录"按钮然后按下组合键</div>
+                    </div>
+                </div>
+
                 <!-- 数据管理区域 -->
                 <div class="settings-section">
                     <h3 data-i18n="data">数据</h3>

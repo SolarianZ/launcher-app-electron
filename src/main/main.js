@@ -15,15 +15,47 @@ const itemHandler = require('./item-handler');
 const ipcHandler = require('./ipc-handler');
 const i18n = require('../shared/i18n');
 
+// 存储当前注册的全局快捷键
+let currentRegisteredShortcut = null;
+
 /**
  * 注册全局快捷键
- * 设置全局键盘快捷键以便在任何应用程序焦点状态下控制启动器
+ * 根据用户配置设置全局键盘快捷键
  */
 function registerGlobalShortcuts() {
-  // Alt+Shift+Q 快捷键切换主窗口显示状态
-  globalShortcut.register('Alt+Shift+Q', () => {
-    windowManager.toggleMainWindow();
-  });
+  // 注销之前可能注册的快捷键
+  unregisterGlobalShortcuts();
+  
+  // 加载快捷键配置
+  const shortcutConfig = dataStore.getShortcutConfig();
+  
+  // 如果启用了全局快捷键，则注册
+  if (shortcutConfig.enabled && shortcutConfig.shortcut) {
+    try {
+      globalShortcut.register(shortcutConfig.shortcut, () => {
+        windowManager.toggleMainWindow();
+      });
+      currentRegisteredShortcut = shortcutConfig.shortcut;
+      console.log(`全局快捷键 ${shortcutConfig.shortcut} 注册成功`);
+    } catch (error) {
+      console.error(`全局快捷键注册失败: ${error.message}`);
+    }
+  }
+}
+
+/**
+ * 注销所有已注册的全局快捷键
+ */
+function unregisterGlobalShortcuts() {
+  if (currentRegisteredShortcut) {
+    try {
+      globalShortcut.unregister(currentRegisteredShortcut);
+      currentRegisteredShortcut = null;
+      console.log('全局快捷键已注销');
+    } catch (error) {
+      console.error(`全局快捷键注销失败: ${error.message}`);
+    }
+  }
 }
 
 /**
@@ -57,9 +89,10 @@ app.whenReady().then(() => {
   // 初始化应用语言
   initializeLanguage();
   
-  // 加载数据和窗口配置
+  // 加载数据和配置
   dataStore.loadItems();
   dataStore.loadWindowConfig();
+  dataStore.loadShortcutConfig();
   
   // 创建主窗口
   windowManager.createMainWindow();
@@ -76,6 +109,11 @@ app.whenReady().then(() => {
   
   // 在数据存储中添加更新回调，确保数据变化时托盘菜单同步更新
   dataStore.addChangeListener(updateTrayMenuWithItems);
+  
+  // 添加快捷键配置变化监听器
+  dataStore.addShortcutChangeListener(config => {
+    registerGlobalShortcuts();
+  });
 });
 
 // 当所有窗口关闭时
@@ -99,6 +137,7 @@ app.on('activate', () => {
 // 应用退出前清理资源
 app.on('will-quit', () => {
   // 注销所有快捷键
+  unregisterGlobalShortcuts();
   globalShortcut.unregisterAll();
   // 销毁托盘图标
   trayManager.destroyTray();

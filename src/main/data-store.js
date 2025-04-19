@@ -17,6 +17,7 @@ const path = require("path");
 const userDataFolder = path.join(app.getPath("userData"), "UserData");
 const dataFilePath = path.join(userDataFolder, "items.json");
 const windowConfigPath = path.join(userDataFolder, "configs.json");
+const shortcutConfigPath = path.join(userDataFolder, "shortcuts.json");
 
 // 全局变量存储项目列表
 let items = [];
@@ -29,9 +30,16 @@ let windowConfig = {
     y: undefined
   }
 };
+// 全局变量存储快捷键配置
+let shortcutConfig = {
+  enabled: true,
+  shortcut: "Alt+Shift+Q"
+};
 
 // 存储数据变化监听器 - 观察者模式实现
 const changeListeners = [];
+// 存储快捷键配置变化监听器
+const shortcutChangeListeners = [];
 
 /**
  * 添加数据变化监听器
@@ -63,6 +71,40 @@ function notifyChangeListeners() {
       listener();
     } catch (error) {
       console.error("监听器执行错误:", error);
+    }
+  }
+}
+
+/**
+ * 添加快捷键配置变化监听器
+ * @param {Function} listener 监听函数
+ */
+function addShortcutChangeListener(listener) {
+  if (typeof listener === 'function' && !shortcutChangeListeners.includes(listener)) {
+    shortcutChangeListeners.push(listener);
+  }
+}
+
+/**
+ * 移除快捷键配置变化监听器
+ * @param {Function} listener 要移除的监听函数
+ */
+function removeShortcutChangeListener(listener) {
+  const index = shortcutChangeListeners.indexOf(listener);
+  if (index !== -1) {
+    shortcutChangeListeners.splice(index, 1);
+  }
+}
+
+/**
+ * 通知所有快捷键配置变化监听器
+ */
+function notifyShortcutChangeListeners() {
+  for (const listener of shortcutChangeListeners) {
+    try {
+      listener(shortcutConfig);
+    } catch (error) {
+      console.error("快捷键监听器执行错误:", error);
     }
   }
 }
@@ -257,6 +299,61 @@ function getWindowConfig() {
   return windowConfig;
 }
 
+/**
+ * 加载快捷键配置
+ * @returns {Object} 快捷键配置
+ */
+function loadShortcutConfig() {
+  try {
+    if (fs.existsSync(shortcutConfigPath)) {
+      const data = fs.readFileSync(shortcutConfigPath, "utf8");
+      shortcutConfig = JSON.parse(data);
+      return shortcutConfig;
+    }
+    return shortcutConfig;
+  } catch (error) {
+    console.error("Error loading shortcut config:", error);
+    return shortcutConfig;
+  }
+}
+
+/**
+ * 保存快捷键配置到磁盘
+ * @returns {boolean} 是否保存成功
+ */
+function saveShortcutConfig() {
+  try {
+    const dirPath = path.dirname(shortcutConfigPath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+    fs.writeFileSync(shortcutConfigPath, JSON.stringify(shortcutConfig, null, 2), "utf8");
+    notifyShortcutChangeListeners();
+    return true;
+  } catch (error) {
+    console.error("Error saving shortcut config:", error);
+    return false;
+  }
+}
+
+/**
+ * 更新快捷键配置
+ * @param {Object} config 新的快捷键配置
+ * @returns {boolean} 是否保存成功
+ */
+function updateShortcutConfig(config) {
+  shortcutConfig = { ...shortcutConfig, ...config };
+  return saveShortcutConfig();
+}
+
+/**
+ * 获取快捷键配置
+ * @returns {Object} 快捷键配置对象
+ */
+function getShortcutConfig() {
+  return shortcutConfig;
+}
+
 // 导出模块函数
 module.exports = {
   loadItems,
@@ -274,5 +371,11 @@ module.exports = {
   updateMainWindowConfig,
   getWindowConfig,
   addChangeListener,
-  removeChangeListener
+  removeChangeListener,
+  loadShortcutConfig,
+  saveShortcutConfig,
+  updateShortcutConfig,
+  getShortcutConfig,
+  addShortcutChangeListener,
+  removeShortcutChangeListener
 };
