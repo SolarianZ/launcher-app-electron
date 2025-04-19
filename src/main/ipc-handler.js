@@ -275,7 +275,7 @@ function setupIpcHandlers() {
    * 获取和更新快捷键配置
    */
   ipcMain.handle('get-shortcut-config', () => {
-    return dataStore.getShortcutConfig();
+    return dataStore.getAppConfig().shortcut;
   });
 
   ipcMain.handle('update-shortcut-config', (event, config) => {

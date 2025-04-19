@@ -40,8 +40,8 @@ function createMainWindow() {
    * 注意：某些配置是平台特定的，如titleBarStyle和titleBarOverlay
    */
   const windowOptions = {
-    width: mainWindowConfig.width || 400,
-    height: mainWindowConfig.height || 600,
+    width: mainWindowConfig.width,
+    height: mainWindowConfig.height,
     minWidth: 300,
     minHeight: 300,
     maximizable: false,
@@ -58,10 +58,6 @@ function createMainWindow() {
     frame: false, // 无框窗口
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
-      /**
-       * 注意：没有启用nodeIntegration
-       * 而是使用预加载脚本安全地暴露必要API
-       */
     },
   };
 

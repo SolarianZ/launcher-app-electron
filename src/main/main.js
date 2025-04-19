@@ -27,7 +27,7 @@ function registerGlobalShortcuts() {
   unregisterGlobalShortcuts();
   
   // 加载快捷键配置
-  const shortcutConfig = dataStore.getShortcutConfig();
+  const shortcutConfig = dataStore.getAppConfig().shortcut;
   
   // 如果启用了全局快捷键，则注册
   if (shortcutConfig.enabled && shortcutConfig.shortcut) {
@@ -92,7 +92,6 @@ app.whenReady().then(() => {
   // 加载数据和配置
   dataStore.loadItems();
   dataStore.loadAppConfig();
-  dataStore.loadShortcutConfig();
   
   // 创建主窗口
   windowManager.createMainWindow();

@@ -17,7 +17,6 @@ const path = require("path");
 const userDataFolder = path.join(app.getPath("userData"), "UserData");
 const dataFilePath = path.join(userDataFolder, "items.json");
 const configFilePath = path.join(userDataFolder, "configs.json");
-const shortcutConfigPath = path.join(userDataFolder, "shortcuts.json");
 
 // 全局变量存储项目列表
 let items = [];
@@ -29,15 +28,10 @@ let appConfig = {
     x: undefined,
     y: undefined
   },
-  shortcutConfig: {
+  shortcut: {
     enabled: true,
     shortcut: "Alt+Shift+Q"
   }
-};
-// 全局变量存储快捷键配置
-let shortcutConfig = {
-  enabled: true,
-  shortcut: "Alt+Shift+Q"
 };
 
 // 存储数据变化监听器 - 观察者模式实现
@@ -106,7 +100,7 @@ function removeShortcutChangeListener(listener) {
 function notifyShortcutChangeListeners() {
   for (const listener of shortcutChangeListeners) {
     try {
-      listener(shortcutConfig);
+      listener(appConfig.shortcut);
     } catch (error) {
       console.error("快捷键监听器执行错误:", error);
     }
@@ -245,8 +239,16 @@ function getUserDataPath() {
 }
 
 /**
- * 加载窗口配置
- * @returns {Object} 窗口配置
+ * 获取App配置
+ * @returns {Object} App配置对象
+ */
+function getAppConfig() {
+  return appConfig;
+}
+
+/**
+ * 加载App配置
+ * @returns {Object} App配置
  */
 function loadAppConfig() {
   try {
@@ -263,8 +265,8 @@ function loadAppConfig() {
 }
 
 /**
- * 保存窗口配置到磁盘
- * @param {Object} config 要保存的窗口配置
+ * 保存App配置到磁盘
+ * @param {Object} config 要保存的App配置
  * @returns {boolean} 是否保存成功
  */
 function saveAppConfig(config = null) {
@@ -296,66 +298,13 @@ function updateMainWindowConfig(bounds) {
 }
 
 /**
- * 获取窗口配置
- * @returns {Object} 窗口配置对象
- */
-function getAppConfig() {
-  return appConfig;
-}
-
-/**
- * 加载快捷键配置
- * @returns {Object} 快捷键配置
- */
-function loadShortcutConfig() {
-  try {
-    if (fs.existsSync(shortcutConfigPath)) {
-      const data = fs.readFileSync(shortcutConfigPath, "utf8");
-      shortcutConfig = JSON.parse(data);
-      return shortcutConfig;
-    }
-    return shortcutConfig;
-  } catch (error) {
-    console.error("Error loading shortcut config:", error);
-    return shortcutConfig;
-  }
-}
-
-/**
- * 保存快捷键配置到磁盘
- * @returns {boolean} 是否保存成功
- */
-function saveShortcutConfig() {
-  try {
-    const dirPath = path.dirname(shortcutConfigPath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-    fs.writeFileSync(shortcutConfigPath, JSON.stringify(shortcutConfig, null, 2), "utf8");
-    notifyShortcutChangeListeners();
-    return true;
-  } catch (error) {
-    console.error("Error saving shortcut config:", error);
-    return false;
-  }
-}
-
-/**
  * 更新快捷键配置
  * @param {Object} config 新的快捷键配置
  * @returns {boolean} 是否保存成功
  */
 function updateShortcutConfig(config) {
-  shortcutConfig = { ...shortcutConfig, ...config };
-  return saveShortcutConfig();
-}
-
-/**
- * 获取快捷键配置
- * @returns {Object} 快捷键配置对象
- */
-function getShortcutConfig() {
-  return shortcutConfig;
+  appConfig.shortcut = { ...appConfig.shortcut, ...config };
+  return saveAppConfig();
 }
 
 // 导出模块函数
@@ -371,9 +320,6 @@ module.exports = {
   updateMainWindowConfig,
 
   // 快捷键配置
-  loadShortcutConfig,
-  saveShortcutConfig,
-  getShortcutConfig,
   updateShortcutConfig,
   addShortcutChangeListener,
   removeShortcutChangeListener,
