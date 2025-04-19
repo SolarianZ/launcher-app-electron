@@ -270,7 +270,11 @@ function updateMainWindowConfig(bounds) {
  */
 function updateShortcutConfig(config) {
   appConfig.shortcut = { ...appConfig.shortcut, ...config };
-  return saveAppConfig();
+  const result = saveAppConfig();
+  if (result) {
+    notifyShortcutChangeListeners();
+  }
+  return result;
 }
 
 /**

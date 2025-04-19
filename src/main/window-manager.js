@@ -260,6 +260,23 @@ function toggleMainWindow() {
 }
 
 /**
+ * 显示主窗口（如不存在则创建）
+ * 与toggleMainWindow不同，此函数只会显示窗口，不会隐藏窗口
+ */
+function showMainWindow() {
+  // 检查窗口是否存在且未被销毁
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    // 如果窗口不存在或已销毁，则创建新窗口
+    createMainWindow();
+    return;
+  }
+
+  // 无论窗口是否可见，都确保显示并聚焦
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+/**
  * 关闭添加/编辑项目窗口
  */
 function closeAddItemWindow() {
@@ -318,6 +335,7 @@ module.exports = {
   createEditItemWindow,
   createSettingsWindow,
   toggleMainWindow,
+  showMainWindow,
   closeAddItemWindow,
   closeSettingsWindow,
   hideMainWindow,

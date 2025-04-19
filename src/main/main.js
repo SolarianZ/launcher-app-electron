@@ -33,7 +33,8 @@ function registerGlobalShortcuts() {
   if (shortcutConfig.enabled && shortcutConfig.shortcut) {
     try {
       globalShortcut.register(shortcutConfig.shortcut, () => {
-        windowManager.toggleMainWindow();
+        // 修改为只能打开窗口，不再支持关闭窗口
+        windowManager.showMainWindow();
       });
       currentRegisteredShortcut = shortcutConfig.shortcut;
       console.log(`全局快捷键 ${shortcutConfig.shortcut} 注册成功`);
