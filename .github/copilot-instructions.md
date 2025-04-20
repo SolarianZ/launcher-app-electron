@@ -20,6 +20,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
    - 设置窗口
    - 系统托盘集成
    - 键盘导航与快捷键
+   - 统一的Toast提示组件
 
 3. **系统集成**
    - 全局快捷键（Alt+Shift+Q 呼出应用）
@@ -118,6 +119,7 @@ launcher-app-electron/
    - 主题应用与切换
    - 语言更新处理
    - 事件监听管理
+   - 提供统一的Toast提示组件
 
 ### 共享模块
 
@@ -217,6 +219,25 @@ launcher-app-electron/
    - `window.electronAPI.i18n.getSystemLanguage()` - 获取系统语言
    - `window.electronAPI.i18n.getAvailableLanguages()` - 获取可用语言列表
    - `window.electronAPI.i18n.getLanguageName()` - 获取语言名称
+
+### 渲染进程暴露的API
+
+除了通过预加载脚本暴露的API外，渲染进程还提供了以下内部API：
+
+1. **UI管理器API (ui-manager.js)**
+   - `window.uiManager.init(options)` - 初始化UI管理器
+     - `options.containerSelector` - 主容器选择器
+     - `options.onThemeChanged` - 主题变更回调 (可选)
+     - `options.onLanguageChanged` - 语言变更回调 (可选)
+   - `window.uiManager.showToast(message, isError, duration)` - 显示提示消息
+     - `message` - 提示内容
+     - `isError` - 是否为错误提示，默认false
+     - `duration` - 显示时长(毫秒)，默认2000毫秒
+
+2. **UI工具API (ui-utils.js)**
+   - `window.uiUtils.applyTheme(theme, container)` - 应用主题
+   - `window.uiUtils.updatePageTexts(i18n)` - 更新页面文本
+   - `window.uiUtils.setupSystemThemeListener(container)` - 设置系统主题监听
 
 ## 通用操作流程
 
