@@ -13,13 +13,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const openStorageBtn = document.getElementById("open-storage-btn");
   const githubLink = document.getElementById("github-link");
   const reportIssueLink = document.getElementById("report-issue");
-  
+
   // 快捷键设置元素引用
   const enableShortcutCheckbox = document.getElementById("enable-shortcut");
   const shortcutInput = document.getElementById("shortcut-input");
   const recordShortcutBtn = document.getElementById("record-shortcut-btn");
   const resetShortcutBtn = document.getElementById("reset-shortcut-btn");
-  
+
   const modalContainer = document.querySelector(".modal");
 
   // 初始化UI管理器
@@ -35,14 +35,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 加载可用语言列表和已保存的语言设置
   await loadLanguages();
-  
+
   // 加载快捷键设置
   await loadShortcutSettings();
 
   /**
    * 事件监听设置部分
    */
-  
+
   /**
    * 主题选择变化事件
    * 保存并应用用户选择的主题
@@ -79,19 +79,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   /**
+   * 是否正在录制快捷键
+   */
+  let recordingShortcut = false;
+
+  /**
    * 快捷键记录按钮点击事件
    * 进入快捷键记录模式
    */
-  recordShortcutBtn.addEventListener("click", () => {
-    startRecordingShortcut();
+  recordShortcutBtn.addEventListener("click", async () => {
+    if (!recordingShortcut) {
+      startRecordingShortcut();
+    } else {
+
+      // 恢复上次的有效值
+      const config = await window.electronAPI.getShortcutConfig();
+      formatShortcut(config.shortcut);
+
+      stopRecordingShortcut();
+    }
   });
 
   /**
    * 快捷键重置按钮点击事件
    * 重置快捷键为默认值
    */
-  resetShortcutBtn.addEventListener("click", () => {
-    shortcutInput.value = "Alt+Shift+Q";
+  resetShortcutBtn.addEventListener("click", async () => {
+    // 如果在录制模式中，先退出录制模式
+    if (recordingShortcut) {
+      await stopRecordingShortcut();
+    }
+
+    formatShortcut("Alt+Shift+Q");
     updateShortcutConfig({ shortcut: "Alt+Shift+Q" });
   });
 
@@ -148,6 +167,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  function formatShortcut(shortcut) {
+    // TODO: 将快捷键中的字母键转换为大写显示
+    shortcutInput.value = shortcut;
+  }
+
   // 处理快捷键录入的事件监听
   setupShortcutRecording();
 
@@ -188,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // 获取所有可用语言
       const languages = await i18n.getAvailableLanguages();
-      
+
       // 添加语言选项
       for (const langCode of languages) {
         const langName = await i18n.getLanguageName(langCode);
@@ -214,7 +238,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const config = await window.electronAPI.getShortcutConfig();
       enableShortcutCheckbox.checked = config.enabled;
-      shortcutInput.value = config.shortcut;
+      formatShortcut(config.shortcut);
       updateShortcutInputState();
     } catch (error) {
       console.error("加载快捷键设置失败:", error);
@@ -243,15 +267,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     shortcutInput.disabled = !enabled;
     recordShortcutBtn.disabled = !enabled;
     resetShortcutBtn.disabled = !enabled;
+
+    // TODO: 根据启用状态设置快捷键相关控件的样式
   }
 
   /**
    * 进入快捷键录入模式
    */
-  function startRecordingShortcut() {
-    shortcutInput.value = "按键...";
+  async function startRecordingShortcut() {
     shortcutInput.classList.add("recording");
-    recordShortcutBtn.textContent = "✓";
+    recordingShortcut = true;
+    recordShortcutBtn.textContent = await i18n.t("cancel");
+    shortcutInput.value = await i18n.t("press-new-shortcut");
   }
 
   /**
@@ -259,76 +286,84 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   async function stopRecordingShortcut() {
     shortcutInput.classList.remove("recording");
-    recordShortcutBtn.textContent = await i18n.t("record-shortcut") || "记录";
+    recordingShortcut = false;
+    recordShortcutBtn.textContent = await i18n.t("record-shortcut");
   }
 
   /**
    * 设置快捷键录入的事件监听
    */
   function setupShortcutRecording() {
-    let recording = false;
     let pressedKeys = new Set();
-
-    recordShortcutBtn.addEventListener("click", () => {
-      if (!recording) {
-        // 开始录制
-        recording = true;
-        pressedKeys.clear();
-        startRecordingShortcut();
-      } else {
-        // 停止录制
-        recording = false;
-        stopRecordingShortcut();
-      }
-    });
 
     // 录制时捕获按键
     document.addEventListener("keydown", async (e) => {
-      if (!recording) return;
+      if (!recordingShortcut)
+        return;
 
       e.preventDefault();
 
-      // 特殊按键或修饰键
       const key = e.key;
-      if (key === "Control" || key === "Alt" || key === "Shift" || key === "Meta") {
-        pressedKeys.add(key === "Control" ? "Ctrl" : key);
+      pressedKeys.add(key);
+      if (key === "Control" || key === "Alt" || key === "Shift" || key === "Meta")
+        return;
+
+      // 如果按下了非修饰键，尝试提交按键组合
+
+      // 检查是否包含除Shift以外的修饰键
+      const hasRequiredModifier = pressedKeys.has("Control") || pressedKeys.has("Alt") || pressedKeys.has("Meta");
+      if (!hasRequiredModifier) {
+        // 如果不含必需的修饰键，显示错误消息
+        // TODO: macOS需要显示 shortcut-need-modifier-macos
+        window.uiManager.showToast(await i18n.t("shortcut-need-modifier"), true);
+
+        // 恢复上次的有效值
+        const config = await window.electronAPI.getShortcutConfig();
+        formatShortcut(config.shortcut);
+
+        stopRecordingShortcut();
+        pressedKeys.clear();
+
+        return;
+      }
+
+      // 创建快捷键字符串
+      const shortcut = Array.from(pressedKeys).join("+");
+      pressedKeys.clear();
+
+      // 测试快捷键是否可用
+      const testResult = await window.electronAPI.testShortcut(shortcut);
+      if (testResult.success) {
+        formatShortcut(shortcut);
+
+        // 保存新快捷键
+        updateShortcutConfig({ shortcut });
+
+        stopRecordingShortcut();
       } else {
-        // 非修饰键，考虑按键序列结束
-        pressedKeys.add(key);
+        // 失败，显示错误消息
+        window.uiManager.showToast(testResult.message, true);
 
-        // 创建快捷键字符串
-        const shortcut = Array.from(pressedKeys).join("+");
-        shortcutInput.value = shortcut;
+        // 恢复上次的有效值
+        const config = await window.electronAPI.getShortcutConfig();
+        formatShortcut(config.shortcut);
 
-        // 测试快捷键是否可用
-        const testResult = await window.electronAPI.testShortcut(shortcut);
-        if (testResult.success) {
-          // 成功，保存新快捷键
-          updateShortcutConfig({ shortcut });
-          recording = false;
-          stopRecordingShortcut();
-        } else {
-          // 失败，显示错误消息
-          window.uiManager.showToast(testResult.message, true);
-          recording = false;
-          stopRecordingShortcut();
-          // 恢复上次的有效值
-          const config = await window.electronAPI.getShortcutConfig();
-          shortcutInput.value = config.shortcut;
-        }
+        stopRecordingShortcut();
       }
     });
 
     // 监听按键释放，从集合中移除
     document.addEventListener("keyup", (e) => {
-      if (!recording) return;
-      
-      const key = e.key;
-      if (key === "Control") {
-        pressedKeys.delete("Ctrl");
-      } else {
-        pressedKeys.delete(key);
-      }
+      if (!recordingShortcut)
+        return;
+
+      e.preventDefault();
+      pressedKeys.delete(e.key);
+    });
+
+    // 监听重置按钮点击事件，清空按键集合
+    resetShortcutBtn.addEventListener("click", () => {
+      pressedKeys.clear();
     });
   }
 });

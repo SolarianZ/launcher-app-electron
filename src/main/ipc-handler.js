@@ -119,35 +119,35 @@ function setupIpcHandlers() {
   ipcMain.handle('select-file', async () => {
     const addItemWindow = windowManager.getAddItemWindow();
     if (!addItemWindow) return { canceled: true };
-    
+
     const { canceled, filePaths } = await dialog.showOpenDialog(addItemWindow, {
       properties: ['openFile']
     });
-    
+
     if (canceled || !filePaths || filePaths.length === 0) {
       return { canceled: true };
     }
-    
-    return { 
-      canceled: false, 
+
+    return {
+      canceled: false,
       filePath: filePaths[0],
     };
   });
-  
+
   ipcMain.handle('select-folder', async () => {
     const addItemWindow = windowManager.getAddItemWindow();
     if (!addItemWindow) return { canceled: true };
-    
+
     const { canceled, filePaths } = await dialog.showOpenDialog(addItemWindow, {
       properties: ['openDirectory']
     });
-    
+
     if (canceled || !filePaths || filePaths.length === 0) {
       return { canceled: true };
     }
-    
-    return { 
-      canceled: false, 
+
+    return {
+      canceled: false,
       filePath: filePaths[0],
     };
   });
@@ -162,7 +162,7 @@ function setupIpcHandlers() {
   ipcMain.on('theme-changed', (event, theme) => {
     // 保存主题配置到配置文件
     dataStore.updateThemeConfig(theme);
-    
+
     // 获取主窗口并发送主题变更通知
     const mainWindow = windowManager.getMainWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -246,37 +246,37 @@ function setupIpcHandlers() {
       electronVersion: process.versions.electron,
     };
   });
-  
+
   /**
    * 国际化(i18n)相关IPC处理
    * 在主进程中处理所有i18n功能调用
    */
-  
+
   // 翻译文本
   ipcMain.handle('i18n-translate', (event, { key, params }) => {
     return i18n.t(key, params);
   });
-  
+
   // 设置语言
   ipcMain.handle('i18n-set-language', (event, language) => {
     return i18n.setLanguage(language);
   });
-  
+
   // 获取当前语言
   ipcMain.handle('i18n-get-current-language', () => {
     return i18n.getCurrentLanguage();
   });
-  
+
   // 获取系统语言
   ipcMain.handle('i18n-get-system-language', () => {
     return i18n.getSystemLanguage();
   });
-  
+
   // 获取可用语言列表
   ipcMain.handle('i18n-get-available-languages', () => {
     return i18n.getAvailableLanguages();
   });
-  
+
   // 获取语言名称
   ipcMain.handle('i18n-get-language-name', (event, langCode) => {
     return i18n.getLanguageName(langCode);
@@ -297,14 +297,14 @@ function setupIpcHandlers() {
   ipcMain.handle('test-shortcut', (event, shortcut) => {
     try {
       // 尝试注册快捷键，如果成功就立即注销
-      const success = require('electron').globalShortcut.register(shortcut, () => {});
+      const success = require('electron').globalShortcut.register(shortcut, () => { });
       if (success) {
         require('electron').globalShortcut.unregister(shortcut);
         return { success: true };
       }
-      return { success: false, message: '该快捷键已被其他应用占用' };
+      return { success: false, message: '该快捷键已被其他应用占用' }; // TODO: 多语言 i18n.t("shortcut-taken")
     } catch (error) {
-      return { success: false, message: `无效的快捷键格式: ${error.message}` };
+      return { success: false, message: `无效的快捷键格式: ${error.message}` }; // TODO: 多语言 i18n.t("shortcut-invalid")
     }
   });
 }
