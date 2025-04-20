@@ -302,9 +302,9 @@ function setupIpcHandlers() {
         require('electron').globalShortcut.unregister(shortcut);
         return { success: true };
       }
-      return { success: false, message: '该快捷键已被其他应用占用' }; // TODO: 多语言 i18n.t("shortcut-taken")
+      return { success: false, message: i18n.t('shortcut-taken') };
     } catch (error) {
-      return { success: false, message: `无效的快捷键格式: ${error.message}` }; // TODO: 多语言 i18n.t("shortcut-invalid")
+      return { success: false, message: `${i18n.t('shortcut-invalid')}: ${error.message}` };
     }
   });
 }
