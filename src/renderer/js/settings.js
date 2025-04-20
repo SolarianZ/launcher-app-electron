@@ -79,42 +79,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   /**
-   * 是否正在录制快捷键
-   */
-  let recordingShortcut = false;
-
-  /**
-   * 快捷键记录按钮点击事件
-   * 进入快捷键记录模式
-   */
-  recordShortcutBtn.addEventListener("click", async () => {
-    if (!recordingShortcut) {
-      startRecordingShortcut();
-    } else {
-
-      // 恢复上次的有效值
-      const config = await window.electronAPI.getShortcutConfig();
-      formatShortcut(config.shortcut);
-
-      stopRecordingShortcut();
-    }
-  });
-
-  /**
-   * 快捷键重置按钮点击事件
-   * 重置快捷键为默认值
-   */
-  resetShortcutBtn.addEventListener("click", async () => {
-    // 如果在录制模式中，先退出录制模式
-    if (recordingShortcut) {
-      await stopRecordingShortcut();
-    }
-
-    formatShortcut("Alt+Shift+Q");
-    updateShortcutConfig({ shortcut: "Alt+Shift+Q" });
-  });
-
-  /**
    * 清空数据按钮点击事件
    * 显示确认对话框，确认后清空所有项目
    */
@@ -272,6 +236,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /**
+   * 是否正在录制快捷键
+   */
+  let recordingShortcut = false;
+
+  /**
    * 进入快捷键录入模式
    */
   async function startRecordingShortcut() {
@@ -295,6 +264,38 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   function setupShortcutRecording() {
     let pressedKeys = new Set();
+
+    /**
+     * 快捷键记录按钮点击事件
+     * 进入快捷键记录模式
+     */
+    recordShortcutBtn.addEventListener("click", async () => {
+      if (!recordingShortcut) {
+        startRecordingShortcut();
+      } else {
+        // 恢复上次的有效值
+        const config = await window.electronAPI.getShortcutConfig();
+        formatShortcut(config.shortcut);
+
+        stopRecordingShortcut();
+      }
+    });
+
+    /**
+     * 快捷键重置按钮点击事件
+     * 重置快捷键为默认值
+     */
+    resetShortcutBtn.addEventListener("click", async () => {
+      // 如果在录制模式中，先退出录制模式
+      if (recordingShortcut) {
+        await stopRecordingShortcut();
+      }
+
+      pressedKeys.clear();
+
+      formatShortcut("Alt+Shift+Q");
+      updateShortcutConfig({ shortcut: "Alt+Shift+Q" });
+    });
 
     // 录制时捕获按键
     document.addEventListener("keydown", async (e) => {
@@ -359,11 +360,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       e.preventDefault();
       pressedKeys.delete(e.key);
-    });
-
-    // 监听重置按钮点击事件，清空按键集合
-    resetShortcutBtn.addEventListener("click", () => {
-      pressedKeys.clear();
     });
   }
 });
