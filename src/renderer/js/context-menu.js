@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         openItem.textContent = await i18n.t("open");
         openItem.addEventListener("click", () => {
             window.electronAPI.openItem(item);
+            removeContextMenu(); // 点击后关闭菜单
         });
         menuItems.push(openItem);
         
@@ -97,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showInFolder.textContent = await i18n.t("show-in-folder");
             showInFolder.addEventListener("click", () => {
                 window.electronAPI.showItemInFolder(item.path);
+                removeContextMenu(); // 点击后关闭菜单
             });
             menuItems.push(showInFolder);
         }
@@ -111,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (window.appFunctions && window.appFunctions.showToast) {
                 window.appFunctions.showToast(i18n.t("path-copied"));
             }
+            removeContextMenu(); // 点击后关闭菜单
         });
         menuItems.push(copyPath);
         
@@ -125,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editItem.textContent = await i18n.t("edit");
         editItem.addEventListener("click", () => {
             window.electronAPI.showEditItemDialog(item, index);
+            removeContextMenu(); // 点击后关闭菜单
         });
         menuItems.push(editItem);
         
@@ -136,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (window.appFunctions && window.appFunctions.removeItem) {
                 window.appFunctions.removeItem(index);
             }
+            removeContextMenu(); // 点击后关闭菜单
         });
         menuItems.push(removeItem);
         
