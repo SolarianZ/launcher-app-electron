@@ -49,6 +49,8 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   themeSelect.addEventListener("change", () => {
     const theme = themeSelect.value;
+    // 立即应用主题到当前窗口
+    window.uiUtils.applyTheme(theme, modalContainer);
     // 通知主进程和其他窗口主题已更改
     window.electronAPI.themeChanged(theme);
   });

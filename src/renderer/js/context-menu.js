@@ -45,6 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
         contextMenu.style.left = `${e.pageX}px`;
         contextMenu.style.top = `${e.pageY}px`;
         
+        // 应用当前主题到右键菜单
+        const appContainer = document.querySelector(".app-container");
+        if (appContainer && appContainer.classList.contains("dark-theme")) {
+            contextMenu.classList.add("dark-theme");
+        } else if (appContainer && appContainer.classList.contains("light-theme")) {
+            contextMenu.classList.add("light-theme");
+        }
+        
         // 创建常用菜单项目
         const menuItems = await createMenuItems(item, index);
         
