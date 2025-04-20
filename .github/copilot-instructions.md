@@ -32,41 +32,36 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
    - 语言设置（中文/英文/跟随系统）
    - 数据管理（清空数据、查看数据存储位置）
 
-## 代码结构
+## 项目结构
 
-项目使用以下目录结构：
-
-- `/src/main/` - Electron 主进程代码
-  - `main.js` - 主进程入口文件
-  - `window-manager.js` - 窗口管理
-  - `tray-manager.js` - 系统托盘管理
-  - `data-store.js` - 数据存储逻辑
-  - `ipc-handler.js` - IPC 通信处理
-  - `item-handler.js` - 项目处理逻辑
-
-- `/src/preload/` - 预加载脚本
-  - `preload.js` - 暴露给渲染进程的 API
-
-- `/src/renderer/` - 渲染进程代码
-  - `index.html` - 主窗口 HTML
-  - `edit-item.html` - 项目编辑窗口
-  - `settings.html` - 设置窗口
-  - `/css/` - 样式文件
-    - `styles.css` - 基础样式
-    - `themes.css` - 主题样式
-  - `/js/` - 渲染进程 JavaScript 文件
-    - `renderer.js` - 主窗口脚本
-    - `edit-item.js` - 编辑窗口脚本
-    - `settings.js` - 设置窗口脚本
-    - `context-menu.js` - 右键菜单脚本
-
-- `/src/shared/` - 共享代码
-  - `defines.js` - 共享常量和定义
-  - `i18n.js` - 国际化支持
-
-- `/src/assets/` - 图标和其他静态资源
-  - `/icons/` - 应用和托盘图标
-  - `/locales/` - 语言配置文件
+```
+launcher-app-electron/
+├── main.js                 # 应用入口
+├── package.json            # 项目配置
+├── src/
+│   ├── assets/             # 静态资源
+│   │   ├── icons/          # 应用图标
+│   │   └── locales/        # 语言文件
+│   ├── main/               # 主进程代码
+│   │   ├── data-store.js   # 数据存储
+│   │   ├── ipc-handler.js  # IPC通信
+│   │   ├── item-handler.js # 项目处理
+│   │   ├── main.js         # 主进程入口
+│   │   ├── tray-manager.js # 托盘管理
+│   │   └── window-manager.js # 窗口管理
+│   ├── preload/            # 预加载脚本
+│   │   └── preload.js      # 预加载入口
+│   ├── renderer/           # 渲染进程代码
+│   │   ├── css/            # 样式文件
+│   │   ├── js/             # 渲染进程脚本
+│   │   ├── edit-item.html  # 编辑项目窗口
+│   │   ├── index.html      # 主窗口
+│   │   └── settings.html   # 设置窗口
+│   └── shared/             # 共享代码
+│       ├── defines.js      # 共享定义
+│       └── i18n.js         # 国际化
+└── ...
+```
 
 ## 关键模块说明
 
@@ -102,6 +97,7 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
    - 列表渲染和交互
    - 拖放处理
    - 键盘导航
+   - 拖拽排序功能
 
 2. **edit-item.js**
    - 项目编辑表单处理
@@ -116,6 +112,12 @@ Launcher App 是一个基于 Electron 的启动器应用程序，用于管理用
 4. **context-menu.js**
    - 右键菜单生成
    - 针对不同项目类型生成不同菜单项
+
+5. **ui-manager.js**
+   - 共享 UI 管理函数
+   - 主题应用与切换
+   - 语言更新处理
+   - 事件监听管理
 
 ### 共享模块
 

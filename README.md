@@ -28,6 +28,8 @@ Launcher App 是一款基于 Electron 开发的桌面快速启动器工具，帮
 - 📋 右键菜单提供丰富操作选项
 - 🌓 支持深色和浅色主题
 - 🌍 支持多语言
+  - 内置中文、英文支持
+  - 可以通过添加翻译文件来支持更多语言
 - ⌨️ 自定义全局快捷键呼出应用（默认是Alt+Shift+Q）
 - 🧩 系统托盘集成，显示最近使用的条目
 - 🔄 支持拖拽重新排序列表
@@ -36,22 +38,22 @@ Launcher App 是一款基于 Electron 开发的桌面快速启动器工具，帮
 
 ## 📥 构建
 
-1. 确保已安装 [Node.js](https://nodejs.org/) (22 LTS 或更高版本)
+1. 确保已安装 [Node.js](https://nodejs.org/) (推荐 22 LTS 或更高版本)
 
-2. 克隆仓库:
+2. 克隆仓库
 
 ```bash
 git clone https://github.com/SolarianZ/launcher-app-electron.git
 cd launcher-app-electron
 ```
 
-3. 安装依赖:
+3. 安装依赖
 
 ```bash
 npm install
 ```
 
-4. 启动应用:
+4. 启动应用
 
 ```bash
 npm start
@@ -59,7 +61,7 @@ npm start
 
 ### 📦 打包应用
 
-使用 electron-builder 打包为可分发的应用程序:
+使用 electron-builder 打包为可分发的应用程序：
 
 ```bash
 npm run build
@@ -69,9 +71,11 @@ npm run build
 
 ## 🧩 技术实现
 
-- **Electron**: 跨平台桌面应用框架
-- **模块化架构**: 主进程和渲染进程分离
-- **IPC通信**: 进程间安全通信
-- **本地存储**: JSON文件持久化数据
-- **国际化**: 多语言支持系统
-- **响应式UI**: 适配不同尺寸和主题
+- **Electron**：跨平台桌面应用框架
+- **模块化架构**：主进程和渲染进程分离
+- **IPC通信**：进程间安全通信
+- **本地存储**：JSON文件持久化数据
+- **国际化**：多语言支持系统
+- **响应式UI**：适配不同尺寸和主题
+
+更多项目细节参考 [copilot-instructions](./.github/copilot-instructions.md) 。
