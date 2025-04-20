@@ -14,10 +14,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const selectFolderBtn = document.getElementById("select-folder-btn");
   const toast = document.getElementById("toast");
 
-  // 导入i18n模块、PathType常量和UI工具
+  // 导入i18n模块、PathType常量
   const i18n = window.electronAPI.i18n;
   const PathType = window.defines.PathType;
-  const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
+
+  // 初始化UI管理器
+  window.uiManager.init({
+    containerSelector: ".modal"
+  });
 
   // 跟踪是否处于编辑模式
   let isEditMode = false;
@@ -28,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /**
    * 初始化页面
-   * 应用主题和语言设置
+   * 应用主题和语言设置，设置事件监听器
    */
   async function initPage() {
     // 监听编辑条目数据事件，注意要在其他异步操作之前注册监听器，避免错过事件窗口
@@ -53,30 +57,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 让路径输入框获得焦点
       setTimeout(() => itemPathInput.focus(), 100);
     });
-    
-    // 加载主题设置和应用
-    const savedTheme = await window.electronAPI.getThemeConfig();
-    const modalContainer = document.querySelector(".modal");
-    applyTheme(savedTheme, modalContainer);
-
-    // 初始化语言设置
-    await updatePageTexts(i18n);
-
-    // 监听来自其他窗口的语言变更通知
-    window.electronAPI.onLanguageChanged((language) => {
-      console.log("语言已更改为:", language);
-      updatePageTexts(i18n);
-    });
-
-    // 监听来自其他窗口的主题变更通知
-    window.electronAPI.onThemeChanged((theme) => {
-      console.log("主题已更改为", theme);
-      const modalContainer = document.querySelector(".modal");
-      applyTheme(theme, modalContainer);
-    });
-
-    // 设置系统主题变化监听器
-    setupSystemThemeListener(document.querySelector(".modal"));
     
     // 默认情况下(新增模式)，让路径输入框获得焦点
     setTimeout(() => itemPathInput.focus(), 100);
@@ -134,6 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (path && type) {
       // 有效路径，启用添加按钮
       saveBtn.disabled = false;
+      // 自动设置类型
       itemTypeSelect.value = type;
     } else {
       // 无效路径，禁用添加按钮
@@ -212,6 +193,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.electronAPI.closeAddItemWindow();
   });
 
+  /**
+   * 键盘事件处理
+   * - Escape: 关闭窗口
+   * - Enter+Ctrl: 提交表单
+   * - F12: 开发者工具
+   */
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      window.electronAPI.closeAddItemWindow();
+      e.preventDefault();
+    } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      // 使用 Ctrl+Enter / Cmd+Enter 提交表单
+      if (!saveBtn.disabled) {
+        saveBtn.click();
+      }
+      e.preventDefault();
+    } else if (e.key === "F12") {
+      window.electronAPI.openDevTools();
+      e.preventDefault();
+    }
+  });
+
   // 显示提示消息
   function showToast(message, isError = false) {
     const toast = document.getElementById("toast");
@@ -232,23 +235,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       }, 300);
     }, 1000);
   }
-
-  // 名称输入框按Enter时触发保存（如果数据有效）
-  itemNameInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !saveBtn.disabled) {
-      e.preventDefault(); // 阻止默认行为
-      saveBtn.click(); // 触发保存操作
-    }
-  });
-
-  // 监听按键
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      window.electronAPI.closeAddItemWindow();
-      e.preventDefault();
-    } else if (e.key === "F12") {
-      window.electronAPI.openDevTools();
-      e.preventDefault();
-    }
-  });
 });

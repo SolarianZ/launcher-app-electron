@@ -3,9 +3,8 @@
  * 处理设置窗口的所有功能，包括主题设置、数据管理和应用信息显示
  */
 document.addEventListener("DOMContentLoaded", async () => {
-  // 导入i18n模块和UI工具
+  // 导入i18n模块
   const i18n = window.electronAPI.i18n;
-  const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
 
   // DOM 元素引用
   const themeSelect = document.getElementById("theme-select");
@@ -20,6 +19,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const shortcutInput = document.getElementById("shortcut-input");
   const recordShortcutBtn = document.getElementById("record-shortcut-btn");
   const resetShortcutBtn = document.getElementById("reset-shortcut-btn");
+  
+  const modalContainer = document.querySelector(".modal");
+
+  // 初始化UI管理器
+  window.uiManager.init({
+    containerSelector: ".modal"
+  });
 
   // 初始化设置页面
   await initSettingsPage();
@@ -33,12 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 加载快捷键设置
   await loadShortcutSettings();
 
-  // 应用当前主题设置
-  applyCurrentTheme();
-
-  // 应用当前语言设置
-  await applyCurrentLanguage();
-
   /**
    * 事件监听设置部分
    */
@@ -51,8 +51,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const theme = themeSelect.value;
     // 通知主进程和其他窗口主题已更改
     window.electronAPI.themeChanged(theme);
-    // 应用新主题
-    applyCurrentTheme(theme);
   });
 
   /**
@@ -64,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 应用新语言
     await i18n.setLanguage(language);
     // 更新页面文本
-    await updatePageTexts(i18n);
+    await window.uiUtils.updatePageTexts(i18n);
     // 通知主进程和其他窗口语言已更改
     window.electronAPI.languageChanged(language);
   });
@@ -88,63 +86,55 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /**
    * 快捷键重置按钮点击事件
-   * 将快捷键重置为默认值
+   * 重置快捷键为默认值
    */
-  resetShortcutBtn.addEventListener("click", async () => {
-    const defaultShortcut = "Alt+Shift+Q";
-    updateShortcutConfig({ shortcut: defaultShortcut });
-    shortcutInput.value = defaultShortcut;
-    
-    // 显示提示消息
-    const message = await i18n.t('shortcut-reset');
-    showToast(message);
+  resetShortcutBtn.addEventListener("click", () => {
+    shortcutInput.value = "Alt+Shift+Q";
+    updateShortcutConfig({ shortcut: "Alt+Shift+Q" });
   });
 
   /**
    * 清空数据按钮点击事件
-   * 显示确认对话框并清除所有项目
+   * 显示确认对话框，确认后清空所有项目
    */
   clearDataBtn.addEventListener("click", async () => {
-    const confirmMessage = await i18n.t('confirm-clear-data');
+    const confirmMessage = await i18n.t("confirm-clear-data");
     if (confirm(confirmMessage)) {
       window.electronAPI.clearAllItems();
+      showToast(await i18n.t("data-cleared"));
     }
   });
 
   /**
    * 打开存储位置按钮点击事件
-   * 在系统文件管理器中显示应用数据文件夹
+   * 打开应用数据存储目录
    */
   openStorageBtn.addEventListener("click", () => {
     window.electronAPI.openStorageLocation();
   });
 
   /**
-   * GitHub链接点击事件
-   * 在默认浏览器中打开项目仓库
+   * GitHub链接点击事件处理
+   * 使用默认浏览器打开GitHub仓库
    */
   githubLink.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI.openExternalLink(
-      "https://github.com/SolarianZ/launcher-app-electron"
-    );
+    window.electronAPI.openExternalLink("https://github.com/username/launcher-app-electron");
   });
 
   /**
-   * 问题报告链接点击事件
-   * 在默认浏览器中打开项目Issues页面
+   * 报告问题链接点击事件处理
+   * 使用默认浏览器打开GitHub issues页面
    */
   reportIssueLink.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI.openExternalLink(
-      "https://github.com/SolarianZ/launcher-app-electron/issues"
-    );
+    window.electronAPI.openExternalLink("https://github.com/username/launcher-app-electron/issues");
   });
 
   /**
    * 全局键盘事件处理
    * - Escape: 关闭窗口
-   * - F12: 打开开发者工具
+   * - F12: 开发者工具
    */
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -171,9 +161,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("获取应用信息失败:", error);
     }
-
-    // 设置系统主题变化监听器
-    setupSystemThemeListener(document.querySelector(".modal"));
   }
 
   /**
@@ -223,15 +210,9 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   async function loadShortcutSettings() {
     try {
-      const shortcutConfig = await window.electronAPI.getShortcutConfig();
-      
-      // 设置启用状态
-      enableShortcutCheckbox.checked = shortcutConfig.enabled;
-      
-      // 设置当前快捷键
-      shortcutInput.value = shortcutConfig.shortcut || "Alt+Shift+Q";
-      
-      // 更新输入框状态
+      const config = await window.electronAPI.getShortcutConfig();
+      enableShortcutCheckbox.checked = config.enabled;
+      shortcutInput.value = config.shortcut;
       updateShortcutInputState();
     } catch (error) {
       console.error("加载快捷键设置失败:", error);
@@ -245,9 +226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   async function updateShortcutConfig(config) {
     try {
-      const currentConfig = await window.electronAPI.getShortcutConfig();
-      const newConfig = { ...currentConfig, ...config };
-      await window.electronAPI.updateShortcutConfig(newConfig);
+      await window.electronAPI.updateShortcutConfig(config);
     } catch (error) {
       console.error("更新快捷键配置失败:", error);
     }
@@ -258,111 +237,95 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 根据启用状态设置输入框和按钮的可用性
    */
   function updateShortcutInputState() {
-    const isEnabled = enableShortcutCheckbox.checked;
-    shortcutInput.disabled = !isEnabled;
-    recordShortcutBtn.disabled = !isEnabled;
-    resetShortcutBtn.disabled = !isEnabled;
-    
-    // 调整样式
-    if (!isEnabled) {
-      shortcutInput.classList.add("disabled");
-    } else {
-      shortcutInput.classList.remove("disabled");
-    }
+    const enabled = enableShortcutCheckbox.checked;
+    shortcutInput.disabled = !enabled;
+    recordShortcutBtn.disabled = !enabled;
+    resetShortcutBtn.disabled = !enabled;
   }
 
   /**
    * 进入快捷键录入模式
    */
   function startRecordingShortcut() {
-    // 只有启用状态下才能录入
-    if (!enableShortcutCheckbox.checked) return;
-    
-    // 更改录入按钮的状态和文本
-    recordShortcutBtn.classList.add("recording");
-    shortcutInput.value = "";
-    shortcutInput.placeholder = "";
-    
-    // 给按钮添加 data 属性标记录入状态
-    recordShortcutBtn.dataset.recording = "true";
+    shortcutInput.value = "按键...";
+    shortcutInput.classList.add("recording");
+    recordShortcutBtn.textContent = "✓";
   }
 
   /**
    * 结束快捷键录入模式
    */
   async function stopRecordingShortcut() {
-    // 恢复录入按钮的状态
-    recordShortcutBtn.classList.remove("recording");
-    delete recordShortcutBtn.dataset.recording;
-    
-    // 如果输入框为空，恢复之前的值
-    if (!shortcutInput.value) {
-      const config = await window.electronAPI.getShortcutConfig();
-      shortcutInput.value = config.shortcut || "Alt+Shift+Q";
-    }
-    
-    // 恢复占位符
-    shortcutInput.placeholder = "Alt+Shift+Q";
+    shortcutInput.classList.remove("recording");
+    recordShortcutBtn.textContent = await i18n.t("record-shortcut") || "记录";
   }
 
   /**
    * 设置快捷键录入的事件监听
    */
   function setupShortcutRecording() {
-    document.addEventListener("keydown", async (e) => {
-      // 检查是否在录入模式
-      if (!recordShortcutBtn.dataset.recording) return;
-      
-      // 阻止事件传播和默认行为
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // 忽略单独的修饰键
-      if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
-        return;
-      }
-      
-      // 构建快捷键字符串
-      const modifiers = [];
-      if (e.ctrlKey) modifiers.push("Ctrl");
-      if (e.altKey) modifiers.push("Alt");
-      if (e.shiftKey) modifiers.push("Shift");
-      if (e.metaKey) modifiers.push("Meta");
-      
-      // 如果没有修饰键，显示提示并返回
-      if (modifiers.length === 0) {
-        const message = await i18n.t('shortcut-need-modifier');
-        showToast(message);
-        return;
-      }
-      
-      // 获取按键名称并格式化
-      let keyName = e.key;
-      
-      // 处理特殊键
-      if (keyName === " ") keyName = "Space";
-      else if (keyName.length === 1) keyName = keyName.toUpperCase();
-      
-      // 组合快捷键字符串
-      const shortcut = [...modifiers, keyName].join("+");
-      
-      // 测试快捷键是否可用
-      const testResult = await window.electronAPI.testShortcut(shortcut);
-      
-      if (testResult.success) {
-        // 设置快捷键并保存
-        shortcutInput.value = shortcut;
-        updateShortcutConfig({ shortcut });
-        
-        // 结束录入模式
-        stopRecordingShortcut();
-        
-        // 显示成功提示
-        const message = await i18n.t('shortcut-saved');
-        showToast(message);
+    let recording = false;
+    let pressedKeys = new Set();
+
+    recordShortcutBtn.addEventListener("click", () => {
+      if (!recording) {
+        // 开始录制
+        recording = true;
+        pressedKeys.clear();
+        startRecordingShortcut();
       } else {
-        // 显示错误提示
-        showToast(testResult.message, true);
+        // 停止录制
+        recording = false;
+        stopRecordingShortcut();
+      }
+    });
+
+    // 录制时捕获按键
+    document.addEventListener("keydown", async (e) => {
+      if (!recording) return;
+
+      e.preventDefault();
+
+      // 特殊按键或修饰键
+      const key = e.key;
+      if (key === "Control" || key === "Alt" || key === "Shift" || key === "Meta") {
+        pressedKeys.add(key === "Control" ? "Ctrl" : key);
+      } else {
+        // 非修饰键，考虑按键序列结束
+        pressedKeys.add(key);
+
+        // 创建快捷键字符串
+        const shortcut = Array.from(pressedKeys).join("+");
+        shortcutInput.value = shortcut;
+
+        // 测试快捷键是否可用
+        const testResult = await window.electronAPI.testShortcut(shortcut);
+        if (testResult.success) {
+          // 成功，保存新快捷键
+          updateShortcutConfig({ shortcut });
+          recording = false;
+          stopRecordingShortcut();
+        } else {
+          // 失败，显示错误消息
+          showToast(testResult.message, true);
+          recording = false;
+          stopRecordingShortcut();
+          // 恢复上次的有效值
+          const config = await window.electronAPI.getShortcutConfig();
+          shortcutInput.value = config.shortcut;
+        }
+      }
+    });
+
+    // 监听按键释放，从集合中移除
+    document.addEventListener("keyup", (e) => {
+      if (!recording) return;
+      
+      const key = e.key;
+      if (key === "Control") {
+        pressedKeys.delete("Ctrl");
+      } else {
+        pressedKeys.delete(key);
       }
     });
   }
@@ -403,23 +366,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     }, 3000);
-  }
-
-  /**
-   * 应用当前主题设置
-   * 根据当前主题设置应用相应的CSS类
-   */
-  function applyCurrentTheme() {
-    const theme = themeSelect.value || "system";
-    const modalContainer = document.querySelector(".modal");
-    applyTheme(theme, modalContainer);
-  }
-
-  /**
-   * 应用当前语言设置
-   * 更新页面上所有需要翻译的文本
-   */
-  async function applyCurrentLanguage() {
-    await updatePageTexts(i18n);
   }
 });

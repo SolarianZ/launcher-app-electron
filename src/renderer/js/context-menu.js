@@ -1,249 +1,185 @@
 /**
- * 右键菜单处理模块
- * 负责为不同类型的项目创建上下文菜单
- * 实现复制、编辑、移除等项目操作
+ * 上下文菜单脚本
+ * 负责在主窗口中创建和管理右键菜单
  */
-document.addEventListener('DOMContentLoaded', async () => {
-    // 导入i18n模块
+document.addEventListener("DOMContentLoaded", () => {
+    // 引用i18n模块，用于本地化菜单项目
     const i18n = window.electronAPI.i18n;
     
+    // 上下文菜单DOM元素
+    let contextMenu = null;
+
     /**
-     * 创建右键菜单
-     * 根据项目类型创建不同的上下文菜单
-     * @param {number} x 菜单显示的X坐标
-     * @param {number} y 菜单显示的Y坐标
-     * @param {Object} item 项目对象
-     * @param {number} index 项目在列表中的索引
+     * 创建上下文菜单
+     * 根据不同项目类型创建对应的菜单
+     * @param {MouseEvent} e 鼠标事件
+     * @param {HTMLElement} target 触发菜单的目标元素
      */
-    async function createContextMenu(x, y, item, index) {
-        // 移除任何现有的上下文菜单
+    async function createContextMenu(e, target) {
+        // 防止默认事件和事件冒泡
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 移除可能存在的旧菜单
         removeContextMenu();
 
-        // 创建新的上下文菜单
-        const contextMenu = document.createElement('div');
-        contextMenu.classList.add('context-menu');
-        contextMenu.id = 'context-menu';
-
-        // 先将菜单添加到文档中但不设置位置，以便我们可以测量其尺寸
-        document.body.appendChild(contextMenu);
-
-        // 根据项目类型添加不同的菜单项
-        switch (item.type) {
-            case 'file':
-            case 'folder':
-                await createFileOrFolderMenu(contextMenu, item, index);
-                break;
-            case 'url':
-                await createUrlMenu(contextMenu, item, index);
-                break;
-            case 'command':
-                await createCommandMenu(contextMenu, item, index);
-                break;
+        // 确保目标是列表项
+        if (!target.classList.contains("list-item")) {
+            target = target.closest(".list-item");
         }
+        
+        if (!target) return;
 
-        // 计算菜单位置，确保在可视区域内
-        adjustMenuPosition(contextMenu, x, y);
+        // 获取项目数据
+        const index = parseInt(target.dataset.index);
+        const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
+        const item = items[index];
+        
+        if (!item) return;
 
-        // 点击文档其他区域时隐藏菜单
-        // 使用setTimeout避免当前点击事件立即触发关闭
+        // 创建上下文菜单元素
+        contextMenu = document.createElement("div");
+        contextMenu.className = "context-menu";
+        
+        // 设置菜单位置
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        
+        // 创建常用菜单项目
+        const menuItems = await createMenuItems(item, index);
+        
+        // 将菜单项添加到菜单
+        menuItems.forEach(menuItem => {
+            contextMenu.appendChild(menuItem);
+        });
+        
+        // 添加菜单到DOM
+        document.body.appendChild(contextMenu);
+        
+        // 确保菜单不超出视窗
+        adjustMenuPosition(contextMenu);
+
+        // 高亮显示选中的项目
+        document.querySelectorAll(".list-item.active").forEach(el => {
+            el.classList.remove("active");
+        });
+        target.classList.add("active");
+
+        // 添加点击事件监听器，点击外部关闭菜单
         setTimeout(() => {
-            document.addEventListener('click', removeContextMenu);
+            document.addEventListener("click", handleDocumentClick);
         }, 0);
     }
 
     /**
-     * 调整菜单位置，确保在可视区域内
-     * 处理屏幕边缘情况，避免菜单显示不全
-     * @param {HTMLElement} menu 菜单DOM元素
-     * @param {number} x 初始X坐标
-     * @param {number} y 初始Y坐标
-     */
-    function adjustMenuPosition(menu, x, y) {
-        // 获取菜单尺寸
-        const menuWidth = menu.offsetWidth;
-        const menuHeight = menu.offsetHeight;
-
-        // 获取可视区域尺寸
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        // 计算菜单右下角坐标
-        let rightEdge = x + menuWidth;
-        let bottomEdge = y + menuHeight;
-
-        // 调整 X 坐标，确保不超出右边界
-        if (rightEdge > viewportWidth) {
-            x = viewportWidth - menuWidth - 5; // 5px 边距
-        }
-
-        // 调整 Y 坐标，确保不超出下边界
-        if (bottomEdge > viewportHeight) {
-            y = viewportHeight - menuHeight - 5; // 5px 边距
-        }
-
-        // 确保不超出左上边界
-        x = Math.max(5, x);
-        y = Math.max(5, y);
-
-        // 设置菜单位置
-        menu.style.left = `${x}px`;
-        menu.style.top = `${y}px`;
-    }
-
-    /**
-     * 为文件或文件夹类型创建上下文菜单
-     * @param {HTMLElement} menu 菜单DOM元素
+     * 根据项目类型创建对应的菜单项
      * @param {Object} item 项目对象
      * @param {number} index 项目索引
+     * @returns {HTMLElement[]} 菜单项元素数组
      */
-    async function createFileOrFolderMenu(menu, item, index) {
-        // 打开选项
-        await addMenuItem(menu, await i18n.t('context-open'), () => {
+    async function createMenuItems(item, index) {
+        const menuItems = [];
+        
+        // 打开项目
+        const openItem = document.createElement("div");
+        openItem.className = "menu-item";
+        openItem.textContent = await i18n.t("open");
+        openItem.addEventListener("click", () => {
             window.electronAPI.openItem(item);
         });
-
-        // 仅文件项显示"在文件夹中显示"选项
-        if (item.type === 'file') {
-            await addMenuItem(menu, await i18n.t('context-show-in-folder'), () => {
+        menuItems.push(openItem);
+        
+        // 根据项目类型添加特定菜单项
+        if (item.type === "file" || item.type === "folder") {
+            // 在文件夹中显示
+            const showInFolder = document.createElement("div");
+            showInFolder.className = "menu-item";
+            showInFolder.textContent = await i18n.t("show-in-folder");
+            showInFolder.addEventListener("click", () => {
                 window.electronAPI.showItemInFolder(item.path);
             });
+            menuItems.push(showInFolder);
         }
-
-        // 分隔线
-        addMenuDivider(menu);
-
-        // 复制选项组
-        await addMenuItem(menu, await i18n.t('context-copy-path'), () => {
+        
+        // 复制路径
+        const copyPath = document.createElement("div");
+        copyPath.className = "menu-item";
+        copyPath.textContent = await i18n.t("copy-path");
+        copyPath.addEventListener("click", () => {
             window.electronAPI.copyText(item.path);
+            // 显示成功提示
+            if (window.appFunctions && window.appFunctions.showToast) {
+                window.appFunctions.showToast(i18n.t("path-copied"));
+            }
         });
-
-        await addMenuItem(menu, await i18n.t('context-copy-name'), () => {
-            const name = item.path.split('/').pop().split('\\').pop();
-            window.electronAPI.copyText(name);
-        });
-
+        menuItems.push(copyPath);
+        
         // 分隔线
-        addMenuDivider(menu);
-
-        // 编辑选项
-        await addMenuItem(menu, await i18n.t('context-edit'), () => {
+        const divider = document.createElement("div");
+        divider.className = "menu-divider";
+        menuItems.push(divider);
+        
+        // 编辑项目
+        const editItem = document.createElement("div");
+        editItem.className = "menu-item";
+        editItem.textContent = await i18n.t("edit");
+        editItem.addEventListener("click", () => {
             window.electronAPI.showEditItemDialog(item, index);
         });
-
-        // 移除选项
-        await addMenuItem(menu, await i18n.t('context-remove'), async () => {
-            await window.electronAPI.removeItem(index);
-            await window.appFunctions.loadItems();
+        menuItems.push(editItem);
+        
+        // 删除项目
+        const removeItem = document.createElement("div");
+        removeItem.className = "menu-item";
+        removeItem.textContent = await i18n.t("remove");
+        removeItem.addEventListener("click", () => {
+            if (window.appFunctions && window.appFunctions.removeItem) {
+                window.appFunctions.removeItem(index);
+            }
         });
+        menuItems.push(removeItem);
+        
+        return menuItems;
     }
-
+    
     /**
-     * 创建URL菜单
-     * @param {HTMLElement} menu 菜单容器元素
-     * @param {Object} item 项目对象
-     * @param {number} index 项目索引
+     * 调整菜单位置，确保不超出视窗
+     * @param {HTMLElement} menu 菜单元素
      */
-    async function createUrlMenu(menu, item, index) {
-        // 打开选项
-        await addMenuItem(menu, await i18n.t('context-open'), () => {
-            window.electronAPI.openItem(item);
-        });
-
-        // 分隔线
-        addMenuDivider(menu);
-
-        // 复制选项
-        await addMenuItem(menu, await i18n.t('context-copy'), () => {
-            window.electronAPI.copyText(item.path);
-        });
-
-        // 分隔线
-        addMenuDivider(menu);
-
-        // 编辑选项
-        await addMenuItem(menu, await i18n.t('context-edit'), () => {
-            window.electronAPI.showEditItemDialog(item, index);
-        });
-
-        // 移除选项
-        await addMenuItem(menu, await i18n.t('context-remove'), async () => {
-            await window.electronAPI.removeItem(index);
-            await window.appFunctions.loadItems();
-        });
+    function adjustMenuPosition(menu) {
+        const rect = menu.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // 检查右侧是否超出视窗
+        if (rect.right > windowWidth) {
+            menu.style.left = `${windowWidth - rect.width - 5}px`;
+        }
+        
+        // 检查底部是否超出视窗
+        if (rect.bottom > windowHeight) {
+            menu.style.top = `${windowHeight - rect.height - 5}px`;
+        }
     }
-
+    
     /**
-     * 创建命令菜单
-     * @param {HTMLElement} menu 菜单容器元素
-     * @param {Object} item 项目对象
-     * @param {number} index 项目索引
+     * 处理点击事件，关闭上下文菜单
      */
-    async function createCommandMenu(menu, item, index) {
-        // 执行选项
-        await addMenuItem(menu, await i18n.t('context-execute'), () => {
-            window.electronAPI.openItem(item);
-        });
-
-        // 分隔线
-        addMenuDivider(menu);
-
-        // 复制选项
-        await addMenuItem(menu, await i18n.t('context-copy'), () => {
-            window.electronAPI.copyText(item.path);
-        });
-
-        // 分隔线
-        addMenuDivider(menu);
-
-        // 编辑选项
-        await addMenuItem(menu, await i18n.t('context-edit'), () => {
-            window.electronAPI.showEditItemDialog(item, index);
-        });
-
-        // 移除选项
-        await addMenuItem(menu, await i18n.t('context-remove'), async () => {
-            await window.electronAPI.removeItem(index);
-            await window.appFunctions.loadItems();
-        });
-    }
-
-    /**
-     * 添加菜单项
-     * @param {HTMLElement} menu 菜单容器元素
-     * @param {string} text 菜单项文本
-     * @param {Function} onClick 点击回调函数
-     */
-    async function addMenuItem(menu, text, onClick) {
-        const menuItem = document.createElement('div');
-        menuItem.classList.add('menu-item');
-        menuItem.textContent = text;
-        menuItem.addEventListener('click', (e) => {
-            e.stopPropagation();
-            onClick();
+    function handleDocumentClick(e) {
+        if (contextMenu && !contextMenu.contains(e.target)) {
             removeContextMenu();
-        });
-        menu.appendChild(menuItem);
+        }
     }
-
-    /**
-     * 添加菜单分隔线
-     * @param {HTMLElement} menu 菜单容器元素
-     */
-    function addMenuDivider(menu) {
-        const divider = document.createElement('div');
-        divider.classList.add('menu-divider');
-        menu.appendChild(divider);
-    }
-
+    
     /**
      * 移除上下文菜单
      * 从文档中移除现有的上下文菜单
      */
     function removeContextMenu() {
-        const contextMenu = document.getElementById('context-menu');
         if (contextMenu) {
-            contextMenu.remove();
-            document.removeEventListener('click', removeContextMenu);
+            document.body.removeChild(contextMenu);
+            contextMenu = null;
+            document.removeEventListener("click", handleDocumentClick);
         }
     }
 
@@ -252,35 +188,18 @@ document.addEventListener('DOMContentLoaded', async () => {
      * 为列表容器添加右键菜单事件监听
      */
     function setupContextMenu() {
-        const listContainer = document.getElementById('list-container');
-
-        listContainer.addEventListener('contextmenu', async (e) => {
-            const listItem = e.target.closest('.list-item');
-            if (listItem) {
-                e.preventDefault();
-
-                // 获取项目数据
-                const index = parseInt(listItem.dataset.index);
-                const items = JSON.parse(localStorage.getItem('cachedItems') || '[]');
-
-                // 显示上下文菜单
-                await createContextMenu(e.clientX, e.clientY, items[index], index);
-
-                // 激活选中项
-                document.querySelectorAll('.list-item.active').forEach(el => el.classList.remove('active'));
-                listItem.classList.add('active');
-            }
-        });
+        const listContainer = document.getElementById("list-container");
+        
+        if (listContainer) {
+            listContainer.addEventListener("contextmenu", (e) => {
+                // 查找点击的列表项
+                const target = e.target.closest(".list-item");
+                if (target) {
+                    createContextMenu(e, target);
+                }
+            });
+        }
     }
-    
-    /**
-     * 语言更新处理
-     * 监听语言变化事件，以便在语言改变时更新菜单文本
-     */
-    window.electronAPI.onLanguageChanged((language) => {
-        // 如果菜单已打开，会在下次打开时使用新语言
-        console.log("上下文菜单语言已更新:", language);
-    });
 
     // 设置右键菜单
     setupContextMenu();

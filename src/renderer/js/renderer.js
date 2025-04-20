@@ -11,9 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("toast");
   const settingsButton = document.getElementById("settings-button");
   
-  // 导入i18n模块和UI工具
+  // 导入i18n模块
   const i18n = window.electronAPI.i18n;
-  const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils;
+
+  // 初始化UI管理器
+  window.uiManager.init({
+    containerSelector: ".app-container"
+  });
 
   // 初始化页面
   initPage();
@@ -70,36 +74,28 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
       // Ctrl+F (Windows/Linux) 或 Command+F (macOS) 使搜索框获得焦点
       searchInput.focus();
-      e.preventDefault(); // 阻止默认的浏览器查找功能
+      e.preventDefault();
     }
   });
 
-  /**
-   * 文件拖放处理
-   * 支持将文件从资源管理器拖入应用程序
-   */
-  // 允许拖放操作
+  // 处理拖放文件功能
   listContainer.addEventListener("dragover", (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = "copy";
+    listContainer.classList.add("drag-over");
   });
 
-  // 处理文件拖放
+  listContainer.addEventListener("dragleave", () => {
+    listContainer.classList.remove("drag-over");
+  });
+
   listContainer.addEventListener("drop", async (e) => {
     e.preventDefault();
-    e.stopPropagation();
+    listContainer.classList.remove("drag-over");
 
-    if (e.dataTransfer.files.length === 0) {
-      return;
-    }
-
-    const file = e.dataTransfer.files[0];
-    // 使用安全的API获取文件路径
-    // 注意：最新版Electron中，必须使用webUtils.getPathForFile
-    const filePath = window.electronAPI.getFileOrFolderPath(file);
+    // 使用 webUtils 获取文件路径
+    const filePath = await window.electronAPI.getFileOrFolderPath(e.dataTransfer.items[0]);
     if (!filePath) {
-      showToast("无效的文件", true);
+      showToast("无法获取文件路径");
       return;
     }
 
@@ -135,43 +131,31 @@ document.addEventListener("DOMContentLoaded", () => {
   async function initPage() {
     await loadItems();
 
-    // 加载主题设置和应用
-    const savedTheme = await window.electronAPI.getThemeConfig();
-    const appContainer = document.querySelector(".app-container");
-    applyTheme(savedTheme, appContainer);
-
-    // 初始化语言设置
-    await updatePageTexts(i18n);
-
     // 添加对列表更新的监听
     window.electronAPI.onItemsUpdated(async () => {
       console.log("条目已更新，刷新列表……");
       await loadItems();
     });
-
-    // 监听来自其他窗口的主题变更通知
-    window.electronAPI.onThemeChanged((theme) => {
-      console.log("主题已更改为:", theme);
-      const appContainer = document.querySelector(".app-container");
-      applyTheme(theme, appContainer);
-    });
-    
-    // 监听来自其他窗口的语言变更通知
-    window.electronAPI.onLanguageChanged((language) => {
-      console.log("语言已更改为:", language);
-      updatePageTexts(i18n);
-    });
-
-    // 设置系统主题变化监听器
-    setupSystemThemeListener(document.querySelector(".app-container"));
   }
 
   // 加载项目列表
   async function loadItems() {
     const items = await window.electronAPI.getItems();
-    // 缓存项目用于搜索和其他操作
     localStorage.setItem("cachedItems", JSON.stringify(items));
-    renderItems(items);
+    if (items.length > 0) {
+      document.querySelector(".empty-list-message")?.remove();
+      renderItems(items);
+    } else {
+      // 显示空列表消息
+      listContainer.innerHTML = `<div class="empty-list-message">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text" data-i18n="empty-list">列表为空</div>
+        <div class="empty-hint" data-i18n="empty-list-hint">点击右上角加号按钮或拖放文件到此处</div>
+      </div>`;
+      
+      // 更新空列表消息的翻译
+      await window.uiUtils.updatePageTexts(i18n);
+    }
   }
 
   // 渲染项目列表
@@ -226,26 +210,22 @@ document.addEventListener("DOMContentLoaded", () => {
       case "url":
         return "🌐";
       case "command":
-        return "💻";
+        return "⌨️";
       default:
-        return "📌";
+        return "❓";
     }
   }
 
   // 过滤项目
   function filterItems(query) {
     const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
-
-    if (!query) {
-      renderItems(items);
-      return;
-    }
-
-    const filteredItems = items.filter(
-      (item) =>
-        (item.name && item.name.toLowerCase().includes(query)) ||
-        item.path.toLowerCase().includes(query)
-    );
+    const filteredItems = query
+      ? items.filter(
+          (item) =>
+            (item.name && item.name.toLowerCase().includes(query)) ||
+            item.path.toLowerCase().includes(query)
+        )
+      : items;
 
     renderItems(filteredItems);
   }
@@ -328,54 +308,49 @@ document.addEventListener("DOMContentLoaded", () => {
           const isBelow = y > rect.height / 2;
 
           // 移除所有现有的drop-target类
-          document.querySelectorAll(".list-item").forEach((el) => {
-            el.classList.remove("drop-target");
-          });
+          items.forEach((i) => i.classList.remove("drop-before", "drop-after"));
 
-          // 添加指示器并保存放置位置信息
+          // 根据放置位置添加相应的类
+          if (isBelow) {
+            item.classList.add("drop-after");
+            dropPosition = { target: item, position: "after" };
+          } else {
+            item.classList.add("drop-before");
+            dropPosition = { target: item, position: "before" };
+          }
+
+          // 添加指示器
           if (isBelow) {
             if (item.nextSibling !== indicator) {
               item.after(indicator);
             }
-            dropPosition = { target: item, position: "after" };
           } else {
             if (item.previousSibling !== indicator) {
               item.before(indicator);
             }
-            dropPosition = { target: item, position: "before" };
           }
-          indicator.style.display = "block";
         }
       });
     });
 
-    // 为列表容器添加 dragover 事件以实现自动滚动
+    // 当鼠标在列表容器内移动时，处理自动滚动
     listContainer.addEventListener("dragover", (e) => {
       e.preventDefault();
-
       if (!draggedItem) return;
 
-      // 获取列表容器的位置信息
       const containerRect = listContainer.getBoundingClientRect();
-      const containerTop = containerRect.top;
-      const containerBottom = containerRect.bottom;
       const mouseY = e.clientY;
-
-      // 计算鼠标与容器上下边缘的距离
-      const distanceFromTop = mouseY - containerTop;
-      const distanceFromBottom = containerBottom - mouseY;
-
-      // 停止现有的自动滚动
-      stopAutoScroll();
-
-      // 根据鼠标位置设置自动滚动
-      if (distanceFromTop < SCROLL_THRESHOLD) {
-        // 鼠标接近顶部，向上滚动
+      
+      // 判断是否需要向上滚动
+      if (mouseY < containerRect.top + SCROLL_THRESHOLD) {
+        stopAutoScroll();
         autoScrollInterval = setInterval(() => {
           listContainer.scrollTop -= SCROLL_SPEED;
-        }, 16); // 约60fps的速率
-      } else if (distanceFromBottom < SCROLL_THRESHOLD) {
-        // 鼠标接近底部，向下滚动
+        }, 16);
+      }
+      // 判断是否需要向下滚动
+      else if (mouseY > containerRect.bottom - SCROLL_THRESHOLD) {
+        stopAutoScroll();
         autoScrollInterval = setInterval(() => {
           listContainer.scrollTop += SCROLL_SPEED;
         }, 16);
@@ -456,7 +431,8 @@ document.addEventListener("DOMContentLoaded", () => {
     items[nextIndex].classList.add("active");
 
     // 确保项目可见
-    items[nextIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const newActiveItem = items[nextIndex];
+    newActiveItem.scrollIntoView({ block: "nearest" });
   }
 
   // 把loadItems和removeItem函数暴露到全局，供其他脚本使用
