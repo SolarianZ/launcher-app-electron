@@ -131,9 +131,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  function formatShortcut(shortcut) {
-    // TODO: 将快捷键中的字母键转换为大写显示
-    shortcutInput.value = shortcut;
+  function setShortcutInputValueWithFormat(shortcut) {
+    // 将快捷键中的字母键转换为大写显示
+    const parts = shortcut.split('+');
+    const formattedParts = parts.map(part => {
+      // 如果是单个字符且是字母，转换为大写
+      if (part.length === 1 && part.match(/[a-zA-Z]/)) {
+        return part.toUpperCase();
+      }
+      // 其他情况（修饰键等）保持不变
+      return part;
+    });
+    shortcutInput.value = formattedParts.join('+');
   }
 
   // 处理快捷键录入的事件监听
@@ -202,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const config = await window.electronAPI.getShortcutConfig();
       enableShortcutCheckbox.checked = config.enabled;
-      formatShortcut(config.shortcut);
+      setShortcutInputValueWithFormat(config.shortcut);
       updateShortcutInputState();
     } catch (error) {
       console.error("加载快捷键设置失败:", error);
@@ -275,7 +284,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         // 恢复上次的有效值
         const config = await window.electronAPI.getShortcutConfig();
-        formatShortcut(config.shortcut);
+        setShortcutInputValueWithFormat(config.shortcut);
 
         stopRecordingShortcut();
       }
@@ -293,7 +302,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       pressedKeys.clear();
 
-      formatShortcut("Alt+Shift+Q");
+      setShortcutInputValueWithFormat("Alt+Shift+Q");
       updateShortcutConfig({ shortcut: "Alt+Shift+Q" });
     });
 
@@ -320,7 +329,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // 恢复上次的有效值
         const config = await window.electronAPI.getShortcutConfig();
-        formatShortcut(config.shortcut);
+        setShortcutInputValueWithFormat(config.shortcut);
 
         stopRecordingShortcut();
         pressedKeys.clear();
@@ -335,7 +344,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 测试快捷键是否可用
       const testResult = await window.electronAPI.testShortcut(shortcut);
       if (testResult.success) {
-        formatShortcut(shortcut);
+        setShortcutInputValueWithFormat(shortcut);
 
         // 保存新快捷键
         updateShortcutConfig({ shortcut });
@@ -347,7 +356,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // 恢复上次的有效值
         const config = await window.electronAPI.getShortcutConfig();
-        formatShortcut(config.shortcut);
+        setShortcutInputValueWithFormat(config.shortcut);
 
         stopRecordingShortcut();
       }
