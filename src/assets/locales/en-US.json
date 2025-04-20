@@ -28,6 +28,7 @@
   "data": "Data",
   "clear-data": "Clear All Records",
   "clear-data-desc": "Remove all recorded entries",
+  "data-cleared": "All records cleared",
   "open-storage": "Open App Data Folder",
   "open-storage-desc": "View application data files in folder",
   "about": "About",
