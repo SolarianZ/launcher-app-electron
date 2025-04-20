@@ -54,11 +54,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
    */
   // 监听列表更新事件
   onItemsUpdated: (callback) => {
-    ipcRenderer.on("items-updated", () => callback());
+    const listener = (event) => callback();
+    ipcRenderer.on("items-updated", listener);
 
     // 返回清理函数，用于移除事件监听，防止内存泄漏
     return () => {
-      ipcRenderer.removeAllListeners("items-updated");
+      ipcRenderer.removeListener("items-updated", listener);
     };
   },
 
@@ -197,8 +198,8 @@ contextBridge.exposeInMainWorld("uiUtils", {
 
     // 根据主题类型应用相应的CSS类
     if (theme === "system") {
-      // 调用下面的函数处理系统主题
-      applySystemTheme(container);
+      // 使用内部函数处理系统主题
+      internalApplySystemTheme(container);
     } else if (theme === "dark") {
       container.classList.add("dark-theme");
     } else if (theme === "light") {
@@ -212,17 +213,7 @@ contextBridge.exposeInMainWorld("uiUtils", {
    * @param {HTMLElement} container 要应用主题的容器元素
    */
   applySystemTheme: (container) => {
-    // 检测系统是否处于深色模式
-    const isDarkMode =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    // 应用相应的主题类
-    if (isDarkMode) {
-      container.classList.add("dark-theme");
-    } else {
-      container.classList.remove("dark-theme");
-    }
+    internalApplySystemTheme(container);
   },
 
   /**
@@ -282,16 +273,20 @@ contextBridge.exposeInMainWorld("uiUtils", {
           // 获取当前主题配置
           const themeConfig = await ipcRenderer.invoke("get-theme-config");
           if (themeConfig === "system") {
-            // 调用上面定义的函数
-            applySystemTheme(container);
+            // 调用内部函数
+            internalApplySystemTheme(container);
           }
         });
     }
   },
 });
 
-// 定义本地辅助函数，确保uiUtils.applySystemTheme内部可以调用
-function applySystemTheme(container) {
+/**
+ * 内部辅助函数，应用系统主题
+ * 抽取为内部函数以避免重复代码
+ * @param {HTMLElement} container 要应用主题的容器元素
+ */
+function internalApplySystemTheme(container) {
   // 检测系统是否处于深色模式
   const isDarkMode =
     window.matchMedia &&

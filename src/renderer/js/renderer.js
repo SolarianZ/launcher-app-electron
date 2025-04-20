@@ -13,9 +13,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // 导入i18n模块
   const i18n = window.electronAPI.i18n;
 
-  // 初始化UI管理器
-  window.uiManager.init({
+  // 当前项目列表(内存中存储)
+  let currentItems = [];
+
+  // 初始化UI管理器，保存返回的解绑函数对象
+  const uiCleanup = window.uiManager.init({
     containerSelector: ".app-container"
+  });
+
+  // 当页面卸载时清理监听器
+  window.addEventListener('beforeunload', () => {
+    if (uiCleanup && typeof uiCleanup.unbindAll === 'function') {
+      uiCleanup.unbindAll();
+    }
   });
 
   // 初始化页面
@@ -62,8 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const activeItem = document.querySelector(".list-item.active");
       if (activeItem) {
         const index = parseInt(activeItem.dataset.index);
-        const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
-        window.electronAPI.openItem(items[index]);
+        window.electronAPI.openItem(currentItems[index]);
       }
     } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       navigateList(e.key === "ArrowUp" ? -1 : 1);
@@ -99,8 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 检查是否已存在
-    const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
-    const exists = items.some((item) => item.path === filePath);
+    const exists = currentItems.some((item) => item.path === filePath);
 
     if (exists) {
       window.uiManager.showToast("条目已存在");
@@ -139,11 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 加载项目列表
   async function loadItems() {
-    const items = await window.electronAPI.getItems();
-    localStorage.setItem("cachedItems", JSON.stringify(items));
-    if (items.length > 0) {
+    currentItems = await window.electronAPI.getItems();
+    if (currentItems.length > 0) {
       document.querySelector(".empty-list-message")?.remove();
-      renderItems(items);
+      renderItems(currentItems);
     } else {
       // 显示空列表消息
       listContainer.innerHTML = `<div class="empty-list-message">
@@ -215,14 +222,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 过滤项目
   function filterItems(query) {
-    const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
     const filteredItems = query
-      ? items.filter(
+      ? currentItems.filter(
           (item) =>
             (item.name && item.name.toLowerCase().includes(query)) ||
             item.path.toLowerCase().includes(query)
         )
-      : items;
+      : currentItems;
 
     renderItems(filteredItems);
   }
@@ -362,12 +368,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // 重新排序
-        const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
-        const [removed] = items.splice(draggedIndex, 1);
-        items.splice(newIndex, 0, removed);
+        const itemsCopy = [...currentItems];
+        const [removed] = itemsCopy.splice(draggedIndex, 1);
+        itemsCopy.splice(newIndex, 0, removed);
 
         // 更新后端存储
-        const result = await window.electronAPI.updateItemsOrder(items);
+        const result = await window.electronAPI.updateItemsOrder(itemsCopy);
         if (result.success) {
           await loadItems();
           console.log("排序已更新:", draggedIndex, "->", newIndex);
@@ -414,7 +420,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // 把loadItems和removeItem函数暴露到全局，供其他脚本使用
   window.appFunctions = {
     loadItems,
-    removeItem,
-    showToast: window.uiManager.showToast, // 改为使用ui-manager中的方法
+    removeItem
   };
 });

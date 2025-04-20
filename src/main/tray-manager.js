@@ -139,18 +139,9 @@ function destroyTray() {
   }
 }
 
-/**
- * 获取托盘引用
- * @returns {Tray} 托盘对象
- */
-function getTray() {
-  return tray;
-}
-
 // 导出模块函数
 module.exports = {
   createTray,
   updateTrayMenu,
-  destroyTray,
-  getTray
+  destroyTray
 };

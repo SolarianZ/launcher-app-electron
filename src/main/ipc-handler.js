@@ -174,6 +174,9 @@ function setupIpcHandlers() {
     if (editItemWindow && !editItemWindow.isDestroyed()) {
       editItemWindow.webContents.send('theme-changed', theme);
     }
+    
+    // 存储主题设置到全局变量，以便在创建新窗口时使用
+    global.appTheme = theme;
   });
 
   /**

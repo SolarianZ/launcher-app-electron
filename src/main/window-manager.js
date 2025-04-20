@@ -113,11 +113,7 @@ function createMainWindow() {
     if (!app.isQuitting && process.platform !== 'darwin') {
       event.preventDefault(); // 阻止默认关闭行为
       mainWindow.hide();      // 隐藏窗口
-      return false;           // 阻止默认行为
     }
-
-    // 否则，允许窗口关闭
-    return true;
   });
 
   // 窗口关闭时清除引用，避免内存泄漏

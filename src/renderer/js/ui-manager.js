@@ -103,16 +103,22 @@ async function initUIManager(options) {
   };
 
   // 6. 添加事件监听
-  window.electronAPI.onThemeChanged(onThemeChangedHandler);
-  window.electronAPI.onLanguageChanged(onLanguageChangedHandler);
+  const themeCleanup = window.electronAPI.onThemeChanged(onThemeChangedHandler);
+  const languageCleanup = window.electronAPI.onLanguageChanged(onLanguageChangedHandler);
 
   // 返回解绑函数对象，用于在需要时移除事件监听
   return {
     unbindAll: () => {
-      // 注意：这里假设 onThemeChanged 和 onLanguageChanged 返回的是移除事件监听的函数
-      // 如果实际实现不同，需要调整这里的代码
-      window.electronAPI.onThemeChanged(onThemeChangedHandler)();
-      window.electronAPI.onLanguageChanged(onLanguageChangedHandler)();
+      // 调用从事件注册时返回的清理函数
+      if (themeCleanup && typeof themeCleanup === 'function') {
+        themeCleanup();
+      }
+      
+      if (languageCleanup && typeof languageCleanup === 'function') {
+        languageCleanup();
+      }
+      
+      console.log('UI管理器事件监听器已清理');
     }
   };
 }
