@@ -73,7 +73,15 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 启用全局快捷键复选框变化事件
    * 保存设置并更新界面状态
    */
-  enableShortcutCheckbox.addEventListener("change", () => {
+  enableShortcutCheckbox.addEventListener("change", async () => {
+    if (!enableShortcutCheckbox.checked && recordingShortcut) {
+      // 如果取消选中时正在录制快捷键，停止录制
+      // 恢复上次的有效值
+      const config = await window.electronAPI.getShortcutConfig();
+      setShortcutInputValueWithFormat(config.shortcut);
+      stopRecordingShortcut();
+    }
+
     updateShortcutConfig({ enabled: enableShortcutCheckbox.checked });
     updateShortcutInputState();
   });
@@ -241,7 +249,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     recordShortcutBtn.disabled = !enabled;
     resetShortcutBtn.disabled = !enabled;
 
-    // TODO: 根据启用状态设置快捷键相关控件的样式
+    // 根据启用状态设置快捷键相关控件的样式
+    if (enabled) {
+      shortcutInput.classList.remove('disabled-input');
+      recordShortcutBtn.classList.remove('disabled-btn');
+      resetShortcutBtn.classList.remove('disabled-btn');
+    } else {
+      shortcutInput.classList.add('disabled-input');
+      recordShortcutBtn.classList.add('disabled-btn');
+      resetShortcutBtn.classList.add('disabled-btn');
+    }
   }
 
   /**

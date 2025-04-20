@@ -47,6 +47,22 @@ body {
     overflow: hidden;
 }
 
+/* 禁用状态样式 */
+.disabled-input {
+    background-color: var(--disabled-bg) !important;
+    color: var(--disabled-text) !important;
+    cursor: not-allowed !important;
+    border-color: var(--disabled-bg) !important;
+}
+
+.disabled-btn {
+    background-color: var(--disabled-bg) !important;
+    color: var(--disabled-text) !important;
+    cursor: not-allowed !important;
+    border-color: var(--disabled-bg) !important;
+    opacity: 0.7;
+}
+
 /* 应用容器 */
 .app-container {
     width: 100vw;
