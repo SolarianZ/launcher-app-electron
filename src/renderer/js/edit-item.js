@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelBtn = document.getElementById("cancel-btn");
   const selectFileBtn = document.getElementById("select-file-btn");
   const selectFolderBtn = document.getElementById("select-folder-btn");
-  const toast = document.getElementById("toast");
 
   // 导入i18n模块、PathType常量
   const i18n = window.electronAPI.i18n;
@@ -78,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("选择文件出错:", error);
       const errorMessage = await i18n.t("select-file-failed");
-      showToast(errorMessage, true);
+      window.uiManager.showToast(errorMessage, true);
     }
   });
 
@@ -98,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("选择文件夹出错:", error);
       const errorMessage = await i18n.t("select-folder-failed");
-      showToast(errorMessage, true);
+      window.uiManager.showToast(errorMessage, true);
     }
   });
 
@@ -135,13 +134,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 表单验证
     if (!path) {
       const errorMessage = await i18n.t("enter-path-required");
-      showToast(errorMessage, true);
+      window.uiManager.showToast(errorMessage, true);
       return;
     }
 
     if (!type) {
       const errorMessage = await i18n.t("select-type-required");
-      showToast(errorMessage, true);
+      window.uiManager.showToast(errorMessage, true);
       return;
     }
 
@@ -174,14 +173,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.electronAPI.closeAddItemWindow();
       } else {
         // 显示错误提示
-        showToast(result.message, true);
+        window.uiManager.showToast(result.message, true);
       }
     } catch (error) {
       console.error(`Error ${isEditMode ? "updating" : "adding"} item:`, error);
       const errorMessage = await i18n.t(
         isEditMode ? "update-failed" : "add-failed"
       );
-      showToast(errorMessage, true);
+      window.uiManager.showToast(errorMessage, true);
     }
   });
 
@@ -214,25 +213,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.preventDefault();
     }
   });
-
-  // 显示提示消息
-  function showToast(message, isError = false) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.className = "toast";
-
-    if (isError) {
-      toast.classList.add("error-toast");
-    }
-
-    toast.style.display = "block";
-    toast.style.opacity = "1";
-
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      setTimeout(() => {
-        toast.style.display = "none";
-      }, 300);
-    }, 1000);
-  }
 });

@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("add-button");
   const searchInput = document.getElementById("search-input");
   const listContainer = document.getElementById("list-container");
-  const toast = document.getElementById("toast");
   const settingsButton = document.getElementById("settings-button");
   
   // 导入i18n模块
@@ -95,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 使用 webUtils 获取文件路径
     const filePath = await window.electronAPI.getFileOrFolderPath(e.dataTransfer.files[0]);
     if (!filePath) {
-      showToast("无法获取文件路径");
+      window.uiManager.showToast("无法获取文件路径", true);
       return;
     }
 
@@ -104,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const exists = items.some((item) => item.path === filePath);
 
     if (exists) {
-      showToast("条目已存在");
+      window.uiManager.showToast("条目已存在");
       return;
     }
 
@@ -123,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (result.success) {
       await loadItems();
     } else {
-      showToast(result.message);
+      window.uiManager.showToast(result.message, true);
     }
   });
 
@@ -228,27 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
       : items;
 
     renderItems(filteredItems);
-  }
-
-  // 显示提示消息
-  function showToast(message, isError = false) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.className = "toast";
-
-    if (isError) {
-      toast.classList.add("error-toast");
-    }
-
-    toast.style.display = "block";
-    toast.style.opacity = "1";
-
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      setTimeout(() => {
-        toast.style.display = "none";
-      }, 300);
-    }, 1000);
   }
 
   // 移除项目
@@ -439,6 +417,6 @@ document.addEventListener("DOMContentLoaded", () => {
   window.appFunctions = {
     loadItems,
     removeItem,
-    showToast,
+    showToast: window.uiManager.showToast, // 改为使用ui-manager中的方法
   };
 });

@@ -9,6 +9,48 @@ const { applyTheme, updatePageTexts, setupSystemThemeListener } = window.uiUtils
 const i18n = window.electronAPI.i18n;
 
 /**
+ * 显示提示消息
+ * 统一的Toast提示实现，避免各窗口重复实现类似功能
+ * @param {string} message 提示内容
+ * @param {boolean} isError 是否是错误提示，默认为false
+ * @param {number} duration 显示时长(毫秒)，默认为2000毫秒
+ */
+function showToast(message, isError = false, duration = 2000) {
+  // 查找已有的toast元素，如果没有则创建一个
+  let toast = document.getElementById("toast");
+  
+  // 如果toast不存在，创建一个新的toast元素
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast";
+    document.body.appendChild(toast);
+  }
+
+  // 设置toast内容和样式
+  toast.textContent = message;
+  toast.className = "toast";
+
+  if (isError) {
+    toast.classList.add("error-toast");
+  }
+
+  // 显示toast
+  toast.style.display = "block";
+  toast.style.opacity = "1";
+
+  // 定时隐藏toast
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    // 动画完成后隐藏元素
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 300); // 假设过渡动画为300ms
+  }, duration);
+
+  return toast;
+}
+
+/**
  * 初始化UI管理
  * @param {Object} options 配置选项
  * @param {string} options.containerSelector 主容器选择器，如 ".app-container" 或 ".modal"
@@ -77,5 +119,6 @@ async function initUIManager(options) {
 
 // 导出模块API
 window.uiManager = {
-  init: initUIManager
+  init: initUIManager,
+  showToast: showToast
 };

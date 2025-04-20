@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const confirmMessage = await i18n.t("confirm-clear-data");
     if (confirm(confirmMessage)) {
       window.electronAPI.clearAllItems();
-      showToast(await i18n.t("data-cleared"));
+      window.uiManager.showToast(await i18n.t("data-cleared"));
     }
   });
 
@@ -309,7 +309,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           stopRecordingShortcut();
         } else {
           // 失败，显示错误消息
-          showToast(testResult.message, true);
+          window.uiManager.showToast(testResult.message, true);
           recording = false;
           stopRecordingShortcut();
           // 恢复上次的有效值
@@ -330,43 +330,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         pressedKeys.delete(key);
       }
     });
-  }
-
-  /**
-   * 显示提示消息
-   * @param {string} message 提示内容
-   * @param {boolean} isError 是否是错误提示
-   */
-  function showToast(message, isError = false) {
-    // 检查是否已存在toast元素，如果有则移除
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-      document.body.removeChild(existingToast);
-    }
-    
-    // 创建新的toast元素
-    const toast = document.createElement('div');
-    toast.className = isError ? 'toast error-toast' : 'toast';
-    toast.textContent = message;
-    
-    // 添加到body
-    document.body.appendChild(toast);
-    
-    // 显示toast
-    setTimeout(() => {
-      toast.style.opacity = '1';
-    }, 10);
-    
-    // 3秒后隐藏toast
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      
-      // 隐藏动画完成后移除元素
-      toast.addEventListener('transitionend', () => {
-        if (toast.parentNode) {
-          document.body.removeChild(toast);
-        }
-      });
-    }, 3000);
   }
 });
