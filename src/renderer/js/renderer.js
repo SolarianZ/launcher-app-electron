@@ -147,9 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // 显示空列表消息
       listContainer.innerHTML = `<div class="empty-list-message">
-        <div class="empty-icon">📋</div>
-        <div class="empty-text" data-i18n="empty-list">列表为空</div>
-        <div class="empty-hint" data-i18n="empty-list-hint">点击右上角加号按钮或拖放文件到此处</div>
+        <div class="empty-text" data-i18n="empty-list">点击 + 按钮添加新的条目</div>
       </div>`;
       
       // 更新空列表消息的翻译

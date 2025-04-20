@@ -75,5 +75,6 @@
   "context-copy-name": "复制名称",
   "context-copy": "复制",
   "context-execute": "执行",
-  "tray-exit": "退出"
+  "tray-exit": "退出",
+  "empty-list": "点击 + 按钮添加新的条目"
 }

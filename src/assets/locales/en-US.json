@@ -75,5 +75,6 @@
   "context-copy-name": "Copy name",
   "context-copy": "Copy",
   "context-execute": "Execute",
-  "tray-exit": "Exit"
+  "tray-exit": "Exit",
+  "empty-list": "Click + button to add new items"
 }
