@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     listContainer.classList.remove("drag-over");
 
     // 使用 webUtils 获取文件路径
-    const filePath = await window.electronAPI.getFileOrFolderPath(e.dataTransfer.items[0]);
+    const filePath = await window.electronAPI.getFileOrFolderPath(e.dataTransfer.files[0]);
     if (!filePath) {
       showToast("无法获取文件路径");
       return;
