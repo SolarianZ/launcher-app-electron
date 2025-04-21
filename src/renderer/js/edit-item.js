@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function initPage() {
     // 监听编辑条目数据事件，注意要在其他异步操作之前注册监听器，避免错过事件窗口
     window.electronAPI.onEditItemData(({ item, index }) => {
-      console.log("编辑条目数据:", item, index);
+      console.log("Editing item data:", item, index);
       // 进入编辑模式
       isEditMode = true;
       editingItemIndex = index;
@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveBtn.disabled = false;
       }
     } catch (error) {
-      console.error("选择文件出错:", error);
+      console.error("Error selecting file:", error);
       const errorMessage = await i18n.t("select-file-failed");
       window.uiManager.showToast(errorMessage, true);
     }
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveBtn.disabled = false;
       }
     } catch (error) {
-      console.error("选择文件夹出错:", error);
+      console.error("Error selecting folder:", error);
       const errorMessage = await i18n.t("select-folder-failed");
       window.uiManager.showToast(errorMessage, true);
     }

@@ -23,7 +23,7 @@ const userLocalesDir = path.join(
   'locales'
 );
 
-console.log('语言文件目录:', { 
+console.log('Locale directories:', { 
   appPath, 
   isPackaged, 
   localesDir, 
@@ -37,7 +37,7 @@ try {
     fs.mkdirSync(userLocalesDir, { recursive: true });
   }
 } catch (error) {
-  console.error('创建用户自定义语言文件目录失败:', error);
+  console.error('Error creating user locale directory:', error);
 }
 
 // 存储已加载的翻译内容
@@ -62,10 +62,10 @@ function loadTranslationFile(langCode) {
     if (fs.existsSync(userFilePath)) {
       const fileContent = fs.readFileSync(userFilePath, 'utf8');
       userTranslation = JSON.parse(fileContent);
-      console.log(`已加载用户自定义语言文件: ${langCode}`);
+      console.log(`Loaded user custom language file: ${langCode}`);
     }
   } catch (error) {
-    console.error(`加载用户自定义语言文件 ${langCode}.json 失败:`, error);
+    console.error(`Error loading user language file ${langCode}.json:`, error);
   }
   
   // 再从应用内置目录加载
@@ -76,20 +76,20 @@ function loadTranslationFile(langCode) {
     if (fs.existsSync(builtinFilePath)) {
       const fileContent = fs.readFileSync(builtinFilePath, 'utf8');
       builtinTranslation = JSON.parse(fileContent);
-      console.log(`已加载内置语言文件: ${langCode}`);
+      console.log(`Loaded built-in language file: ${langCode}`);
     } else {
-      console.warn(`内置语言文件不存在: ${builtinFilePath}`);
+      console.warn(`Built-in language file not found: ${builtinFilePath}`);
       
       // 尝试备用路径（开发环境中可能的路径）
       const altPath = path.join(appPath, 'src', 'assets', 'locales', `${langCode}.json`);
       if (fs.existsSync(altPath)) {
         const fileContent = fs.readFileSync(altPath, 'utf8');
         builtinTranslation = JSON.parse(fileContent);
-        console.log(`已从备用路径加载语言文件: ${langCode}`);
+        console.log(`Loaded language file from alternative path: ${langCode}`);
       }
     }
   } catch (error) {
-    console.error(`加载内置语言文件 ${langCode}.json 失败:`, error);
+    console.error(`Error loading built-in language file ${langCode}.json:`, error);
   }
   
   // 用户翻译覆盖内置翻译
@@ -117,7 +117,7 @@ function loadAllLanguages() {
           // 加载内置语言
           translations[langCode] = loadTranslationFile(langCode);
         });
-      console.log('已从标准路径加载内置语言文件列表');
+      console.log('Loaded built-in language files from standard path');
     } else {
       // 尝试备用路径（开发环境中可能的路径）
       const altLocalesDir = path.join(appPath, 'src', 'assets', 'locales');
@@ -131,13 +131,14 @@ function loadAllLanguages() {
             // 加载内置语言
             translations[langCode] = loadTranslationFile(langCode);
           });
-        console.log('已从备用路径加载内置语言文件列表');
+        console.log('Loaded built-in language files from alternative path');
       } else {
-        console.error('未找到内置语言文件目录:', { localesDir, altLocalesDir });
+        console.error('Built-in language directory not found:', { localesDir, altLocalesDir });
         
+        // TODO 手动添加默认语言不应该吧？
         // 如果没有找到语言文件，手动添加默认语言
         if (builtinLangs.size === 0) {
-          console.log('添加默认语言支持');
+          console.log('Adding default language support');
           builtinLangs.add('en-US');
           builtinLangs.add('zh-CN');
           
@@ -149,15 +150,15 @@ function loadAllLanguages() {
           };
           
           translations['zh-CN'] = translations['zh-CN'] || {
-            'app.name': '启动器应用',
-            'en-US': '英文',
-            'zh-CN': '简体中文'
+            'app.name': 'Launcher App',
+            'en-US': 'English',
+            'zh-CN': 'Chinese (Simplified)'
           };
         }
       }
     }
   } catch (error) {
-    console.error('读取内置语言文件目录失败:', error);
+    console.error('Error reading built-in language directory:', error);
   }
   
   // 获取用户自定义语言文件列表
@@ -176,12 +177,12 @@ function loadAllLanguages() {
         });
     }
   } catch (error) {
-    console.error('读取用户自定义语言文件目录失败:', error);
+    console.error('Error reading user language directory:', error);
   }
   
   // 合并语言列表
   availableLanguages = [...new Set([...builtinLangs, ...userLangs])];
-  console.log('可用语言列表:', availableLanguages);
+  console.log('Available languages:', availableLanguages);
 }
 
 // 首次加载所有语言
@@ -193,7 +194,7 @@ function getSystemLanguage() {
   const systemLang = (typeof navigator !== 'undefined' ? navigator.language : null) || 
                     (app ? app.getLocale() : null) || 'en-US';
   
-  console.log('系统语言:', systemLang);
+  console.log('System language:', systemLang);
   
   // 将系统语言映射到支持的语言
   if (systemLang.startsWith('zh')) {
@@ -238,7 +239,7 @@ function notifyLanguageChangeListeners(newLanguage) {
     try {
       listener(newLanguage);
     } catch (error) {
-      console.error("语言变化监听器执行错误:", error);
+      console.error("Error executing language change listener:", error);
     }
   }
 }
@@ -266,7 +267,7 @@ function getCurrentLanguage() {
         currentLanguage = getSystemLanguage();
       }
     } catch (error) {
-      console.error('获取语言配置失败:', error);
+      console.error('Error getting language configuration:', error);
       currentLanguage = getSystemLanguage();
     }
   }
@@ -296,11 +297,11 @@ function setLanguage(lang) {
         }
       } else {
         newLang = 'en-US'; // 默认回退到英文
-        console.error(`语言文件为空: ${lang}`);
+        console.error(`Language file is empty: ${lang}`);
       }
     } catch (error) {
       newLang = 'en-US'; // 默认回退到英文
-      console.error(`不支持的语言: ${lang}`, error);
+      console.error(`Unsupported language: ${lang}`, error);
     }
   }
   
@@ -315,7 +316,7 @@ function setLanguage(lang) {
       dataStore.updateLanguageConfig(lang);
     }
   } catch (error) {
-    console.error('保存语言配置失败:', error);
+    console.error('Error saving language configuration:', error);
   }
   
   // 通知语言变化
@@ -373,7 +374,7 @@ function addUserLanguage(langCode, translation) {
     
     return true;
   } catch (error) {
-    console.error(`添加用户自定义语言 ${langCode} 失败:`, error);
+    console.error(`Error adding user custom language ${langCode}:`, error);
     return false;
   }
 }

@@ -256,7 +256,7 @@ contextBridge.exposeInMainWorld("uiUtils", {
         }
       }
     } catch (error) {
-      console.error("更新页面文本时出错:", error);
+      console.error("Error updating page texts:", error);
     }
   },
 

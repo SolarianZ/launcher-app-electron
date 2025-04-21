@@ -54,7 +54,7 @@ function executeCommand(command) {
     try {
       fs.mkdirSync(workDir, { recursive: true });
     } catch (error) {
-      console.error("创建工作目录失败:", error);
+      console.error("Error creating working directory:", error);
     }
   }
 
@@ -67,7 +67,7 @@ function executeCommand(command) {
       executeCommandForLinux(command, workDir);
     }
   } catch (error) {
-    console.error("执行命令出错:", error);
+    console.error("Error executing command:", error);
   }
 }
 
@@ -165,7 +165,7 @@ function executeCommandForLinux(command, workDir) {
  */
 function tryNextLinuxTerminal(terminals, index, command, workDir = "") {
   if (index >= terminals.length) {
-    console.error("无法找到可用的终端");
+    console.error("No available terminal found");
     return;
   }
 
@@ -177,7 +177,7 @@ function tryNextLinuxTerminal(terminals, index, command, workDir = "") {
 
   exec(terminalCmd, (error) => {
     if (error) {
-      console.warn(`终端 ${index + 1}/${terminals.length} 失败，尝试下一个...`);
+      console.warn(`Terminal ${index + 1}/${terminals.length} failed, trying next one...`);
       // 递归尝试下一个终端
       tryNextLinuxTerminal(terminals, index + 1, command, workDir);
     }

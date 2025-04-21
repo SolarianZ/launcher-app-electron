@@ -82,7 +82,7 @@ function notifyChangeListeners() {
     try {
       listener();
     } catch (error) {
-      console.error("监听器执行错误:", error);
+      console.error("Error executing listener:", error);
     }
   }
 }
@@ -134,12 +134,14 @@ function addItem(item) {
   // 检查是否已存在相同路径的项目
   const exists = items.some((i) => i.path === item.path);
   if (exists) {
-    return { success: false, message: "条目已存在" };
+    // TODO 这里的message需要多语言？
+    return { success: false, message: "Item already exists" };
   }
 
   items.push(item);
   const saved = saveItems();
-  return { success: saved, message: saved ? "" : "保存失败" };
+  // TODO 这里的message需要多语言？
+  return { success: saved, message: saved ? "" : "Save failed" };
 }
 
 /**
@@ -150,12 +152,14 @@ function addItem(item) {
  */
 function updateItem(index, updatedItem) {
   if (index < 0 || index >= items.length) {
-    return { success: false, message: "项目不存在" };
+    // TODO 这里的message需要多语言？
+    return { success: false, message: "Item does not exist" };
   }
 
   items[index] = updatedItem;
   const saved = saveItems();
-  return { success: saved, message: saved ? "" : "保存失败" };
+  // TODO 这里的message需要多语言？
+  return { success: saved, message: saved ? "" : "Save failed" };
 }
 
 /**
@@ -165,12 +169,14 @@ function updateItem(index, updatedItem) {
  */
 function removeItem(index) {
   if (index < 0 || index >= items.length) {
-    return { success: false, message: "项目不存在" };
+    // TODO 这里的message需要多语言？
+    return { success: false, message: "Item does not exist" };
   }
 
   items.splice(index, 1);
   const saved = saveItems();
-  return { success: saved, message: saved ? "" : "保存失败" };
+  // TODO 这里的message需要多语言？
+  return { success: saved, message: saved ? "" : "Save failed" };
 }
 
 /**
@@ -181,7 +187,8 @@ function removeItem(index) {
 function updateItemsOrder(newItems) {
   items = newItems;
   const saved = saveItems();
-  return { success: saved, message: saved ? "" : "保存失败" };
+  // TODO 这里的message需要多语言？
+  return { success: saved, message: saved ? "" : "Save failed" };
 }
 
 /**
@@ -199,7 +206,8 @@ function getItems() {
 function clearAllItems() {
   items = [];
   const saved = saveItems();
-  return { success: saved, message: saved ? "" : "清除失败" };
+  // TODO 这里的message需要多语言？
+  return { success: saved, message: saved ? "" : "Clear failed" };
 }
 
 /**
@@ -336,7 +344,7 @@ function notifyShortcutChangeListeners() {
     try {
       listener(appConfig.shortcut);
     } catch (error) {
-      console.error("快捷键监听器执行错误:", error);
+      console.error("Error executing shortcut listener:", error);
     }
   }
 }

@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 添加对列表更新的监听
     window.electronAPI.onItemsUpdated(async () => {
-      console.log("条目已更新，刷新列表……");
+      console.log("Items updated, refreshing list...");
       await loadItems();
     });
   }
@@ -384,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await window.electronAPI.updateItemsOrder(itemsCopy);
         if (result.success) {
           await loadItems();
-          console.log("排序已更新:", draggedIndex, "->", newIndex);
+          console.log("Order updated:", draggedIndex, "->", newIndex);
         }
       }
 

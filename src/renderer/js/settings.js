@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const appInfo = await window.electronAPI.getAppInfo();
       document.getElementById("version-number").textContent = appInfo.version;
     } catch (error) {
-      console.error("获取应用信息失败:", error);
+      console.error("Error getting app info:", error);
     }
   }
 
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const savedLanguage = await window.electronAPI.getLanguageConfig();
       languageSelect.value = savedLanguage;
     } catch (error) {
-      console.error("加载语言列表失败:", error);
+      console.error("Error loading language list:", error);
     }
   }
 
@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       setShortcutInputValueWithFormat(config.shortcut);
       updateShortcutInputState();
     } catch (error) {
-      console.error("加载快捷键设置失败:", error);
+      console.error("Error loading shortcut settings:", error);
     }
   }
 
@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       await window.electronAPI.updateShortcutConfig(config);
     } catch (error) {
-      console.error("更新快捷键配置失败:", error);
+      console.error("Error updating shortcut config:", error);
     }
   }
 

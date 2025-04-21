@@ -48,9 +48,9 @@ function registerGlobalShortcuts() {
         windowManager.showMainWindow();
       });
       currentRegisteredShortcut = shortcutConfig.shortcut;
-      console.log(`全局快捷键 ${shortcutConfig.shortcut} 注册成功`);
+      console.log(`Global shortcut ${shortcutConfig.shortcut} registered successfully`);
     } catch (error) {
-      console.error(`全局快捷键注册失败: ${error.message}`);
+      console.error(`Error registering global shortcut: ${error.message}`);
     }
   }
 }
@@ -63,9 +63,9 @@ function unregisterGlobalShortcuts() {
     try {
       globalShortcut.unregister(currentRegisteredShortcut);
       currentRegisteredShortcut = null;
-      console.log('全局快捷键已注销');
+      console.log('Global shortcut unregistered');
     } catch (error) {
-      console.error(`全局快捷键注销失败: ${error.message}`);
+      console.error(`Error unregistering global shortcut: ${error.message}`);
     }
   }
 }
@@ -92,11 +92,11 @@ function initializeLanguage() {
   if (appConfig.language && appConfig.language !== "system") {
     // 使用用户配置的语言
     selectedLanguage = appConfig.language;
-    console.log(`使用配置文件中的语言设置: ${selectedLanguage}`);
+    console.log(`Using language from config: ${selectedLanguage}`);
   } else {
     // 配置为"system"或未设置，则使用系统语言
     selectedLanguage = i18n.getSystemLanguage();
-    console.log(`使用系统语言: ${selectedLanguage}`);
+    console.log(`Using system language: ${selectedLanguage}`);
   }
 
   // 设置为全局语言变量，以便在创建新窗口时使用
@@ -105,7 +105,7 @@ function initializeLanguage() {
   // 初始化i18n模块
   i18n.setLanguage(selectedLanguage);
 
-  console.log(`应用语言初始化为: ${selectedLanguage}`);
+  console.log(`Application language initialized to: ${selectedLanguage}`);
 }
 
 /**
@@ -120,7 +120,7 @@ function initializeTheme() {
   // 设置为全局主题变量，以便在创建新窗口时使用
   global.appTheme = theme;
 
-  console.log(`应用主题初始化为: ${theme}`);
+  console.log(`Application theme initialized to: ${theme}`);
 }
 
 // 应用初始化 - 当Electron完成初始化并准备创建浏览器窗口时触发

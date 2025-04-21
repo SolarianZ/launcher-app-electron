@@ -60,13 +60,13 @@ function showToast(message, isError = false, duration = 2000) {
  */
 async function initUIManager(options) {
   if (!options || !options.containerSelector) {
-    console.error("UI管理器初始化失败：缺少必要参数");
+    console.error("Error initialiing ui manager: missing required parameters");
     return;
   }
 
   const container = document.querySelector(options.containerSelector);
   if (!container) {
-    console.error(`找不到容器元素: ${options.containerSelector}`);
+    console.error(`Container element not found: ${options.containerSelector}`);
     return;
   }
 
@@ -82,7 +82,7 @@ async function initUIManager(options) {
 
   // 4. 绑定主题变更事件
   const onThemeChangedHandler = (theme) => {
-    console.log("主题已更改为:", theme);
+    console.log("Theme changed to:", theme);
     applyTheme(theme, container);
     
     // 如果提供了回调函数，则调用
@@ -93,7 +93,7 @@ async function initUIManager(options) {
 
   // 5. 绑定语言变更事件
   const onLanguageChangedHandler = (language) => {
-    console.log("语言已更改为:", language);
+    console.log("Language changed to:", language);
     updatePageTexts(i18n);
     
     // 如果提供了回调函数，则调用
@@ -118,7 +118,7 @@ async function initUIManager(options) {
         languageCleanup();
       }
       
-      console.log('UI管理器事件监听器已清理');
+      console.log('UI manager event listeners cleaned up');
     }
   };
 }

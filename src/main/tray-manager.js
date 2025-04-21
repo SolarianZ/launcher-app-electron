@@ -66,7 +66,7 @@ function createTray(toggleMainWindow) {
 
   // 监听语言变更事件
   i18n.addLanguageChangeListener((language) => {
-    console.log(`托盘语言已更改为: ${language}`);
+    console.log(`Tray language changed to: ${language}`);
     tray.setToolTip(i18n.t('app-name'));
     
     // 如果有最新的项目列表，刷新托盘菜单
