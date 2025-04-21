@@ -87,6 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 处理拖放文件功能
+  let draggingItem = false;
+
   listContainer.addEventListener("dragover", (e) => {
     e.preventDefault();
     listContainer.classList.add("drag-over");
@@ -99,6 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
   listContainer.addEventListener("drop", async (e) => {
     e.preventDefault();
     listContainer.classList.remove("drag-over");
+
+    // 检查是否是内部拖拽排序操作
+    if (draggingItem) {
+      // 是内部拖拽排序，不处理外部文件拖入逻辑
+      return;
+    }
 
     // 使用 webUtils 获取文件路径
     const filePath = await window.electronAPI.getFileOrFolderPath(e.dataTransfer.files[0]);
@@ -267,9 +275,8 @@ document.addEventListener("DOMContentLoaded", () => {
         draggedItem = item;
         item.classList.add("dragging");
         e.dataTransfer.setData("text/plain", item.dataset.index);
-        setTimeout(() => {
-          item.style.opacity = "0.5";
-        }, 0);
+        setTimeout(() => { item.style.opacity = "0.5"; }, 0);
+        draggingItem = true;
       });
 
       item.addEventListener("dragend", () => {
@@ -279,6 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
         indicator.remove();
         dropPosition = null; // 重置放置位置
         stopAutoScroll(); // 停止自动滚动
+        draggingItem = false;
       });
 
       item.addEventListener("dragover", (e) => {
