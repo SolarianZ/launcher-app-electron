@@ -81,5 +81,7 @@
   "context-copy": "Copy",
   "context-execute": "Execute",
   "tray-exit": "Exit",
-  "empty-list": "Click + button to add new items"
+  "empty-list": "Click + button to add new items",
+  "cannot-get-file-path": "Cannot get file path",
+  "item-already-exists": "Item already exists"
 }

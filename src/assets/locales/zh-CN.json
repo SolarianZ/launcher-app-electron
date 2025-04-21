@@ -81,5 +81,7 @@
   "context-copy": "复制",
   "context-execute": "执行",
   "tray-exit": "退出",
-  "empty-list": "点击 + 按钮添加新的条目"
+  "empty-list": "点击 + 按钮添加新的条目",
+  "cannot-get-file-path": "无法获取文件路径",
+  "item-already-exists": "条目已存在"
 }

@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 使用 webUtils 获取文件路径
     const filePath = await window.electronAPI.getFileOrFolderPath(e.dataTransfer.files[0]);
     if (!filePath) {
-      window.uiManager.showToast("无法获取文件路径", true);
+      window.uiManager.showToast(await i18n.t("cannot-get-file-path"), true);
       return;
     }
 
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const exists = currentItems.some((item) => item.path === filePath);
 
     if (exists) {
-      window.uiManager.showToast("条目已存在");
+      window.uiManager.showToast(await i18n.t("item-already-exists"));
       return;
     }
 
