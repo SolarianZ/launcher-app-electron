@@ -84,17 +84,7 @@ function executeCommandForWindows(command, workDir) {
     shell: true,
   };
 
-  if (command.includes("\n")) {
-    // 处理多行命令：创建临时批处理文件
-    const batchFile = path.join(workDir, `launcher-cmd-${Date.now()}.bat`);
-
-    // 写入批处理文件
-    fs.writeFileSync(batchFile, `cd /d "${workDir}"\n${command}`, 'utf8');
-
-    // 执行批处理文件
-    const child = exec(`start cmd /K "${batchFile}"`, execOptions);
-    child.unref();
-  } else if (/^\/[KC]/i.test(command)) {
+  if (/^\/[KC]/i.test(command)) {
     // 命令自带 /K 或 /C 参数的情况
 
     // 提取开头的 /K 或 /C 及可能跟随的空格
@@ -120,42 +110,23 @@ function executeCommandForWindows(command, workDir) {
  * 转义引号以防止命令注入攻击
  */
 function executeCommandForMac(command, workDir) {
-  if (command.includes("\n")) {
-    // 处理多行命令：创建临时脚本文件
-    const scriptFile = path.join(workDir, `launcher-cmd-${Date.now()}.sh`);
+  // 更安全的转义处理
+  // 首先转义工作目录路径中的特殊字符
+  const escapedWorkDir = workDir
+    .replace(/\\/g, '\\\\')  // 转义反斜杠
+    .replace(/"/g, '\\"')    // 转义双引号
+    .replace(/'/g, "'\\''"); // 转义单引号
 
-    // 写入脚本文件并添加执行权限
-    fs.writeFileSync(scriptFile, `#!/bin/bash\ncd "${workDir}"\n${command}`, 'utf8');
-    fs.chmodSync(scriptFile, '755');
+  // 然后转义命令中的特殊字符
+  const escapedCommand = command
+    .replace(/\\/g, '\\\\')  // 转义反斜杠
+    .replace(/"/g, '\\"')    // 转义双引号
+    .replace(/'/g, "'\\''"); // 转义单引号
 
-    // 正确转义路径中的特殊字符，防止AppleScript执行时出错
-    const escapedPath = scriptFile
-      .replace(/\\/g, '\\\\')  // 转义反斜杠
-      .replace(/"/g, '\\"')    // 转义双引号
-      .replace(/'/g, "'\\''"); // 转义单引号
-
-    exec(
-      `osascript -e 'tell app "Terminal" to do script "${escapedPath}"'`
-    );
-  } else {
-    // 更安全的转义处理
-    // 首先转义工作目录路径中的特殊字符
-    const escapedWorkDir = workDir
-      .replace(/\\/g, '\\\\')  // 转义反斜杠
-      .replace(/"/g, '\\"')    // 转义双引号
-      .replace(/'/g, "'\\''"); // 转义单引号
-
-    // 然后转义命令中的特殊字符
-    const escapedCommand = command
-      .replace(/\\/g, '\\\\')  // 转义反斜杠
-      .replace(/"/g, '\\"')    // 转义双引号
-      .replace(/'/g, "'\\''"); // 转义单引号
-
-    // 构建完整的AppleScript命令，确保命令能在Terminal中正确执行
-    exec(
-      `osascript -e 'tell app "Terminal" to do script "cd \\"${escapedWorkDir}\\" && ${escapedCommand}"'`
-    );
-  }
+  // 构建完整的AppleScript命令，确保命令能在Terminal中正确执行
+  exec(
+    `osascript -e 'tell app "Terminal" to do script "cd \\"${escapedWorkDir}\\" && ${escapedCommand}"'`
+  );
 }
 
 /**
@@ -163,47 +134,26 @@ function executeCommandForMac(command, workDir) {
  * Linux有多种不同的终端模拟器，需要尝试多种终端
  */
 function executeCommandForLinux(command, workDir) {
-  if (command.includes("\n")) {
-    // 处理多行命令：创建临时脚本文件
-    const scriptFile = path.join(workDir, `launcher-cmd-${Date.now()}.sh`);
+  const terminals = [
+    'gnome-terminal -- bash -c "cd \\"{WORKDIR}\\" && {CMD}; exec bash"',  // GNOME桌面环境
+    'konsole --noclose -e bash -c "cd \\"{WORKDIR}\\" && {CMD}"',          // KDE桌面环境
+    'xterm -hold -e bash -c "cd \\"{WORKDIR}\\" && {CMD}"',                // 通用X终端
+    'x-terminal-emulator -e bash -c "cd \\"{WORKDIR}\\" && {CMD}; exec bash"', // Debian/Ubuntu默认终端
+  ];
 
-    // 写入脚本文件并添加执行权限
-    fs.writeFileSync(scriptFile, `#!/bin/bash\ncd "${workDir}"\n${command}`, 'utf8');
-    fs.chmodSync(scriptFile, '755');
+  // 安全处理命令，转义引号以防止命令注入
+  const escapedCommand = command
+    .replace(/\\/g, '\\\\')  // 转义反斜杠
+    .replace(/"/g, '\\"')    // 转义双引号
+    .replace(/'/g, "'\\''"); // 转义单引号
 
-    // 构建不同终端执行脚本的命令列表
-    const terminals = [
-      `gnome-terminal -- bash -c "${scriptFile}; exec bash"`,
-      `konsole --noclose -e bash -c "${scriptFile}"`,
-      `xterm -hold -e ${scriptFile}`,
-      `x-terminal-emulator -e ${scriptFile}`
-    ];
+  const escapedWorkDir = workDir
+    .replace(/\\/g, '\\\\')  // 转义反斜杠
+    .replace(/"/g, '\\"')    // 转义双引号
+    .replace(/'/g, "'\\''"); // 转义单引号
 
-    // 尝试所有可能的终端，直到一个成功
-    // 传递空字符串作为命令，因为命令已经包含在脚本文件中
-    tryNextLinuxTerminal(terminals, 0, "", "");
-  } else {
-    const terminals = [
-      'gnome-terminal -- bash -c "cd \\"{WORKDIR}\\" && {CMD}; exec bash"',  // GNOME桌面环境
-      'konsole --noclose -e bash -c "cd \\"{WORKDIR}\\" && {CMD}"',          // KDE桌面环境
-      'xterm -hold -e bash -c "cd \\"{WORKDIR}\\" && {CMD}"',                // 通用X终端
-      'x-terminal-emulator -e bash -c "cd \\"{WORKDIR}\\" && {CMD}; exec bash"', // Debian/Ubuntu默认终端
-    ];
-
-    // 安全处理命令，转义引号以防止命令注入
-    const escapedCommand = command
-      .replace(/\\/g, '\\\\')  // 转义反斜杠
-      .replace(/"/g, '\\"')    // 转义双引号
-      .replace(/'/g, "'\\''"); // 转义单引号
-
-    const escapedWorkDir = workDir
-      .replace(/\\/g, '\\\\')  // 转义反斜杠
-      .replace(/"/g, '\\"')    // 转义双引号
-      .replace(/'/g, "'\\''"); // 转义单引号
-
-    // 尝试所有可能的终端，直到一个成功
-    tryNextLinuxTerminal(terminals, 0, escapedCommand, escapedWorkDir);
-  }
+  // 尝试所有可能的终端，直到一个成功
+  tryNextLinuxTerminal(terminals, 0, escapedCommand, escapedWorkDir);
 }
 
 /**
