@@ -8,7 +8,7 @@
   "language": "语言",
   "system-language": "跟随系统",
   "zh-CN": "中文",
-  "en-US": "英文",
+  "en-US": "English",
   "add-language": "添加语言",
   "add-language-desc": "导入自定义语言JSON文件",
   "language-added-success": "语言文件添加成功",

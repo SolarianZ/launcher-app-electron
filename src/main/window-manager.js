@@ -82,7 +82,7 @@ function createMainWindow() {
   });
 
   // 不在任务栏显示图标
-  mainWindow.setSkipTaskbar(true);
+  // mainWindow.setSkipTaskbar(true);
 
   // 保存窗口调整大小时的尺寸
   mainWindow.on('resize', () => {

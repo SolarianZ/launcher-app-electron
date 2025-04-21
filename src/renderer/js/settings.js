@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   githubLink.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI.openExternalLink("https://github.com/username/launcher-app-electron");
+    window.electronAPI.openExternalLink("https://github.com/SolarianZ/launcher-app-electron");
   });
 
   /**
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   reportIssueLink.addEventListener("click", (e) => {
     e.preventDefault();
-    window.electronAPI.openExternalLink("https://github.com/username/launcher-app-electron/issues");
+    window.electronAPI.openExternalLink("https://github.com/SolarianZ/launcher-app-electron/issues");
   });
 
   /**
