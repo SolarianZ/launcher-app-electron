@@ -2,7 +2,7 @@
   "name": "launcher-app",
   "version": "1.0.0",
   "description": "快速访问常用文件、文件夹、URL和指令的工具",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"
@@ -19,7 +19,9 @@
     "productName": "Launcher App",
     "executableName": "launcher_app",
     "files": [
-      "src/assets/**/*"
+      "src/**/*",
+      "package.json",
+      "!src/assets/locales/**/*"
     ],
     "extraResources": [
       {
@@ -40,6 +42,11 @@
     "mac": {
       "target": "dmg",
       "icon": "src/assets/icons/app-icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "src/assets/icons/app-icon.ico",
+      "category": "Utility"
     }
   }
 }

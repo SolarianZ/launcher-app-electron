@@ -4,9 +4,6 @@
  */
 const { app, globalShortcut } = require('electron');
 
-// 添加一个标志，用于区分应用是要退出还是只是关闭主窗口
-app.isQuitting = false;
-
 // 导入拆分后的模块
 const windowManager = require('./window-manager');
 const dataStore = require('./data-store');
@@ -14,6 +11,20 @@ const trayManager = require('./tray-manager');
 const itemHandler = require('./item-handler');
 const ipcHandler = require('./ipc-handler');
 const i18n = require('../shared/i18n');
+
+// 只允许一个实例运行
+const singleInstanceLock = app.requestSingleInstanceLock();
+if (!singleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // 当第二个实例试图启动时，聚焦到主窗口
+    windowManager.showMainWindow();
+  });
+}
+
+// 添加一个标志，用于区分应用是要退出还是只是关闭主窗口
+app.isQuitting = false;
 
 // 存储当前注册的全局快捷键
 let currentRegisteredShortcut = null;
@@ -25,10 +36,10 @@ let currentRegisteredShortcut = null;
 function registerGlobalShortcuts() {
   // 注销之前可能注册的快捷键
   unregisterGlobalShortcuts();
-  
+
   // 加载快捷键配置
   const shortcutConfig = dataStore.getAppConfig().shortcut;
-  
+
   // 如果启用了全局快捷键，则注册
   if (shortcutConfig.enabled && shortcutConfig.shortcut) {
     try {
@@ -76,7 +87,7 @@ function initializeLanguage() {
   // 从配置文件中获取语言设置
   const appConfig = dataStore.getAppConfig();
   let selectedLanguage;
-  
+
   // 根据配置决定使用哪种语言
   if (appConfig.language && appConfig.language !== "system") {
     // 使用用户配置的语言
@@ -87,13 +98,13 @@ function initializeLanguage() {
     selectedLanguage = i18n.getSystemLanguage();
     console.log(`使用系统语言: ${selectedLanguage}`);
   }
-  
+
   // 设置为全局语言变量，以便在创建新窗口时使用
   global.appLanguage = selectedLanguage;
-  
+
   // 初始化i18n模块
   i18n.setLanguage(selectedLanguage);
-  
+
   console.log(`应用语言初始化为: ${selectedLanguage}`);
 }
 
@@ -105,10 +116,10 @@ function initializeTheme() {
   // 从配置文件中获取主题设置
   const appConfig = dataStore.getAppConfig();
   const theme = appConfig.theme || "system";
-  
+
   // 设置为全局主题变量，以便在创建新窗口时使用
   global.appTheme = theme;
-  
+
   console.log(`应用主题初始化为: ${theme}`);
 }
 
@@ -117,27 +128,27 @@ app.whenReady().then(() => {
   // 首先加载应用配置
   dataStore.loadItems();
   dataStore.loadAppConfig();
-  
+
   // 初始化应用语言和主题
   initializeLanguage();
   initializeTheme();
-  
+
   // 创建主窗口
   windowManager.createMainWindow();
-  
+
   // 创建系统托盘图标
   trayManager.createTray(windowManager.toggleMainWindow);
   updateTrayMenuWithItems();
-  
+
   // 注册全局快捷键
   registerGlobalShortcuts();
-  
+
   // 设置IPC通信处理器 - 用于主进程和渲染进程间通信
   ipcHandler.setupIpcHandlers();
-  
+
   // 在数据存储中添加更新回调，确保数据变化时托盘菜单同步更新
   dataStore.addChangeListener(updateTrayMenuWithItems);
-  
+
   // 添加快捷键配置变化监听器
   dataStore.addShortcutChangeListener(config => {
     registerGlobalShortcuts();
