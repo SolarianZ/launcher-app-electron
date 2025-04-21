@@ -78,6 +78,7 @@ body {
 /* 标题栏 */
 .title-bar {
     height: 30px;
+    flex-shrink: 0;
     background-color: var(--title-bar-bg);
     display: flex;
     align-items: center;
