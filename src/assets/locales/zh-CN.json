@@ -63,6 +63,7 @@
   "folder": "文件夹",
   "url": "URL",
   "command": "指令",
+  "command-tip": "若要执行多行指令，将其写入文件，然后执行该文件",
   "select-file": "选择文件",
   "select-folder": "选择文件夹",
   "enter-path-required": "请输入路径或命令",

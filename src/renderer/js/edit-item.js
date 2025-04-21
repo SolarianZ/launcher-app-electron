@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelBtn = document.getElementById("cancel-btn");
   const selectFileBtn = document.getElementById("select-file-btn");
   const selectFolderBtn = document.getElementById("select-folder-btn");
+  const commandTip = document.getElementById("command-tip");
 
   // 导入i18n模块、PathType常量
   const i18n = window.electronAPI.i18n;
@@ -44,11 +45,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       // 填充表单数据
       itemPathInput.value = item.path;
       itemTypeSelect.value = item.type;
-
       // 如果有名称，填充名称字段
       if (item.name) {
         itemNameInput.value = item.name;
       }
+
+      updateCommandTipVisibility();
 
       // 启用保存按钮
       saveBtn.disabled = false;
@@ -59,7 +61,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 默认情况下(新增模式)，让路径输入框获得焦点
     setTimeout(() => itemPathInput.focus(), 100);
+
+    // 根据当前选择的类型控制提示信息的显示/隐藏
+    updateCommandTipVisibility();
   }
+
+  /**
+   * 更新命令提示信息的可见性
+   * 仅当类型为"指令"时显示提示
+   */
+  function updateCommandTipVisibility() {
+    commandTip.style.display = itemTypeSelect.value === PathType.COMMAND ? "block" : "none";
+  }
+
+  /**
+   * 项目类型选择变更事件
+   * 控制命令提示信息的显示/隐藏
+   */
+  itemTypeSelect.addEventListener("change", () => {
+    updateCommandTipVisibility();
+  });
 
   /**
    * 阻止在路径输入框中输入换行符
@@ -116,6 +137,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         itemPathInput.value = result.filePath;
         // 自动设置类型为文件
         itemTypeSelect.value = PathType.FILE;
+        // 更新命令提示可见性
+        updateCommandTipVisibility();
         saveBtn.disabled = false;
       }
     } catch (error) {
@@ -136,6 +159,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         itemPathInput.value = result.filePath;
         // 自动设置类型为文件夹
         itemTypeSelect.value = PathType.FOLDER;
+        // 更新命令提示可见性
+        updateCommandTipVisibility();
         saveBtn.disabled = false;
       }
     } catch (error) {
@@ -159,6 +184,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       saveBtn.disabled = false;
       // 自动设置类型
       itemTypeSelect.value = type;
+      // 更新命令提示可见性
+      updateCommandTipVisibility();
     } else {
       // 无效路径，禁用添加按钮
       saveBtn.disabled = true;

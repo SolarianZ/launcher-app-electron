@@ -63,6 +63,7 @@
   "folder": "Folder",
   "url": "URL",
   "command": "Command",
+  "command-tip": "To execute multi-line commands, write them to a file and then execute that file",
   "select-file": "Select file",
   "select-folder": "Select folder",
   "enter-path-required": "Please enter a path or command",
