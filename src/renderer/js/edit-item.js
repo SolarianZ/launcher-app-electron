@@ -52,14 +52,58 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // 启用保存按钮
       saveBtn.disabled = false;
-      
+
       // 让路径输入框获得焦点
       setTimeout(() => itemPathInput.focus(), 100);
     });
-    
+
     // 默认情况下(新增模式)，让路径输入框获得焦点
     setTimeout(() => itemPathInput.focus(), 100);
   }
+
+  /**
+   * 阻止在路径输入框中输入换行符
+   * 当用户按下Enter键时，阻止默认行为
+   */
+  itemPathInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+    }
+  });
+
+  /**
+   * 确保粘贴到路径输入框的内容不包含换行符
+   */
+  itemPathInput.addEventListener("paste", (e) => {
+    // 阻止默认粘贴行为
+    e.preventDefault();
+
+    // 获取剪贴板数据
+    let pasteData = (e.clipboardData || window.clipboardData).getData("text");
+
+    // 移除所有换行符
+    if (pasteData) {
+
+      // 替换所有换行符（\n, \r, \r\n）为空格
+      pasteData = pasteData.replace(/[\r\n]+/g, " ");
+
+      // 在当前光标位置插入处理后的文本
+      const selectionStart = itemPathInput.selectionStart;
+      const selectionEnd = itemPathInput.selectionEnd;
+      const currentValue = itemPathInput.value;
+
+      itemPathInput.value = currentValue.substring(0, selectionStart) +
+        pasteData +
+        currentValue.substring(selectionEnd);
+
+      // 更新光标位置
+      itemPathInput.selectionStart = itemPathInput.selectionEnd =
+        selectionStart + pasteData.length;
+
+      // 手动触发input事件以更新验证
+      itemPathInput.dispatchEvent(new Event("input"));
+    }
+  });
 
   /**
    * 文件选择按钮点击事件
