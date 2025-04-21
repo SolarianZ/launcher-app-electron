@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input");
   const listContainer = document.getElementById("list-container");
   const settingsButton = document.getElementById("settings-button");
-  
+
   // 导入i18n模块
   const i18n = window.electronAPI.i18n;
 
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       listContainer.innerHTML = `<div class="empty-list-message">
         <div class="empty-text" data-i18n="empty-list">点击 + 按钮添加新的条目</div>
       </div>`;
-      
+
       // 更新空列表消息的翻译
       await window.uiUtils.updatePageTexts(i18n);
     }
@@ -224,10 +224,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function filterItems(query) {
     const filteredItems = query
       ? currentItems.filter(
-          (item) =>
-            (item.name && item.name.toLowerCase().includes(query)) ||
-            item.path.toLowerCase().includes(query)
-        )
+        (item) =>
+          (item.name && item.name.toLowerCase().includes(query)) ||
+          item.path.toLowerCase().includes(query)
+      )
       : currentItems;
 
     renderItems(filteredItems);
@@ -322,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const containerRect = listContainer.getBoundingClientRect();
       const mouseY = e.clientY;
-      
+
       // 判断是否需要向上滚动
       if (mouseY < containerRect.top + SCROLL_THRESHOLD) {
         stopAutoScroll();

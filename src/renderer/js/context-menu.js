@@ -32,8 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 获取项目数据
         const index = parseInt(target.dataset.index);
-        const items = JSON.parse(localStorage.getItem("cachedItems") || "[]");
-        const item = items[index];
+        const currentItems = await window.electronAPI.getItems();
+        const item = currentItems[index];
         
         if (!item) return;
 

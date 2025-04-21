@@ -137,18 +137,13 @@ launcher-app-electron/
 此项目是 Electron 和 Web 技术的示例项目，需要遵守以下规范，以便入门者阅读学习。
 
 1. 注重代码质量和可读性，使用有意义的变量和函数名称。
-
 2. 添加详细的注释，尤其是处理平台特定代码时。
-
 3. 分离关注点，将不同功能模块化处理。
-
 4. 使用异步编程处理IO操作，避免阻塞主线程。
-
 5. 使用预加载脚本来安全地暴露API，而不是直接启用nodeIntegration。
-
 6. 避免代码重复，将常用功能提取为模块或共享函数。
-
 7. 保持代码的一致性，不要在项目中维护多个具有相同功能的文件。
+8. 使用配置文件存储数据，不要使用localStorage。
 
 ### 代码优化建议
 
@@ -233,11 +228,6 @@ launcher-app-electron/
      - `message` - 提示内容
      - `isError` - 是否为错误提示，默认false
      - `duration` - 显示时长(毫秒)，默认2000毫秒
-
-2. **UI工具API (ui-utils.js)**
-   - `window.uiUtils.applyTheme(theme, container)` - 应用主题
-   - `window.uiUtils.updatePageTexts(i18n)` - 更新页面文本
-   - `window.uiUtils.setupSystemThemeListener(container)` - 设置系统主题监听
 
 ## 通用操作流程
 
