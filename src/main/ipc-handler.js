@@ -3,7 +3,7 @@
  * 负责处理主进程和渲染进程之间的所有通信
  * 所有渲染进程通过预加载脚本暴露的API与主进程通信
  */
-const { ipcMain, dialog } = require('electron');
+const { ipcMain, dialog, app } = require('electron');
 
 // 导入其他模块
 const windowManager = require('./window-manager');
@@ -174,7 +174,7 @@ function setupIpcHandlers() {
     if (editItemWindow && !editItemWindow.isDestroyed()) {
       editItemWindow.webContents.send('theme-changed', theme);
     }
-    
+
     // 存储主题设置到全局变量，以便在创建新窗口时使用
     global.appTheme = theme;
   });
@@ -309,6 +309,29 @@ function setupIpcHandlers() {
     } catch (error) {
       return { success: false, message: `${i18n.t('shortcut-invalid')}: ${error.message}` };
     }
+  });
+
+  /**
+   * 获取和更新自启动配置
+   */
+  ipcMain.handle('get-auto-launch-config', () => {
+    return dataStore.getAppConfig().autoLaunch;
+  });
+
+  ipcMain.handle('update-auto-launch-config', (event, config) => {
+    // 更新自启动设置
+    const result = dataStore.updateAutoLaunchConfig(config);
+    if (result) {
+      app.setLoginItemSettings({
+        openAtLogin: config.enabled,
+        openAsHidden: true,
+        args: ['--autostart']
+      });
+
+      console.log('AutoLaunch updated:', config.enabled ? 'enabled' : 'disabled');
+    }
+
+    return result;
   });
 }
 

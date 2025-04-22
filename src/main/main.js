@@ -123,6 +123,36 @@ function initializeTheme() {
   console.log(`Application theme initialized to: ${theme}`);
 }
 
+/**
+ * 更新自启动设置
+ * 根据配置更新应用是否开机启动
+ * @param {boolean} enabled 是否启用自启动
+ */
+function updateAutoLaunchSettings(enabled) {
+  try {
+    // 使用Electron内置的设置登录项功能
+    app.setLoginItemSettings({
+      openAtLogin: enabled,
+      // 在macOS上，openAsHidden设为true可以在开机时以隐藏状态启动应用
+      openAsHidden: true,
+      // 仅在Windows上支持的参数
+      args: ['--autostart']
+    });
+    console.log(`Auto launch ${enabled ? 'enabled' : 'disabled'}`);
+  } catch (error) {
+    console.error('Error setting auto launch:', error);
+  }
+}
+
+/**
+ * 初始化自启动设置
+ */
+function initializeAutoLaunch() {
+  const appConfig = dataStore.getAppConfig();
+  const autoLaunchEnabled = appConfig.autoLaunch?.enabled || false;
+  updateAutoLaunchSettings(autoLaunchEnabled);
+}
+
 // 应用初始化 - 当Electron完成初始化并准备创建浏览器窗口时触发
 app.whenReady().then(() => {
   // 首先加载应用配置
@@ -132,6 +162,9 @@ app.whenReady().then(() => {
   // 初始化应用语言和主题
   initializeLanguage();
   initializeTheme();
+  
+  // 初始化自启动设置
+  initializeAutoLaunch();
 
   // 创建主窗口
   windowManager.createMainWindow();

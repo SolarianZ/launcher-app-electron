@@ -146,6 +146,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
   testShortcut: (shortcut) => ipcRenderer.invoke("test-shortcut", shortcut),
 
   /**
+   * 自启动配置相关API
+   * 获取和更新自启动配置
+   */
+  getAutoLaunchConfig: () => ipcRenderer.invoke("get-auto-launch-config"),
+  updateAutoLaunchConfig: (config) => ipcRenderer.invoke("update-auto-launch-config", config),
+
+  /**
    * 平台信息API
    * 获取当前运行平台信息(win32、darwin、linux)
    */

@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const recordShortcutBtn = document.getElementById("record-shortcut-btn");
   const resetShortcutBtn = document.getElementById("reset-shortcut-btn");
 
+  // 自启动设置元素引用
+  const enableAutoLaunchCheckbox = document.getElementById("enable-auto-launch");
+
   const modalContainer = document.querySelector(".modal");
 
   // 初始化UI管理器
@@ -38,6 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 加载快捷键设置
   await loadShortcutSettings();
+
+  // 加载自启动设置
+  await loadAutoLaunchSetting();
 
   /**
    * 事件监听设置部分
@@ -122,6 +128,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   reportIssueLink.addEventListener("click", (e) => {
     e.preventDefault();
     window.electronAPI.openExternalLink("https://github.com/SolarianZ/launcher-app-electron/issues");
+  });
+
+  /**
+   * 启用自启动复选框变化事件
+   * 保存设置并更新系统配置
+   */
+  enableAutoLaunchCheckbox.addEventListener("change", async () => {
+    try {
+      const result = await window.electronAPI.updateAutoLaunchConfig({
+        enabled: enableAutoLaunchCheckbox.checked
+      });
+      if (result) {
+        window.uiManager.showToast(await i18n.t(
+          enableAutoLaunchCheckbox.checked ? "auto-launch-enabled" : "auto-launch-disabled"
+        ));
+      } else {
+        window.uiManager.showToast(await i18n.t("auto-launch-update-failed"), true);
+      }
+    } catch (error) {
+      console.error("Error updating auto launch config:", error);
+      window.uiManager.showToast(await i18n.t("auto-launch-update-failed"), true);
+    }
   });
 
   /**
@@ -223,6 +251,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateShortcutInputState();
     } catch (error) {
       console.error("Error loading shortcut settings:", error);
+    }
+  }
+
+  /**
+   * 加载自启动设置
+   * 从主进程获取自启动设置并设置到界面
+   */
+  async function loadAutoLaunchSetting() {
+    try {
+      const config = await window.electronAPI.getAutoLaunchConfig();
+      enableAutoLaunchCheckbox.checked = config.enabled;
+    } catch (error) {
+      console.error("Error loading auto-launch setting:", error);
     }
   }
 

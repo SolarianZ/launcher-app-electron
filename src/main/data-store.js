@@ -45,6 +45,12 @@ let appConfig = {
   shortcut: {
     enabled: true,
     shortcut: "Alt+Shift+Q"
+  },
+  /**
+   * 自启动配置
+   */
+  autoLaunch: {
+    enabled: false
   }
 };
 
@@ -316,6 +322,16 @@ function updateShortcutConfig(config) {
 }
 
 /**
+ * 更新自启动配置
+ * @param {Object} config 新的自启动配置
+ * @returns {boolean} 是否保存成功
+ */
+function updateAutoLaunchConfig(config) {
+  appConfig.autoLaunch = { ...appConfig.autoLaunch, ...config };
+  return saveAppConfig();
+}
+
+/**
  * 添加快捷键配置变化监听器
  * @param {Function} listener 监听函数
  */
@@ -371,6 +387,9 @@ module.exports = {
   updateShortcutConfig,
   addShortcutChangeListener,
   removeShortcutChangeListener,
+
+  // 自启动配置
+  updateAutoLaunchConfig,
 
   // 列表条目
   getItems,
