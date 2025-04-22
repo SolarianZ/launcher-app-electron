@@ -39,6 +39,15 @@
       "target": "nsis",
       "icon": "src/assets/icons/app-icon.ico"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Launcher",
+      "perMachine": false,
+      "allowElevation": true
+    },
     "mac": {
       "target": "dmg",
       "icon": "src/assets/icons/app-icon.icns"
