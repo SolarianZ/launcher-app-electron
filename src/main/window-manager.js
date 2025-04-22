@@ -25,7 +25,7 @@ let settingsWindow = null;  // 添加设置窗口引用
  * 创建主窗口
  * @returns {BrowserWindow} 创建的主窗口对象
  */
-function createMainWindow() {
+function createMainWindow(showOnReady = true) {
   // 如果主窗口已存在，则返回现有窗口
   if (mainWindow && !mainWindow.isDestroyed()) {
     return mainWindow;
@@ -78,7 +78,8 @@ function createMainWindow() {
 
   // 窗口内容准备好后再显示，避免白屏
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
+    if (showOnReady)
+      mainWindow.show();
   });
 
   // 不在任务栏显示图标

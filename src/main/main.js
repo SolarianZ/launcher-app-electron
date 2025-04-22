@@ -142,12 +142,13 @@ app.whenReady().then(() => {
   // 初始化应用语言和主题
   initializeLanguage();
   initializeTheme();
-  
+
   // 初始化自启动设置
   initializeAutoLaunch();
 
   // 创建主窗口
-  windowManager.createMainWindow();
+  const isAutoLaunch = process.argv.includes('--autostart');
+  windowManager.createMainWindow(!isAutoLaunch); // 开机自启时，静默启动到托盘
 
   // 创建系统托盘图标
   trayManager.createTray(windowManager.showMainWindow);
