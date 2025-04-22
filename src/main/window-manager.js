@@ -237,27 +237,7 @@ function closeSettingsWindow() {
 }
 
 /**
- * 切换主窗口显示状态
- */
-function toggleMainWindow() {
-  // 检查窗口是否存在且未被销毁
-  if (!mainWindow || mainWindow.isDestroyed()) {
-    // 如果窗口不存在或已销毁，则创建新窗口
-    createMainWindow();
-    return;
-  }
-
-  if (mainWindow.isVisible()) {
-    mainWindow.hide();
-  } else {
-    mainWindow.show();
-    mainWindow.focus();
-  }
-}
-
-/**
  * 显示主窗口（如不存在则创建）
- * 与toggleMainWindow不同，此函数只会显示窗口，不会隐藏窗口
  */
 function showMainWindow() {
   // 检查窗口是否存在且未被销毁
@@ -330,7 +310,6 @@ module.exports = {
   createAddItemWindow,
   createEditItemWindow,
   createSettingsWindow,
-  toggleMainWindow,
   showMainWindow,
   closeAddItemWindow,
   closeSettingsWindow,

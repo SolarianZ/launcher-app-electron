@@ -12,10 +12,10 @@ let tray = null;
 
 /**
  * 创建系统托盘
- * @param {Function} toggleMainWindow 切换主窗口显示的函数
+ * @param {Function} onClickTray 托盘点击行为
  * @returns {Tray} 创建的托盘对象
  */
-function createTray(toggleMainWindow) {
+function createTray(onClickTray) {
   if (tray) {
     return tray;
   }
@@ -58,17 +58,16 @@ function createTray(toggleMainWindow) {
   /**
    * 设置托盘点击行为
    * 注意: 在Linux平台上通常只响应右击显示菜单，此处点击事件在某些发行版可能无效
-   * 在Windows和macOS上，点击托盘图标可以切换主窗口显示状态
    */
   tray.on('click', () => {
-    toggleMainWindow();
+    onClickTray();
   });
 
   // 监听语言变更事件
   i18n.addLanguageChangeListener((language) => {
     console.log(`Tray language changed to: ${language}`);
     tray.setToolTip(i18n.t('app-name'));
-    
+
     // 如果有最新的项目列表，刷新托盘菜单
     if (lastItemsRef && lastHandlerRef) {
       updateTrayMenu(lastItemsRef, lastHandlerRef);
@@ -89,7 +88,7 @@ let lastHandlerRef = null;
  */
 function updateTrayMenu(items, handleItemAction) {
   if (!tray) return;
-  
+
   // 保存最新的引用，用于语言更新时重建菜单
   lastItemsRef = items;
   lastHandlerRef = handleItemAction;

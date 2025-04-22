@@ -137,7 +137,7 @@ app.whenReady().then(() => {
   windowManager.createMainWindow();
 
   // 创建系统托盘图标
-  trayManager.createTray(windowManager.toggleMainWindow);
+  trayManager.createTray(windowManager.showMainWindow);
   updateTrayMenuWithItems();
 
   // 注册全局快捷键
