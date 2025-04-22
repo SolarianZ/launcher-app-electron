@@ -10,6 +10,7 @@ const windowManager = require('./window-manager');
 const dataStore = require('./data-store');
 const itemHandler = require('./item-handler');
 const i18n = require('../shared/i18n');
+const app_utils = require('../shared/app_utils');
 
 /**
  * 设置所有 IPC 通信处理器
@@ -322,13 +323,7 @@ function setupIpcHandlers() {
     // 更新自启动设置
     const result = dataStore.updateAutoLaunchConfig(config);
     if (result) {
-      app.setLoginItemSettings({
-        openAtLogin: config.enabled,
-        openAsHidden: true,
-        args: ['--autostart']
-      });
-
-      console.log('AutoLaunch updated:', config.enabled ? 'enabled' : 'disabled');
+      app_utils.updateAutoLaunchSettings(config.enabled);
     }
 
     return result;

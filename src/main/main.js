@@ -11,6 +11,7 @@ const trayManager = require('./tray-manager');
 const itemHandler = require('./item-handler');
 const ipcHandler = require('./ipc-handler');
 const i18n = require('../shared/i18n');
+const app_utils = require('../shared/app_utils');
 
 // 只允许一个实例运行
 const singleInstanceLock = app.requestSingleInstanceLock();
@@ -124,33 +125,12 @@ function initializeTheme() {
 }
 
 /**
- * 更新自启动设置
- * 根据配置更新应用是否开机启动
- * @param {boolean} enabled 是否启用自启动
- */
-function updateAutoLaunchSettings(enabled) {
-  try {
-    // 使用Electron内置的设置登录项功能
-    app.setLoginItemSettings({
-      openAtLogin: enabled,
-      // 在macOS上，openAsHidden设为true可以在开机时以隐藏状态启动应用
-      openAsHidden: true,
-      // 仅在Windows上支持的参数
-      args: ['--autostart']
-    });
-    console.log(`Auto launch ${enabled ? 'enabled' : 'disabled'}`);
-  } catch (error) {
-    console.error('Error setting auto launch:', error);
-  }
-}
-
-/**
  * 初始化自启动设置
  */
 function initializeAutoLaunch() {
   const appConfig = dataStore.getAppConfig();
   const autoLaunchEnabled = appConfig.autoLaunch?.enabled || false;
-  updateAutoLaunchSettings(autoLaunchEnabled);
+  app_utils.updateAutoLaunchSettings(autoLaunchEnabled);
 }
 
 // 应用初始化 - 当Electron完成初始化并准备创建浏览器窗口时触发
