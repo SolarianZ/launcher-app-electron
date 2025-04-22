@@ -144,6 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           enableAutoLaunchCheckbox.checked ? "auto-launch-enabled" : "auto-launch-disabled"
         ));
       } else {
+        enableAutoLaunchCheckbox.checked = !enableAutoLaunchCheckbox.checked;
         window.uiManager.showToast(await i18n.t("auto-launch-update-failed"), true);
       }
     } catch (error) {

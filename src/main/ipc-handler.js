@@ -320,6 +320,12 @@ function setupIpcHandlers() {
   });
 
   ipcMain.handle('update-auto-launch-config', (event, config) => {
+    // 开发环境禁止设置自启动
+    if (config.enabled && !app.isPackaged) {
+      console.error('Error enabling auto launch: Auto launch is disabled in development mode.');
+      return false;
+    }
+
     // 更新自启动设置
     const result = dataStore.updateAutoLaunchConfig(config);
     if (result) {
