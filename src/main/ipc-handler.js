@@ -10,7 +10,7 @@ const windowManager = require('./window-manager');
 const dataStore = require('./data-store');
 const itemHandler = require('./item-handler');
 const i18n = require('../shared/i18n');
-const app_utils = require('../shared/app_utils');
+const appUtils = require('../shared/appUtils');
 
 /**
  * 设置所有 IPC 通信处理器
@@ -320,16 +320,10 @@ function setupIpcHandlers() {
   });
 
   ipcMain.handle('update-auto-launch-config', (event, config) => {
-    // 开发环境禁止设置自启动
-    if (config.enabled && !app.isPackaged) {
-      console.error('Error enabling auto launch: Auto launch is disabled in development mode.');
-      return false;
-    }
-
     // 更新自启动设置
-    const result = dataStore.updateAutoLaunchConfig(config);
+    const result = appUtils.updateAutoLaunchSettings(config.enabled);
     if (result) {
-      app_utils.updateAutoLaunchSettings(config.enabled);
+      dataStore.updateAutoLaunchConfig(config);
     }
 
     return result;

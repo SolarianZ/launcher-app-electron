@@ -11,7 +11,7 @@ const trayManager = require('./tray-manager');
 const itemHandler = require('./item-handler');
 const ipcHandler = require('./ipc-handler');
 const i18n = require('../shared/i18n');
-const app_utils = require('../shared/app_utils');
+const appUtils = require('../shared/appUtils');
 
 // 只允许一个实例运行
 const singleInstanceLock = app.requestSingleInstanceLock();
@@ -130,7 +130,7 @@ function initializeTheme() {
 function initializeAutoLaunch() {
   const appConfig = dataStore.getAppConfig();
   const autoLaunchEnabled = appConfig.autoLaunch?.enabled || false;
-  app_utils.updateAutoLaunchSettings(autoLaunchEnabled);
+  appUtils.updateAutoLaunchSettings(autoLaunchEnabled);
 }
 
 // 应用初始化 - 当Electron完成初始化并准备创建浏览器窗口时触发
