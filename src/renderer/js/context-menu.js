@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // 打开项目
         const openItem = document.createElement("div");
         openItem.className = "menu-item";
+        // TODO : 脚本文件的右键菜单改为“执行”，unix平台可能要检测文件是否有执行权限
         openItem.textContent = await i18n.t("open");
         openItem.addEventListener("click", () => {
             window.electronAPI.openItem(item);
