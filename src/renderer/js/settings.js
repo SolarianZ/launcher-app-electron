@@ -383,7 +383,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const hasRequiredModifier = pressedKeys.has("Control") || pressedKeys.has("Alt") || pressedKeys.has("Meta");
       if (!hasRequiredModifier) {
         // 如果不含必需的修饰键，显示错误消息
-        // TODO: macOS需要显示 shortcut-need-modifier-macos
         window.uiManager.showToast(await i18n.t("shortcut-need-modifier"), true);
 
         // 恢复上次的有效值
