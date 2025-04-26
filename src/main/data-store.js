@@ -140,13 +140,11 @@ function addItem(item) {
   // 检查是否已存在相同路径的项目
   const exists = items.some((i) => i.path === item.path);
   if (exists) {
-    // TODO 这里的message需要多语言？
     return { success: false, message: "Item already exists" };
   }
 
   items.push(item);
   const saved = saveItems();
-  // TODO 这里的message需要多语言？
   return { success: saved, message: saved ? "" : "Save failed" };
 }
 
@@ -158,13 +156,11 @@ function addItem(item) {
  */
 function updateItem(index, updatedItem) {
   if (index < 0 || index >= items.length) {
-    // TODO 这里的message需要多语言？
     return { success: false, message: "Item does not exist" };
   }
 
   items[index] = updatedItem;
   const saved = saveItems();
-  // TODO 这里的message需要多语言？
   return { success: saved, message: saved ? "" : "Save failed" };
 }
 
@@ -175,13 +171,11 @@ function updateItem(index, updatedItem) {
  */
 function removeItem(index) {
   if (index < 0 || index >= items.length) {
-    // TODO 这里的message需要多语言？
     return { success: false, message: "Item does not exist" };
   }
 
   items.splice(index, 1);
   const saved = saveItems();
-  // TODO 这里的message需要多语言？
   return { success: saved, message: saved ? "" : "Save failed" };
 }
 
@@ -193,7 +187,6 @@ function removeItem(index) {
 function updateItemsOrder(newItems) {
   items = newItems;
   const saved = saveItems();
-  // TODO 这里的message需要多语言？
   return { success: saved, message: saved ? "" : "Save failed" };
 }
 
@@ -212,7 +205,6 @@ function getItems() {
 function clearAllItems() {
   items = [];
   const saved = saveItems();
-  // TODO 这里的message需要多语言？
   return { success: saved, message: saved ? "" : "Clear failed" };
 }
 
