@@ -16,8 +16,8 @@
   },
   "build": {
     "appId": "com.zqy.launcher-app",
-    "productName": "Launcher App",
-    "executableName": "launcher_app",
+    "productName": "Launcher",
+    "executableName": "Launcher",
     "files": [
       "src/**/*",
       "package.json",
