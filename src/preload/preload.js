@@ -63,7 +63,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     };
   },
 
-  // 监听编辑条目数据
+  // 监听编辑项目数据
   onEditItemData: (callback) => {
     const listener = (event, data) => callback(data);
     ipcRenderer.on("edit-item-data", listener);

@@ -391,7 +391,7 @@ module.exports = {
   // 自启动配置
   updateAutoLaunchConfig,
 
-  // 列表条目
+  // 列表项目
   getItems,
   loadItems,
   saveItems,

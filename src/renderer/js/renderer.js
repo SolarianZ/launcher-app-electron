@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // 显示空列表消息
       listContainer.innerHTML = `<div class="empty-list-message">
-        <div class="empty-text" data-i18n="empty-list">点击 + 按钮添加新的条目</div>
+        <div class="empty-text" data-i18n="empty-list">点击 + 按钮添加新的项目</div>
       </div>`;
 
       // 更新空列表消息的翻译

@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 应用主题和语言设置，设置事件监听器
    */
   async function initPage() {
-    // 监听编辑条目数据事件，注意要在其他异步操作之前注册监听器，避免错过事件窗口
+    // 监听编辑项目数据事件，注意要在其他异步操作之前注册监听器，避免错过事件窗口
     window.electronAPI.onEditItemData(({ item, index }) => {
       console.log("Editing item data:", item, index);
       // 进入编辑模式
@@ -231,10 +231,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // 根据模式决定是更新还是添加
       if (isEditMode) {
-        // 编辑现有条目
+        // 编辑现有项目
         result = await window.electronAPI.updateItem(editingItemIndex, newItem);
       } else {
-        // 添加新条目
+        // 添加新项目
         result = await window.electronAPI.addItem(newItem);
       }
 
