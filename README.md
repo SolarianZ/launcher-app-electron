@@ -1,81 +1,83 @@
 # Launcher App
 
-> 🚀 快速访问常用文件、文件夹、URL 和命令的桌面启动器应用
+[中文](./README_zh.md)
 
-![使用Electron构建](https://img.shields.io/badge/Built%20with-Electron-47848F)
-![MIT许可证](https://img.shields.io/badge/License-MIT-green)
+> 🚀 A desktop launcher application for quick access to frequently used files, folders, URLs, and commands
+
+![Built with Electron](https://img.shields.io/badge/Built%20with-Electron-47848F)
+![MIT License](https://img.shields.io/badge/License-MIT-green)
 
 ![Main Window](./doc/imgs/launcher_app_main_window.png)
 
-## 📋 项目简介
+## 📋 Project Introduction
 
-Launcher App 是一款基于 Electron 开发的桌面快速启动器工具，帮助用户快速访问常用的文件、文件夹、网站和命令。
+Launcher App is a desktop quick launcher tool developed with Electron, helping users quickly access commonly used files, folders, websites, and commands.
 
-> ⚠️ **声明：** 
-> 1. 本项目的代码主要由人工智能辅助生成。项目结构、功能实现及界面设计均使用了 AI 技术。
-> 2. 此文档内容亦主要由 AI 生成。
-> 3. 软件未经严格测试。
+> ⚠️ **Disclaimer:** 
+> 1. The code of this project is mainly generated with AI assistance. The project structure, functionality implementation, and interface design all used AI technology.
+> 2. This document content is also mainly AI-generated.
+> 3. The software has not been rigorously tested.
 
-## ✨ 主要功能
+## ✨ Main Features
 
-- 🗂️ 添加和管理多种类型的项目
-  - 文件
-  - 文件夹
-  - 网址和 Deep Link
-  - 命令行指令
-- 🔍 快速搜索项目
-- 🖱️ 支持拖放文件/文件夹直接添加
-- 📋 右键菜单提供丰富操作选项
-- 🌓 支持深色和浅色主题
-- 🌍 支持多语言
-  - 内置中文、英文支持
-  - 可以通过添加翻译文件来支持更多语言
-- ⌨️ 自定义全局快捷键呼出应用（默认是Alt+Shift+Q）
-- 🧩 系统托盘集成，显示最近使用的项目
-- 🔄 支持拖拽重新排序列表
-- ⚡ 通过双击或回车快速打开项目
-- 💬 跨平台支持 (Windows, macOS, Linux，未严格测试)
+- 🗂️ Add and manage multiple types of items
+  - Files
+  - Folders
+  - URLs and Deep Links
+  - Command line instructions
+- 🔍 Quick item search
+- 🖱️ Support drag and drop to add files/folders
+- 📋 Rich operations through right-click menu
+- 🌓 Support dark and light themes
+- 🌍 Support for multiple languages
+  - Built-in Chinese and English support
+  - Support more languages by adding translation files
+- ⌨️ Custom global shortcut key to bring up the app (default is Alt+Shift+Q)
+- 🧩 System tray integration, showing recently used items
+- 🔄 Support drag and drop to reorder the list
+- ⚡ Quick open items with double-click or Enter key
+- 💬 Cross-platform support (Windows, macOS, Linux, not rigorously tested)
 
-## 📥 构建
+## 📥 Build
 
-1. 确保已安装 [Node.js](https://nodejs.org/) (推荐 22 LTS 或更高版本)
+1. Make sure you have [Node.js](https://nodejs.org/) installed (recommended 22 LTS or higher)
 
-2. 克隆仓库
+2. Clone the repository
 
 ```bash
 git clone https://github.com/SolarianZ/launcher-app-electron.git
 cd launcher-app-electron
 ```
 
-3. 安装依赖
+3. Install dependencies
 
 ```bash
 npm install
 ```
 
-4. 启动应用
+4. Start the application
 
 ```bash
 npm start
 ```
 
-### 📦 打包应用
+### 📦 Package the Application
 
-使用 electron-builder 打包为可分发的应用程序：
+Use electron-builder to package for distribution:
 
 ```bash
 npm run build
 ```
 
-生成的安装包将保存在 `dist` 目录中。
+The generated installation packages will be saved in the `dist` directory.
 
-## 🧩 技术实现
+## 🧩 Technical Implementation
 
-- **Electron**：跨平台桌面应用框架
-- **模块化架构**：主进程和渲染进程分离
-- **IPC通信**：进程间安全通信
-- **本地存储**：JSON文件持久化数据
-- **国际化**：多语言支持系统
-- **响应式UI**：适配不同尺寸和主题
+- **Electron**: Cross-platform desktop application framework
+- **Modular Architecture**: Separation of main process and renderer process
+- **IPC Communication**: Secure inter-process communication
+- **Local Storage**: JSON file for persistent data
+- **Internationalization**: Multi-language support system
+- **Responsive UI**: Adapts to different sizes and themes
 
-更多项目细节参考 [copilot-instructions](./.github/copilot-instructions.md) 。
+For more project details, refer to [copilot-instructions](./.github/copilot-instructions.md).
