@@ -56,6 +56,7 @@ function showToast(message, isError = false, duration = 2000) {
  * @param {string} options.containerSelector 主容器选择器，如 ".app-container" 或 ".modal"
  * @param {Function} options.onThemeChanged 主题变更时的回调函数 (可选)
  * @param {Function} options.onLanguageChanged 语言变更时的回调函数 (可选)
+ * @param {Function} options.onUIReady UI完全准备好时的回调函数 (可选)
  * @param {string} options.windowType 窗口类型，用于通知主进程 (可选，默认为'main')
  * @returns {Object} 解绑函数对象，用于在需要时移除事件监听
  */
@@ -110,11 +111,24 @@ async function initUI(options) {
   const themeCleanup = window.electronAPI.onThemeChanged(onThemeChangedHandler);
   const languageCleanup = window.electronAPI.onLanguageChanged(onLanguageChangedHandler);
 
-  // 7. 通知主进程UI已准备完成，可以显示窗口了
-  console.log(`UI initialized: ${windowType}`);
-  setTimeout(() => {
-    window.electronAPI.notifyUIReady(windowType);
-  }, 10); // 使用短暂延迟确保DOM完全渲染
+  // 7. 调用UI准备完成回调（如果提供了）
+  if (typeof options.onUIReady === 'function') {
+    console.log("UI ready, calling onUIReady callback");
+    // 确保UI元素都已经渲染完成
+    setTimeout(async () => {
+      await options.onUIReady();
+      
+      // 8. 通知主进程UI已准备完成，可以显示窗口了
+      console.log(`UI initialized and ready: ${windowType}`);
+      window.electronAPI.notifyUIReady(windowType);
+    }, 10);
+  } else {
+    // 如果没有提供onUIReady回调，直接通知主进程
+    console.log(`UI initialized: ${windowType}`);
+    setTimeout(() => {
+      window.electronAPI.notifyUIReady(windowType);
+    }, 10); // 使用短暂延迟确保DOM完全渲染
+  }
 
   // 返回解绑函数对象，用于在需要时移除事件监听
   return {

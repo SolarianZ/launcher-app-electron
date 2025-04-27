@@ -15,11 +15,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 当前项目列表(内存中存储)
   let currentItems = [];
+  
+  // 初始时将列表容器设置为不可见，避免主题应用前闪烁
+  listContainer.style.visibility = 'hidden';
+  // 设置占位符，保持布局，避免内容加载后出现跳动
+  listContainer.innerHTML = '<div class="loading-placeholder"></div>';
 
   // 初始化UI，保存返回的解绑函数对象
   const uiCleanup = window.uiManager.initUI({
     containerSelector: ".app-container",
-    windowType: "main" // 指定窗口类型为主窗口
+    windowType: "main", // 指定窗口类型为主窗口
+    onUIReady: async () => {
+      // UI准备好后，加载并显示项目列表
+      await initPage();
+      // 显示列表容器
+      listContainer.style.visibility = 'visible';
+    }
   });
 
   // 当页面卸载时清理监听器
@@ -28,9 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
       uiCleanup.unbindAll();
     }
   });
-
-  // 初始化页面
-  initPage();
 
   /**
    * 事件监听设置部分
