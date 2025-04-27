@@ -2,7 +2,7 @@
  * 窗口管理模块
  * 负责创建和管理应用程序中的所有窗口
  */
-const { BrowserWindow, app } = require('electron');
+const { BrowserWindow, app, nativeTheme } = require('electron');
 const path = require('path');
 const dataStore = require('./data-store');
 
@@ -20,6 +20,69 @@ const titleBarOverlay = {
 let mainWindow = null;
 let addItemWindow = null;
 let settingsWindow = null;  // 添加设置窗口引用
+
+/**
+ * 根据当前主题获取适当的窗口背景色
+ * @returns {string} 适合当前主题的背景色
+ */
+function getThemeBackgroundColor() {
+  const theme = global.appTheme || 'system';
+  
+  if (theme === 'light') {
+    return '#f5f5f5'; // 浅色主题背景色
+  } else if (theme === 'dark') {
+    return '#1e1e1e'; // 深色主题背景色
+  } else {
+    // 跟随系统
+    return nativeTheme.shouldUseDarkColors ? '#1e1e1e' : '#f5f5f5';
+  }
+}
+
+/**
+ * 执行窗口淡出动画
+ * 通过逐渐降低窗口透明度实现平滑淡出效果，避免在macOS上出现闪烁
+ * @param {BrowserWindow} window 需要淡出的窗口对象
+ * @param {Function} onComplete 动画完成后的回调函数
+ * @param {Object} options 动画选项
+ * @param {number} options.fadeStep 每次淡出的透明度步长，默认 0.1
+ * @param {number} options.fadeInterval 淡出动画的时间间隔(毫秒)，默认 10ms
+ */
+function fadeWindowOut(window, onComplete, options = {}) {
+  if (!window || window.isDestroyed()) {
+    return;
+  }
+
+  // 如果不是macOS，则跳过淡出动画直接执行回调
+  if (process.platform !== 'darwin') {
+    onComplete();
+    return;
+  }
+
+  // 动画参数
+  const fadeStep = options.fadeStep || 0.1;
+  const fadeInterval = options.fadeInterval || 10;
+
+  // 确保起始透明度为1
+  window.setOpacity(1.0);
+
+  // 执行淡出动画
+  const fade = () => {
+    if (!window || window.isDestroyed()) return;
+
+    let opacity = window.getOpacity() - fadeStep;
+    if (opacity > 0) {
+      window.setOpacity(opacity);
+      setTimeout(fade, fadeInterval);
+    } else {
+      // 完全透明后执行回调
+      window.setOpacity(0);
+      onComplete();
+    }
+  };
+
+  // 开始淡出动画
+  fade();
+}
 
 /**
  * 创建主窗口
@@ -56,6 +119,7 @@ function createMainWindow(showOnReady = true) {
     titleBarOverlay: titleBarOverlay,
     show: false, // 先创建隐藏窗口，等UI准备好后再显示，避免闪烁
     frame: false, // 无框窗口
+    backgroundColor: getThemeBackgroundColor(), // 添加暗色背景，避免白色闪烁
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
@@ -146,6 +210,7 @@ function createAddItemWindow() {
     fullscreenable: false,
     titleBarStyle: 'hidden',
     titleBarOverlay: titleBarOverlay,
+    backgroundColor: getThemeBackgroundColor(), // 添加背景色，避免白色闪烁
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
@@ -204,6 +269,7 @@ function createSettingsWindow() {
     titleBarStyle: 'hidden',
     titleBarOverlay: titleBarOverlay,
     parent: mainWindow,
+    backgroundColor: getThemeBackgroundColor(), // 添加背景色，避免白色闪烁
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
     },
@@ -222,11 +288,15 @@ function createSettingsWindow() {
 
 /**
  * 关闭设置窗口
+ * 使用平滑动画避免闪烁
  */
 function closeSettingsWindow() {
   if (settingsWindow && !settingsWindow.isDestroyed()) {
-    settingsWindow.close();
-    settingsWindow = null;
+    // 使用公共的淡出函数处理窗口关闭
+    fadeWindowOut(settingsWindow, () => {
+      settingsWindow.close();
+      settingsWindow = null;
+    });
   }
 }
 
@@ -248,20 +318,34 @@ function showMainWindow() {
 
 /**
  * 关闭添加/编辑项目窗口
+ * 使用平滑动画避免闪烁
  */
 function closeAddItemWindow() {
   if (addItemWindow && !addItemWindow.isDestroyed()) {
-    addItemWindow.close();
-    addItemWindow = null;
+    // 使用公共的淡出函数处理窗口关闭
+    fadeWindowOut(addItemWindow, () => {
+      addItemWindow.close();
+      addItemWindow = null;
+    });
   }
 }
 
 /**
  * 隐藏主窗口
+ * 在macOS上使用淡出动画避免闪烁
  */
 function hideMainWindow() {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.hide();
+    // 使用公共的淡出函数处理窗口隐藏
+    fadeWindowOut(mainWindow, () => {
+      mainWindow.hide();
+      // 重置透明度，以便下次显示
+      setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.setOpacity(1.0);
+        }
+      }, 100);
+    });
   }
 }
 
