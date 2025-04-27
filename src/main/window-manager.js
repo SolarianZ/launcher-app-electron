@@ -267,10 +267,11 @@ function hideMainWindow() {
 
 /**
  * 通知主窗口项目列表已更新
+ * @param {number} newItemIndex 新添加项目的索引（可选）
  */
-function notifyItemsUpdated() {
+function notifyItemsUpdated(newItemIndex) {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('items-updated');
+    mainWindow.webContents.send('items-updated', newItemIndex);
   }
 }
 

@@ -55,7 +55,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
    */
   // 监听列表更新事件
   onItemsUpdated: (callback) => {
-    const listener = (event) => callback();
+    const listener = (event, newItemIndex) => callback(newItemIndex);
     ipcRenderer.on("items-updated", listener);
 
     // 返回清理函数，用于移除事件监听，防止内存泄漏

@@ -64,8 +64,14 @@ function setupIpcHandlers() {
   ipcMain.handle('add-item', (event, item) => {
     const result = dataStore.addItem(item);
     if (result.success) {
-      // 通知所有窗口数据已更新
-      windowManager.notifyItemsUpdated();
+      // 获取新添加项目的索引（在数组末尾）
+      const itemIndex = dataStore.getItems().length - 1;
+      
+      // 通知所有窗口数据已更新，同时传递新添加的项目索引
+      windowManager.notifyItemsUpdated(itemIndex);
+      
+      // 返回结果时包含新项目的索引
+      return { ...result, itemIndex };
     }
     return result;
   });

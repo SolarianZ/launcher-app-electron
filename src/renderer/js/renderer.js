@@ -148,9 +148,14 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadItems();
 
     // 添加对列表更新的监听
-    window.electronAPI.onItemsUpdated(async () => {
-      console.log("Items updated, refreshing list...");
+    window.electronAPI.onItemsUpdated(async (newItemIndex) => {
+      console.log("Items updated, refreshing list...", newItemIndex ? `New item index: ${newItemIndex}` : "");
       await loadItems();
+      
+      // 如果有新添加的项目索引，选中并滚动到该项目
+      if (newItemIndex !== undefined) {
+        selectItemByIndex(newItemIndex);
+      }
     });
   }
 
@@ -424,6 +429,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // 确保项目可见
     const newActiveItem = items[nextIndex];
     newActiveItem.scrollIntoView({ block: "nearest" });
+  }
+
+  // 根据索引选中项目并确保其可见
+  function selectItemByIndex(index) {
+    // 先取消所有选中状态
+    document.querySelectorAll(".list-item.active").forEach(el => {
+      el.classList.remove("active");
+    });
+    
+    // 找到对应索引的项目
+    const targetItem = document.querySelector(`.list-item[data-index="${index}"]`);
+    
+    if (targetItem) {
+      // 选中该项目
+      targetItem.classList.add("active");
+      
+      // 确保项目在视图中可见（滚动到该项目）
+      targetItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
   }
 
   // 把loadItems和removeItem函数暴露到全局，供其他脚本使用
