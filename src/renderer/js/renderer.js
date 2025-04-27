@@ -138,6 +138,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const result = await window.electronAPI.addItem(newItem);
     if (result.success) {
       await loadItems();
+      // 如果成功添加，且有返回的索引，则直接使用这个索引
+      // result.itemIndex 包含了新添加的项目索引
+      if (result.itemIndex !== undefined) {
+        // 先刷新列表以确保项目显示
+        // 选中并滚动到该项目
+        selectItemByIndex(result.itemIndex);
+      }
     } else {
       window.uiManager.showToast(result.message, true);
     }
@@ -151,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.electronAPI.onItemsUpdated(async (newItemIndex) => {
       console.log("Items updated, refreshing list...", newItemIndex ? `New item index: ${newItemIndex}` : "");
       await loadItems();
-      
+
       // 如果有新添加的项目索引，选中并滚动到该项目
       if (newItemIndex !== undefined) {
         selectItemByIndex(newItemIndex);
@@ -437,14 +444,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".list-item.active").forEach(el => {
       el.classList.remove("active");
     });
-    
+
     // 找到对应索引的项目
     const targetItem = document.querySelector(`.list-item[data-index="${index}"]`);
-    
+
     if (targetItem) {
       // 选中该项目
       targetItem.classList.add("active");
-      
+
       // 确保项目在视图中可见（滚动到该项目）
       targetItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
