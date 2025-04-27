@@ -16,8 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // 当前项目列表(内存中存储)
   let currentItems = [];
 
-  // 初始化UI管理器，保存返回的解绑函数对象
-  const uiCleanup = window.uiManager.init({
+  // 初始化UI，保存返回的解绑函数对象
+  const uiCleanup = window.uiManager.initUI({
     containerSelector: ".app-container",
     windowType: "main" // 指定窗口类型为主窗口
   });

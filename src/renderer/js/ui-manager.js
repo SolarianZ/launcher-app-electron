@@ -59,7 +59,7 @@ function showToast(message, isError = false, duration = 2000) {
  * @param {string} options.windowType 窗口类型，用于通知主进程 (可选，默认为'main')
  * @returns {Object} 解绑函数对象，用于在需要时移除事件监听
  */
-async function initUIManager(options) {
+async function initUI(options) {
   if (!options || !options.containerSelector) {
     console.error("Error initialiing ui manager: missing required parameters");
     return;
@@ -135,6 +135,6 @@ async function initUIManager(options) {
 
 // 导出模块API
 window.uiManager = {
-  init: initUIManager,
+  initUI,
   showToast: showToast
 };

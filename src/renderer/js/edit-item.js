@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const i18n = window.electronAPI.i18n;
   const PathType = window.defines.PathType;
 
-  // 初始化UI管理器，保存返回的解绑函数对象
-  const uiCleanup = window.uiManager.init({
+  // 初始化UI，保存返回的解绑函数对象
+  const uiCleanup = window.uiManager.initUI({
     containerSelector: ".modal",
     windowType: "edit-item" // 指定窗口类型为项目编辑窗口
   });

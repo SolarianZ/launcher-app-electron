@@ -221,7 +221,7 @@ launcher-app-electron/
 除了通过预加载脚本暴露的API外，渲染进程还提供了以下内部API：
 
 1. **UI管理器API (ui-manager.js)**
-   - `window.uiManager.init(options)` - 初始化UI管理器
+   - `window.uiManager.initUI(options)` - 初始化UI
      - `options.containerSelector` - 主容器选择器
      - `options.onThemeChanged` - 主题变更回调 (可选)
      - `options.onLanguageChanged` - 语言变更回调 (可选)

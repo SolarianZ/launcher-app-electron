@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const modalContainer = document.querySelector(".modal");
 
-  // 初始化UI管理器，保存返回的解绑函数对象
-  const uiCleanup = window.uiManager.init({
+  // 初始化UI，保存返回的解绑函数对象
+  const uiCleanup = window.uiManager.initUI({
     containerSelector: ".modal",
     windowType: "settings" // 指定窗口类型为设置窗口
   });
