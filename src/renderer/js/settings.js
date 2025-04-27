@@ -25,10 +25,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const modalContainer = document.querySelector(".modal");
 
-  // 初始化UI管理器
-  window.uiManager.init({
+  // 初始化UI管理器，保存返回的解绑函数对象
+  const uiCleanup = window.uiManager.init({
     containerSelector: ".modal",
     windowType: "settings" // 指定窗口类型为设置窗口
+  });
+
+  // 当页面卸载时清理监听器
+  window.addEventListener('beforeunload', () => {
+    if (uiCleanup && typeof uiCleanup.unbindAll === 'function') {
+      uiCleanup.unbindAll();
+    }
   });
 
   // 初始化设置页面

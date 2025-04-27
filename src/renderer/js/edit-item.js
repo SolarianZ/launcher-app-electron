@@ -18,10 +18,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const i18n = window.electronAPI.i18n;
   const PathType = window.defines.PathType;
 
-  // 初始化UI管理器
-  window.uiManager.init({
+  // 初始化UI管理器，保存返回的解绑函数对象
+  const uiCleanup = window.uiManager.init({
     containerSelector: ".modal",
     windowType: "edit-item" // 指定窗口类型为项目编辑窗口
+  });
+
+  // 当页面卸载时清理监听器
+  window.addEventListener('beforeunload', () => {
+    if (uiCleanup && typeof uiCleanup.unbindAll === 'function') {
+      uiCleanup.unbindAll();
+    }
   });
 
   // 跟踪是否处于编辑模式
