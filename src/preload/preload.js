@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   closeAddItemWindow: () => ipcRenderer.send("close-add-item-window"),
   closeSettingsWindow: () => ipcRenderer.send("close-settings-window"),
   showSettingsWindow: () => ipcRenderer.send("show-settings-window"),
+  notifyUIReady: (windowType) => ipcRenderer.send("ui-ready", windowType),
 
   /**
    * 主题相关API

@@ -20,7 +20,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 初始化UI管理器
   window.uiManager.init({
-    containerSelector: ".modal"
+    containerSelector: ".modal",
+    windowType: "edit-item" // 指定窗口类型为项目编辑窗口
   });
 
   // 跟踪是否处于编辑模式

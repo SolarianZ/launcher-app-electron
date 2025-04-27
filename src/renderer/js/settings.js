@@ -27,7 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 初始化UI管理器
   window.uiManager.init({
-    containerSelector: ".modal"
+    containerSelector: ".modal",
+    windowType: "settings" // 指定窗口类型为设置窗口
   });
 
   // 初始化设置页面

@@ -54,7 +54,7 @@ function createMainWindow(showOnReady = true) {
      */
     titleBarStyle: 'hidden',
     titleBarOverlay: titleBarOverlay,
-    show: false, // 先创建隐藏窗口，准备完成后再显示，避免白屏
+    show: false, // 先创建隐藏窗口，等UI准备好后再显示，避免闪烁
     frame: false, // 无框窗口
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
@@ -76,11 +76,8 @@ function createMainWindow(showOnReady = true) {
   // 打开开发者工具
   // mainWindow.webContents.openDevTools();
 
-  // 窗口内容准备好后再显示，避免白屏
-  mainWindow.once('ready-to-show', () => {
-    if (showOnReady)
-      mainWindow.show();
-  });
+  // 注意：不再在这里显示窗口，而是等待渲染进程通知UI准备完成
+  // UI准备完成后会调用 showMainWindowWhenReady 函数
 
   // 不在任务栏显示图标
   // mainWindow.setSkipTaskbar(true);
@@ -156,9 +153,7 @@ function createAddItemWindow() {
 
   addItemWindow.loadFile(path.join(__dirname, '..', 'renderer', 'edit-item.html'));
 
-  addItemWindow.once('ready-to-show', () => {
-    addItemWindow.show();
-  });
+  // 注意：不再在ready-to-show事件中显示窗口，而是等待渲染进程通知UI准备完成
 
   addItemWindow.on('closed', () => {
     addItemWindow = null;
@@ -216,9 +211,7 @@ function createSettingsWindow() {
 
   settingsWindow.loadFile(path.join(__dirname, '..', 'renderer', 'settings.html'));
 
-  settingsWindow.once('ready-to-show', () => {
-    settingsWindow.show();
-  });
+  // 注意：不再在ready-to-show事件中显示窗口，而是等待渲染进程通知UI准备完成
 
   settingsWindow.on('closed', () => {
     settingsWindow = null;
@@ -305,6 +298,40 @@ function getSettingsWindow() {
   return settingsWindow;
 }
 
+/**
+ * 当UI准备好后显示主窗口
+ * 由渲染进程通知UI（主题和语言）已完全准备就绪时调用
+ */
+function showMainWindowWhenReady() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    console.log("UI准备完成，显示主窗口");
+    mainWindow.show();
+    mainWindow.focus();
+  }
+}
+
+/**
+ * 当UI准备好后显示设置窗口
+ */
+function showSettingsWindowWhenReady() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    console.log("UI准备完成，显示设置窗口");
+    settingsWindow.show();
+    settingsWindow.focus();
+  }
+}
+
+/**
+ * 当UI准备好后显示添加/编辑项目窗口
+ */
+function showAddItemWindowWhenReady() {
+  if (addItemWindow && !addItemWindow.isDestroyed()) {
+    console.log("UI准备完成，显示添加/编辑窗口");
+    addItemWindow.show();
+    addItemWindow.focus();
+  }
+}
+
 // 导出模块函数
 module.exports = {
   createMainWindow,
@@ -318,5 +345,8 @@ module.exports = {
   notifyItemsUpdated,
   getMainWindow,
   getAddItemWindow,
-  getSettingsWindow
+  getSettingsWindow,
+  showMainWindowWhenReady,
+  showSettingsWindowWhenReady,
+  showAddItemWindowWhenReady
 };

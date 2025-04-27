@@ -56,6 +56,7 @@ function showToast(message, isError = false, duration = 2000) {
  * @param {string} options.containerSelector 主容器选择器，如 ".app-container" 或 ".modal"
  * @param {Function} options.onThemeChanged 主题变更时的回调函数 (可选)
  * @param {Function} options.onLanguageChanged 语言变更时的回调函数 (可选)
+ * @param {string} options.windowType 窗口类型，用于通知主进程 (可选，默认为'main')
  * @returns {Object} 解绑函数对象，用于在需要时移除事件监听
  */
 async function initUIManager(options) {
@@ -69,6 +70,9 @@ async function initUIManager(options) {
     console.error(`Container element not found: ${options.containerSelector}`);
     return;
   }
+
+  // 确定窗口类型
+  const windowType = options.windowType || 'main';
 
   // 1. 应用主题设置
   const savedTheme = await window.electronAPI.getThemeConfig();
@@ -105,6 +109,12 @@ async function initUIManager(options) {
   // 6. 添加事件监听
   const themeCleanup = window.electronAPI.onThemeChanged(onThemeChangedHandler);
   const languageCleanup = window.electronAPI.onLanguageChanged(onLanguageChangedHandler);
+
+  // 7. 通知主进程UI已准备完成，可以显示窗口了
+  console.log(`UI初始化完成，类型: ${windowType}，通知主进程显示窗口`);
+  setTimeout(() => {
+    window.electronAPI.notifyUIReady(windowType);
+  }, 10); // 使用短暂延迟确保DOM完全渲染
 
   // 返回解绑函数对象，用于在需要时移除事件监听
   return {

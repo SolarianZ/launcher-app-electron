@@ -18,7 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 初始化UI管理器，保存返回的解绑函数对象
   const uiCleanup = window.uiManager.init({
-    containerSelector: ".app-container"
+    containerSelector: ".app-container",
+    windowType: "main" // 指定窗口类型为主窗口
   });
 
   // 当页面卸载时清理监听器

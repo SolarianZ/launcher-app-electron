@@ -40,6 +40,20 @@ function setupIpcHandlers() {
   });
 
   /**
+   * UI就绪通知处理
+   * 当渲染进程完成UI初始化（主题和语言应用完成）后，通知主进程显示窗口
+   */
+  ipcMain.on('ui-ready', (event, windowType) => {
+    if (windowType === 'main') {
+      windowManager.showMainWindowWhenReady();
+    } else if (windowType === 'settings') {
+      windowManager.showSettingsWindowWhenReady();
+    } else if (windowType === 'edit-item') {
+      windowManager.showAddItemWindowWhenReady();
+    }
+  });
+
+  /**
    * 项目数据管理相关IPC处理
    * 处理项目的获取、添加、更新、移除和重排序
    */
