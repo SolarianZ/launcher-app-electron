@@ -9,12 +9,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("search-input");
   const listContainer = document.getElementById("list-container");
   const settingsButton = document.getElementById("settings-button");
+  const appContainer = document.querySelector(".app-container");
 
   // 导入i18n模块
   const i18n = window.electronAPI.i18n;
 
   // 当前项目列表(内存中存储)
   let currentItems = [];
+  
+  // 预先设置与主题匹配的背景色，避免背景闪烁
+  const setInitialThemeBackground = async () => {
+    const savedTheme = await window.electronAPI.getThemeConfig();
+    const isDark = savedTheme === "dark" || 
+                  (savedTheme === "system" && window.matchMedia && 
+                   window.matchMedia("(prefers-color-scheme: dark)").matches);
+    
+    // 确保背景色与主题一致，避免闪烁
+    if (isDark) {
+      listContainer.style.backgroundColor = "var(--bg-color)";
+      appContainer.style.backgroundColor = "var(--bg-color)";
+    } else {
+      listContainer.style.backgroundColor = "var(--bg-color)";
+      appContainer.style.backgroundColor = "var(--bg-color)";
+    }
+  };
+
+  // 立即应用初始背景色
+  setInitialThemeBackground();
   
   // 初始时将列表容器设置为不可见，避免主题应用前闪烁
   listContainer.style.visibility = 'hidden';
