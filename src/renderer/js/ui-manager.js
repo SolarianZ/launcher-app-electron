@@ -111,7 +111,7 @@ async function initUIManager(options) {
   const languageCleanup = window.electronAPI.onLanguageChanged(onLanguageChangedHandler);
 
   // 7. 通知主进程UI已准备完成，可以显示窗口了
-  console.log(`UI初始化完成，类型: ${windowType}，通知主进程显示窗口`);
+  console.log(`UI initialized: ${windowType}`);
   setTimeout(() => {
     window.electronAPI.notifyUIReady(windowType);
   }, 10); // 使用短暂延迟确保DOM完全渲染

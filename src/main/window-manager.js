@@ -304,7 +304,6 @@ function getSettingsWindow() {
  */
 function showMainWindowWhenReady() {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    console.log("UI准备完成，显示主窗口");
     mainWindow.show();
     mainWindow.focus();
   }
@@ -315,7 +314,6 @@ function showMainWindowWhenReady() {
  */
 function showSettingsWindowWhenReady() {
   if (settingsWindow && !settingsWindow.isDestroyed()) {
-    console.log("UI准备完成，显示设置窗口");
     settingsWindow.show();
     settingsWindow.focus();
   }
@@ -326,7 +324,6 @@ function showSettingsWindowWhenReady() {
  */
 function showAddItemWindowWhenReady() {
   if (addItemWindow && !addItemWindow.isDestroyed()) {
-    console.log("UI准备完成，显示添加/编辑窗口");
     addItemWindow.show();
     addItemWindow.focus();
   }
